@@ -25,11 +25,11 @@ class ReadyModel(BaseModel):
 
     Attributes:
         ready: Am I ready?
-        description: as there are no services to check is an empty string
+        dependencies: A key-value map of dependencies and their readiness status.
     """
 
     ready: bool = True
-    dependencies: dict = Field(default_factory=dict)
+    dependencies: dict[str, bool | None] = Field(default_factory=dict)
 
 
 @router.get("/")
