@@ -50,7 +50,7 @@ async def ready_check() -> ReadyModel:
     Returns:
         ReadyModel
     """
-    dependencies = {}
+    dependencies: dict[str, bool | None] = {}
     is_ready = all(bool(dependency) for dependency in dependencies.values())
     ready_model = ReadyModel(ready=is_ready, dependencies=dependencies)
     if not is_ready:

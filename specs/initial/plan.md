@@ -11,7 +11,8 @@ Foreman is a minimal Python harness that acts as an always-on AI co-maintainer f
 - **LiteLLM for LLM abstraction:** One interface covers Anthropic and Ollama. Validate with the triage prompt before finalizing.
 - **Polling-only in v1:** No public URL assumed. GitHub API polling on a configurable interval.
 - **FastAPI for harness server:** Lightweight, async-native, Pydantic-integrated. Better fit than Flask for this workload.
-- **pyproject.toml replaces the stub:** The existing file is a template for `pytest-agent-digest` — it must be replaced with a Foreman-specific config.
+- **Partial scaffolding already exists:** `server.py`, `settings.py`, `logging_info.py`, `middleware.py`, `otel.py`, and `routers/health.py` are scaffolded. Task 1 fixes known issues; Task 11 adds the dispatch loop to `server.py` without removing the existing setup.
+- **`settings.py` vs `config.py`:** `settings.py` (scaffolded) handles operational settings from env vars via `pydantic-settings`. `config.py` (to be built in Task 2) handles the YAML runtime config for repos/agents/LLM.
 
 ## Dependency Graph
 
@@ -47,11 +48,18 @@ pyproject.toml / project scaffold
 
 ### Task 1: Project scaffold and pyproject.toml
 
-**Description:** Replace the `pytest-agent-digest` stub with a Foreman-specific `pyproject.toml`. Create the full directory skeleton from the spec (all `__init__.py` stubs, empty test files, Dockerfile placeholder). Set up pre-commit config (already present — verify it covers ruff, mypy, pydoclint, interrogate, detect-secrets).
+**Description:** The scaffolding for `server.py`, `settings.py`, `logging_info.py`, `middleware.py`, `otel.py`, and `routers/health.py` already exists. This task fixes the three known scaffolding issues from spec §12 and completes the directory skeleton (remaining `__init__.py` stubs, empty test files, Dockerfile placeholder).
+
+Known issues to fix (spec §12):
+1. `pyproject.toml` — uncomment `[project.scripts]` and point to `foreman/__main__.py`; add missing runtime deps (`PyYAML`, `PyGithub`, `litellm`, `httpx`, `docker`)
+2. `pyproject.toml` — targets Python 3.12+ (not 3.10+)
+3. `server.py` — currently a generic FastAPI template; the dispatch loop will be added in Task 11 (retain existing middleware/CORS/logging setup)
 
 **Acceptance criteria:**
-- [ ] `pyproject.toml` names the project `foreman`, targets Python 3.10+, uses hatchling as build backend
-- [ ] All directories from the spec's project structure exist with stub files
+- [ ] `pyproject.toml` names the project `foreman`, targets Python 3.12+, uses hatchling as build backend
+- [ ] `[project.scripts]` entry points to `foreman.__main__:main` (uncommented)
+- [ ] Runtime deps (`PyYAML`, `PyGithub`, `litellm`, `httpx`, `docker`) are listed
+- [ ] Remaining directories from spec §4 exist with stub files (`foreman/protocol.py`, `foreman/config.py`, etc.)
 - [ ] `uv sync` succeeds
 - [ ] `pre-commit run --all-files` on stubs passes (or produces only expected stub-level failures)
 
@@ -64,7 +72,7 @@ pyproject.toml / project scaffold
 
 **Files likely touched:**
 - `pyproject.toml`
-- `foreman/__init__.py` + all submodule stubs
+- `foreman/__init__.py` + remaining submodule stubs
 - `agents/issue-triage/` scaffolding
 
 **Estimated scope:** Medium (3–5 files)
@@ -314,7 +322,7 @@ pyproject.toml / project scaffold
 
 ### Task 10: Router
 
-**Description:** Implement `foreman/router.py`. Map incoming GitHub events (by repo + event type) to the agent URL configured for that repo. Return a `RouteTarget` with the agent URL and merged agent config.
+**Description:** Implement `foreman/routers/agent.py`. Map incoming GitHub events (by repo + event type) to the agent URL configured for that repo. Return a `RouteTarget` with the agent URL and merged agent config. Note: `foreman/routers/` already exists with `health.py` scaffolded — add `agent.py` to the same package.
 
 **Acceptance criteria:**
 - [ ] `route(event_type: str, repo: str) -> RouteTarget` returns the correct agent URL
@@ -329,7 +337,8 @@ pyproject.toml / project scaffold
 **Dependencies:** Tasks 2, 4
 
 **Files likely touched:**
-- `foreman/router.py`
+- `foreman/routers/agent.py` (new — in the existing `routers/` package)
+- `foreman/routers/__init__.py` (update exports)
 - `tests/test_router.py`
 
 **Estimated scope:** Small (1–2 files)
@@ -338,7 +347,7 @@ pyproject.toml / project scaffold
 
 ### Task 11: Harness HTTP server and dispatch loop
 
-**Description:** Implement `foreman/server.py`. FastAPI app that: (1) receives routed events from the poller, (2) fetches the memory summary for context, (3) builds a `TaskMessage`, (4) POSTs it to the agent container's `/task` endpoint, (5) receives the `DecisionMessage`, (6) calls the executor. This is the orchestration core.
+**Description:** Extend `foreman/server.py` with the Foreman dispatch loop. The file is already scaffolded as a generic FastAPI app with CORS, GZip, middleware, and structlog — retain all of that and add: (1) receive routed events from the poller, (2) fetch the memory summary for context, (3) build a `TaskMessage`, (4) POST it to the agent container's `/task` endpoint, (5) receive the `DecisionMessage`, (6) call the executor. This is the orchestration core.
 
 **Acceptance criteria:**
 - [ ] `dispatch(event, route_target)` builds and sends the task, receives the decision, executes actions

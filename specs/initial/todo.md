@@ -1,7 +1,7 @@
 # Foreman — Task List
 
 ## Phase 1: Foundation
-- [ ] Task 1: Project scaffold and pyproject.toml
+- [ ] Task 1: Fix scaffolding issues in pyproject.toml + complete directory skeleton (server.py/settings.py/middleware.py/otel.py/routers/health.py already exist)
 - [ ] Task 2: Config system — YAML loader + Pydantic validation
 - [ ] Task 3: Credential injection
 
@@ -39,8 +39,8 @@
 - [ ] Review with human ✋
 
 ## Phase 5: Harness Core
-- [ ] Task 10: Router (event → agent URL mapping)
-- [ ] Task 11: Harness HTTP server and dispatch loop
+- [ ] Task 10: Router — implement `foreman/routers/agent.py` (event → agent URL mapping)
+- [ ] Task 11: Extend existing `server.py` scaffolding with dispatch loop
 - [ ] Task 12: Main entrypoint and startup validation
 
 ### Checkpoint: Phase 5 — Harness Core

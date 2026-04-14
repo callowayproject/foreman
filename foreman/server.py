@@ -4,7 +4,6 @@ import structlog
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
-from fastapi.responses import ORJSONResponse
 
 from foreman.logging_info import configure as configure_logging
 from foreman.middleware import LogCorrelationIdMiddleware
@@ -20,7 +19,6 @@ app: FastAPI = FastAPI(
     title=settings.name,
     description=settings.name,
     docs_url="/swagger",
-    default_response_class=ORJSONResponse,
     swagger_ui_oauth2_redirect_url="/auth/callback",
     swagger_ui_parameters={
         "persistAuthorization": True,
