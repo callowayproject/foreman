@@ -18,7 +18,7 @@
 ### Checkpoint: Phase 2 — Data Layer
 - [x] `pytest tests/test_protocol.py tests/test_memory.py` passes
 - [x] Memory DB schema matches spec §6 exactly
-- [ ] Review with human ✋
+- [x] Review with human ✋
 
 ## Phase 3: LLM Abstraction
 - [ ] Task 6: LLM backend base interface (ABC + factory)
