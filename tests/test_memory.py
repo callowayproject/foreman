@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+from collections.abc import Generator
 from pathlib import Path
 
 import pytest
@@ -55,9 +56,10 @@ class TestLogAction:
     """Tests for MemoryStore.log_action()."""
 
     @pytest.fixture()
-    def store(self, tmp_path: Path) -> MemoryStore:
-        """Return a fresh MemoryStore backed by a temp-file DB."""
-        return MemoryStore(tmp_path / "memory.db")
+    def store(self, tmp_path: Path) -> Generator[MemoryStore, None, None]:
+        """Return a fresh MemoryStore backed by a temp-file DB, closed after the test."""
+        with MemoryStore(tmp_path / "memory.db") as s:
+            yield s
 
     def test_log_action_inserts_row(self, store: MemoryStore) -> None:
         """log_action writes a record to action_log."""
@@ -71,7 +73,6 @@ class TestLogAction:
             rationale="Matches bug pattern.",
             actions=[ActionItem(type="add_label", label="bug")],
         )
-        store.close()
 
         with sqlite3.connect(store.db_path) as conn:
             rows = conn.execute("SELECT * FROM action_log").fetchall()
@@ -90,7 +91,6 @@ class TestLogAction:
             rationale="Looks like a bug.",
             actions=actions,
         )
-        store.close()
 
         with sqlite3.connect(store.db_path) as conn:
             row = conn.execute(
@@ -119,7 +119,6 @@ class TestLogAction:
                 rationale="No action.",
                 actions=[],
             )
-        store.close()
 
         with sqlite3.connect(store.db_path) as conn:
             count = conn.execute("SELECT COUNT(*) FROM action_log").fetchone()[0]
@@ -137,7 +136,6 @@ class TestLogAction:
             rationale=None,
             actions=[],
         )
-        store.close()
 
         with sqlite3.connect(store.db_path) as conn:
             row = conn.execute("SELECT rationale FROM action_log").fetchone()
@@ -148,9 +146,10 @@ class TestMemorySummary:
     """Tests for MemoryStore.get_memory_summary() and upsert_memory_summary()."""
 
     @pytest.fixture()
-    def store(self, tmp_path: Path) -> MemoryStore:
-        """Return a fresh MemoryStore backed by a temp-file DB."""
-        return MemoryStore(tmp_path / "memory.db")
+    def store(self, tmp_path: Path) -> Generator[MemoryStore, None, None]:
+        """Return a fresh MemoryStore backed by a temp-file DB, closed after the test."""
+        with MemoryStore(tmp_path / "memory.db") as s:
+            yield s
 
     def test_get_summary_returns_none_when_absent(self, store: MemoryStore) -> None:
         """get_memory_summary returns None when no summary exists for the issue."""
