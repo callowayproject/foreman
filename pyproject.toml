@@ -28,7 +28,7 @@ dependencies = [
     "opentelemetry-exporter-otlp",
     "PyYAML>=6.0",
     "PyGithub>=2.0",
-    "litellm>=1.0",
+    "litellm>=1.83.9",
     "httpx>=0.28.1",
     "docker>=7.1.0",
 ]
