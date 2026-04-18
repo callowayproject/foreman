@@ -3,7 +3,6 @@
 from unittest.mock import AsyncMock, patch
 
 import pytest
-import structlog
 
 from foreman.middleware import LogCorrelationIdMiddleware
 

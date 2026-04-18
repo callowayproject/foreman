@@ -7,7 +7,6 @@ import pytest
 
 from foreman.config import ConfigError, ForemanConfig, load_config
 
-
 VALID_YAML = textwrap.dedent("""\
     identity:
       github_token: "ghp_test_token"

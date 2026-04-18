@@ -1,0 +1,3 @@
+{
+  "content": "Based on the issue description, this appears to be a bug report. I recommend labeling it as 'bug' and responding to the user with a request for more information.\n\n{\"decision\": \"label_and_respond\", \"rationale\": \"Issue describes a reproducible crash with stack trace.\", \"actions\": [{\"type\": \"add_label\", \"label\": \"bug\"}, {\"type\": \"comment\", \"body\": \"Thank you for the report! Could you provide the exact version you are using?\"}]}"
+}

@@ -1,8 +1,6 @@
-""" "Tests for the foreman.otel module."""
+"""Tests for the foreman.otel module."""
 
-import pytest
 from fastapi import FastAPI
-from opentelemetry import trace
 
 from foreman.otel import configure_otel
 from foreman.settings import AppSettings
