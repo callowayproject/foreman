@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import json
 import sqlite3
+from datetime import datetime
 from typing import TYPE_CHECKING, Optional
 
 if TYPE_CHECKING:
@@ -35,6 +36,11 @@ CREATE TABLE IF NOT EXISTS memory_summary (
     summary     TEXT NOT NULL,
     updated_at  DATETIME,
     PRIMARY KEY (repo, issue_id)
+);
+
+CREATE TABLE IF NOT EXISTS poll_state (
+    repo        TEXT PRIMARY KEY,
+    last_polled TEXT NOT NULL
 );
 """
 
@@ -128,6 +134,42 @@ class MemoryStore:
                 updated_at = excluded.updated_at
             """,
             (repo, issue_id, summary),
+        )
+        self._conn.commit()
+
+    # ------------------------------------------------------------------
+    # Poll state
+    # ------------------------------------------------------------------
+
+    def get_last_polled(self, repo: str) -> datetime | None:
+        """Return the last-polled timestamp for *repo*, or ``None`` if never polled.
+
+        Args:
+            repo: Repository in ``owner/repo`` format.
+
+        Returns:
+            The stored :class:`~datetime.datetime` (timezone-aware UTC), or
+            ``None`` if no poll has been recorded for this repo.
+        """
+        row = self._conn.execute("SELECT last_polled FROM poll_state WHERE repo = ?", (repo,)).fetchone()
+        if row is None:
+            return None
+        return datetime.fromisoformat(row[0])
+
+    def set_last_polled(self, repo: str, timestamp: datetime) -> None:
+        """Persist the last-polled *timestamp* for *repo*.
+
+        Args:
+            repo: Repository in ``owner/repo`` format.
+            timestamp: The datetime at which the poll completed.
+        """
+        self._conn.execute(
+            """
+            INSERT INTO poll_state (repo, last_polled)
+            VALUES (?, ?)
+            ON CONFLICT (repo) DO UPDATE SET last_polled = excluded.last_polled
+            """,
+            (repo, timestamp.isoformat()),
         )
         self._conn.commit()
 
