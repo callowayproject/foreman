@@ -23,7 +23,7 @@ dependencies = [
     "opentelemetry-instrumentation-fastapi",
     "opentelemetry-sdk",
     "opentelemetry-api",
-    "structlog>=23.1.0",
+    "structlog>=25.5.0",
     "opentelemetry-sdk>=1.32.0",
     "opentelemetry-exporter-otlp",
     "PyYAML>=6.0",
