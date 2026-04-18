@@ -95,7 +95,7 @@ class MemoryStore:
     # Memory summary
     # ------------------------------------------------------------------
 
-    def get_memory_summary(self, repo: str, issue_id: int) -> Optional[str]:
+    def get_memory_summary(self, repo: str, issue_id: int) -> str | None:
         """Return the stored summary for a (repo, issue_id) pair, or ``None``.
 
         Args:

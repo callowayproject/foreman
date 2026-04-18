@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import sqlite3
 from collections.abc import Generator
 from pathlib import Path
 
@@ -29,8 +30,6 @@ class TestMemoryStoreInit:
 
     def test_action_log_table_exists(self, tmp_path: Path) -> None:
         """action_log table is created with the correct schema."""
-        import sqlite3
-
         db_path = tmp_path / "memory.db"
         store = MemoryStore(db_path)
         store.close()
@@ -40,8 +39,6 @@ class TestMemoryStoreInit:
 
     def test_memory_summary_table_exists(self, tmp_path: Path) -> None:
         """memory_summary table is created with the correct schema."""
-        import sqlite3
-
         db_path = tmp_path / "memory.db"
         store = MemoryStore(db_path)
         store.close()
@@ -63,8 +60,6 @@ class TestLogAction:
 
     def test_log_action_inserts_row(self, store: MemoryStore) -> None:
         """log_action writes a record to action_log."""
-        import sqlite3
-
         store.log_action(
             repo="owner/repo",
             issue_id=42,
@@ -80,8 +75,6 @@ class TestLogAction:
 
     def test_log_action_stores_correct_values(self, store: MemoryStore) -> None:
         """log_action stores repo, issue_id, task_type, decision, rationale, and actions."""
-        import sqlite3
-
         actions = [ActionItem(type="add_label", label="bug"), ActionItem(type="comment", body="Hi")]
         store.log_action(
             repo="owner/repo",
@@ -108,8 +101,6 @@ class TestLogAction:
 
     def test_log_action_multiple_entries(self, store: MemoryStore) -> None:
         """Multiple log_action calls produce multiple rows."""
-        import sqlite3
-
         for issue_id in range(3):
             store.log_action(
                 repo="owner/repo",
@@ -126,8 +117,6 @@ class TestLogAction:
 
     def test_log_action_null_rationale(self, store: MemoryStore) -> None:
         """log_action accepts None rationale."""
-        import sqlite3
-
         store.log_action(
             repo="owner/repo",
             issue_id=1,

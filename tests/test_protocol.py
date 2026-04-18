@@ -130,7 +130,7 @@ class TestDecisionMessage:
     """Tests for DecisionMessage model."""
 
     def _make_decision(self, **overrides: object) -> DecisionMessage:
-        defaults: dict = {
+        defaults: dict[str, object] = {
             "task_id": str(uuid.uuid4()),
             "decision": DecisionType.label_and_respond,
             "rationale": "Issue matches bug pattern.",
