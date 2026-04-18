@@ -25,18 +25,18 @@
 - [x] Task 7: Anthropic + Ollama backends via LiteLLM (with recorded fixtures)
 
 ### Checkpoint: Phase 3 — LLM Abstraction
-- [ ] `pytest tests/test_llm_*.py` passes with no live LLM calls
-- [ ] Both backends reachable locally (capture fixtures manually)
-- [ ] Review with human ✋
+- [X] `pytest tests/test_llm_*.py` passes with no live LLM calls
+- [X] Both backends reachable locally (capture fixtures manually)
+- [X] Review with human ✋
 
 ## Phase 4: GitHub Integration
-- [ ] Task 8: GitHub executor (action list → GitHub API calls)
-- [ ] Task 9: GitHub poller (concurrent polling, unbounded repos, exponential backoff)
+- [x] Task 8: GitHub executor (action list → GitHub API calls)
+- [x] Task 9: GitHub poller (concurrent polling, unbounded repos, exponential backoff)
 
 ### Checkpoint: Phase 4 — GitHub Integration
-- [ ] `pytest tests/test_executor.py tests/test_poller.py` passes
-- [ ] No live GitHub calls in tests
-- [ ] Review with human ✋
+- [x] `pytest tests/test_executor.py tests/test_poller.py` passes
+- [x] No live GitHub calls in tests
+- [x] Review with human ✋
 
 ## Phase 5: Harness Core
 - [ ] Task 10: Router — implement `foreman/routers/agent.py` (event → agent URL mapping)

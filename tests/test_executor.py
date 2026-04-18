@@ -3,8 +3,7 @@
 from __future__ import annotations
 
 import sqlite3
-from collections.abc import Generator
-from pathlib import Path
+from typing import TYPE_CHECKING
 
 import pytest
 
@@ -12,6 +11,9 @@ from foreman.executor import GitHubExecutor, UnknownActionError
 from foreman.memory import MemoryStore
 from foreman.protocol import ActionItem, DecisionMessage, DecisionType
 
+if TYPE_CHECKING:
+    from collections.abc import Generator
+    from pathlib import Path
 
 # ---------------------------------------------------------------------------
 # Shared fixtures

@@ -2,10 +2,9 @@
 
 from __future__ import annotations
 
-from collections.abc import Generator
 from datetime import datetime, timezone
-from pathlib import Path
-from unittest.mock import MagicMock, AsyncMock
+from typing import TYPE_CHECKING
+from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
@@ -13,6 +12,9 @@ from foreman.config import RepoConfig
 from foreman.memory import MemoryStore
 from foreman.poller import GitHubPoller
 
+if TYPE_CHECKING:
+    from collections.abc import Generator
+    from pathlib import Path
 
 # ---------------------------------------------------------------------------
 # Helpers
