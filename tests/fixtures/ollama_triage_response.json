@@ -1,0 +1,3 @@
+{
+  "content": "This issue looks like a feature request rather than a bug. I recommend labeling it as 'enhancement' and responding to acknowledge it.\n\n{\"decision\": \"label_and_respond\", \"rationale\": \"Issue requests new functionality, not a defect.\", \"actions\": [{\"type\": \"add_label\", \"label\": \"enhancement\"}, {\"type\": \"comment\", \"body\": \"Thanks for the suggestion! We have added this to our backlog.\"}]}"
+}

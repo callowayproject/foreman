@@ -21,8 +21,8 @@
 - [x] Review with human ✋
 
 ## Phase 3: LLM Abstraction
-- [ ] Task 6: LLM backend base interface (ABC + factory)
-- [ ] Task 7: Anthropic + Ollama backends via LiteLLM (with recorded fixtures)
+- [x] Task 6: LLM backend base interface (ABC + factory)
+- [x] Task 7: Anthropic + Ollama backends via LiteLLM (with recorded fixtures)
 
 ### Checkpoint: Phase 3 — LLM Abstraction
 - [ ] `pytest tests/test_llm_*.py` passes with no live LLM calls
