@@ -1,5 +1,36 @@
 # Changelog
 
+## 0.2.2 (2026-04-18)
+
+[Compare the full difference.](https://github.com/callowayproject/foreman/compare/0.2.1...0.2.2)
+
+### Other
+
+- Bump the uv group with 2 updates. [b31044f](https://github.com/callowayproject/foreman/commit/b31044f7475bab803bfe1abb0bc0129beb9694de)
+
+  Bumps the uv group with 2 updates: [litellm](https://github.com/BerriAI/litellm) and [uv](https://github.com/astral-sh/uv).
+
+  Updates `litellm` from 1.83.7 to 1.83.9
+
+  - [Release notes](https://github.com/BerriAI/litellm/releases)
+  - [Commits](https://github.com/BerriAI/litellm/commits)
+
+  Updates `uv` from 0.11.6 to 0.11.7
+
+  - [Release notes](https://github.com/astral-sh/uv/releases)
+  - [Changelog](https://github.com/astral-sh/uv/blob/main/CHANGELOG.md)
+  - [Commits](https://github.com/astral-sh/uv/compare/0.11.6...0.11.7)
+
+  ______________________________________________________________________
+
+  **updated-dependencies:** - dependency-name: litellm
+  dependency-version: 1.83.9
+  dependency-type: direct:production
+  update-type: version-update:semver-patch
+  dependency-group: uv
+
+  **signed-off-by:** dependabot[bot] <support@github.com>
+
 ## 0.2.1 (2026-04-18)
 
 [Compare the full difference.](https://github.com/callowayproject/foreman/compare/0.2.0...0.2.1)
