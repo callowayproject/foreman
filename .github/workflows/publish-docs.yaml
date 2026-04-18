@@ -38,9 +38,7 @@ jobs:
       run: uv sync --group docs
 
     - name: Build and publish docs
-      run: uv run mkdocs gh-deploy --strict
-
-    - run: zensical build --clean
+      run: uv run zensical build --clean
 
     - uses: actions/upload-pages-artifact@v5
       with:
