@@ -22,12 +22,16 @@ def load_fixture(name: str) -> dict:
 
 
 class TestAnthropicBackend:
+    """Tests for the Anthropic LLM backend."""
+
     def test_instantiates_with_config(self):
+        """Test that the backend can be instantiated with a valid configuration."""
         cfg = LLMConfig(provider="anthropic", model="claude-sonnet-4-6", api_key="test-key")
         backend = AnthropicBackend(cfg)
         assert isinstance(backend, AnthropicBackend)
 
     def test_complete_returns_string(self):
+        """Test that the complete method returns a string response."""
         fixture = load_fixture("anthropic_triage_response.json")
         cfg = LLMConfig(provider="anthropic", model="claude-sonnet-4-6", api_key="test-key")
         backend = AnthropicBackend(cfg)
@@ -43,6 +47,7 @@ class TestAnthropicBackend:
         assert result == fixture["content"]
 
     def test_complete_with_system_prompt(self):
+        """Test that the complete method correctly handles a system prompt."""
         cfg = LLMConfig(provider="anthropic", model="claude-sonnet-4-6", api_key="test-key")
         backend = AnthropicBackend(cfg)
 
@@ -58,6 +63,7 @@ class TestAnthropicBackend:
             assert any(m.get("role") == "system" for m in messages)
 
     def test_complete_passes_model_to_litellm(self):
+        """Test that the correct model name is passed to the underlying LiteLLM call."""
         cfg = LLMConfig(provider="anthropic", model="claude-sonnet-4-6", api_key="test-key")
         backend = AnthropicBackend(cfg)
 
@@ -73,12 +79,16 @@ class TestAnthropicBackend:
 
 
 class TestOllamaBackend:
+    """Tests for the Ollama LLM backend."""
+
     def test_instantiates_with_config(self):
+        """Test that the backend can be instantiated with a valid configuration."""
         cfg = LLMConfig(provider="ollama", model="llama3")
         backend = OllamaBackend(cfg)
         assert isinstance(backend, OllamaBackend)
 
     def test_complete_returns_string(self):
+        """Test that the complete method returns a string response."""
         fixture = load_fixture("ollama_triage_response.json")
         cfg = LLMConfig(provider="ollama", model="llama3")
         backend = OllamaBackend(cfg)
@@ -94,6 +104,7 @@ class TestOllamaBackend:
         assert result == fixture["content"]
 
     def test_complete_with_system_prompt(self):
+        """Test that the complete method correctly handles a system prompt."""
         cfg = LLMConfig(provider="ollama", model="llama3")
         backend = OllamaBackend(cfg)
 
@@ -108,6 +119,7 @@ class TestOllamaBackend:
             assert any(m.get("role") == "system" for m in messages)
 
     def test_complete_passes_ollama_model_format(self):
+        """Test that the model name is passed to LiteLLM in the expected Ollama format."""
         cfg = LLMConfig(provider="ollama", model="llama3")
         backend = OllamaBackend(cfg)
 

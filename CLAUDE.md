@@ -20,6 +20,8 @@ pre-commit install             # install git hooks
 
 Always add `--agent-digest=term` when running pytest to see token-optimized test results.
 
+Use the python-tester skill when writing Python tests.
+
 ```bash
 uv run pytest --agent-digest=term                  # run all tests with coverage
 uv run pytest --agent-digest=term tests/test_config.py # run a single test file
