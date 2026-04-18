@@ -1,5 +1,41 @@
 # Changelog
 
+## 0.2.1 (2026-04-18)
+
+[Compare the full difference.](https://github.com/callowayproject/foreman/compare/0.2.0...0.2.1)
+
+### Other
+
+- Use `TYPE_CHECKING` for imports in test files and update Phase 4 todo items. [6043d54](https://github.com/callowayproject/foreman/commit/6043d54a2029381d0528090bfe2245e8d8e41543)
+
+- Phase 4: implement GitHub executor and poller (Tasks 8 & 9). [9efa175](https://github.com/callowayproject/foreman/commit/9efa175d6fca43f810579e604a87f2b3a73ac413)
+
+  executor.py:
+
+  - GitHubExecutor.execute() logs decision to action_log BEFORE any GitHub API call
+  - Handles add_label, comment, close_issue (with allow_close guard)
+  - Raises UnknownActionError for unrecognized action types
+
+  poller.py:
+
+  - GitHubPoller.poll_repo() fetches issues since last_polled, skips collaborator issues
+  - poll_all() runs repos concurrently via asyncio + semaphore (default max 5)
+  - Exponential backoff on 403/429; other GithubExceptions propagate
+  - Continuous run() loop at configurable interval
+
+  memory.py:
+
+  - Add poll_state table with get_last_polled() / set_last_polled() methods
+  - Timestamps stored as ISO-8601 strings, returned as timezone-aware datetime
+
+  39 new tests; 125 total passing.
+
+  **co-authored-by:** Claude Sonnet 4.6 <noreply@anthropic.com>
+
+### Updates
+
+- Remove draft flag from release creation script. [131ea10](https://github.com/callowayproject/foreman/commit/131ea103ea75a4edc925a980f0a6b59c01fd5fa8)
+
 ## 0.2.0 (2026-04-18)
 
 [Compare the full difference.](https://github.com/callowayproject/foreman/compare/0.1.0...0.2.0)
