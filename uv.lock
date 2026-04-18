@@ -808,21 +808,21 @@ test = [
 
 [package.metadata]
 requires-dist = [
-    { name = "docker", specifier = ">=7.0" },
+    { name = "docker", specifier = ">=7.1.0" },
     { name = "fastapi", extras = ["standard"] },
-    { name = "httpx", specifier = ">=0.27" },
+    { name = "httpx", specifier = ">=0.28.1" },
     { name = "litellm", specifier = ">=1.0" },
     { name = "opentelemetry-api" },
-    { name = "opentelemetry-api", specifier = ">=1.32.0" },
+    { name = "opentelemetry-api", specifier = ">=1.41.0" },
     { name = "opentelemetry-exporter-otlp" },
     { name = "opentelemetry-instrumentation-fastapi" },
     { name = "opentelemetry-sdk" },
     { name = "opentelemetry-sdk", specifier = ">=1.32.0" },
     { name = "orjson", specifier = ">=3.8.12" },
-    { name = "pydantic-settings", specifier = ">=2.8.1" },
+    { name = "pydantic-settings", specifier = ">=2.13.1" },
     { name = "pygithub", specifier = ">=2.0" },
     { name = "pyyaml", specifier = ">=6.0" },
-    { name = "structlog", specifier = ">=23.1.0" },
+    { name = "structlog", specifier = ">=25.5.0" },
 ]
 
 [package.metadata.requires-dev]
