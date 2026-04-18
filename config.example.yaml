@@ -1,0 +1,27 @@
+# config.example.yaml — Foreman example configuration.
+# Copy this file to config.yaml and fill in the values.
+# All secrets must be provided as ${ENV_VAR} references — never hardcode them.
+
+identity:
+  github_token: "${GITHUB_TOKEN}"    # PAT for the bot account
+  github_user: "my-bot"              # GitHub username of the bot account
+
+llm:
+  provider: anthropic                # anthropic | ollama
+  model: claude-sonnet-4-6
+  api_key: "${ANTHROPIC_API_KEY}"    # omit the api_key field entirely for ollama
+
+polling:
+  interval_seconds: 60               # how often to poll GitHub (seconds)
+
+repos:
+  - owner: my-org
+    name: my-repo
+    agents:
+      - type: issue-triage
+        allow_close: false           # set to true to allow the agent to close issues
+        config:
+          stale_days: 30
+          labels:
+            bug: ["crash", "exception", "error"]
+            question: ["how do I", "how to"]

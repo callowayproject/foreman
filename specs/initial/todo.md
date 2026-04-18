@@ -1,24 +1,24 @@
 # Foreman — Task List
 
 ## Phase 1: Foundation
-- [ ] Task 1: Fix scaffolding issues in pyproject.toml + complete directory skeleton (server.py/settings.py/middleware.py/otel.py/routers/health.py already exist)
-- [ ] Task 2: Config system — YAML loader + Pydantic validation
-- [ ] Task 3: Credential injection
+- [x] Task 1: Fix scaffolding issues in pyproject.toml + complete directory skeleton (server.py/settings.py/middleware.py/otel.py/routers/health.py already exist)
+- [x] Task 2: Config system — YAML loader + Pydantic validation
+- [x] Task 3: Credential injection
 
 ### Checkpoint: Phase 1 — Foundation
-- [ ] `uv sync` and `pre-commit run --all-files` pass
-- [ ] `pytest tests/test_config.py tests/test_credentials.py` passes
-- [ ] Project structure matches spec §4
-- [ ] Review with human ✋
+- [x] `uv sync` and `pre-commit run --all-files` pass
+- [x] `pytest tests/test_config.py tests/test_credentials.py` passes
+- [x] Project structure matches spec §4
+- [x] Review with human ✋
 
 ## Phase 2: Data and Memory Layer
-- [ ] Task 4: Agent protocol models (Task / Decision Pydantic types)
-- [ ] Task 5: Persistent memory (SQLite action_log + memory_summary)
+- [x] Task 4: Agent protocol models (Task / Decision Pydantic types)
+- [x] Task 5: Persistent memory (SQLite action_log + memory_summary)
 
 ### Checkpoint: Phase 2 — Data Layer
-- [ ] `pytest tests/test_protocol.py tests/test_memory.py` passes
-- [ ] Memory DB schema matches spec §6 exactly
-- [ ] Review with human ✋
+- [x] `pytest tests/test_protocol.py tests/test_memory.py` passes
+- [x] Memory DB schema matches spec §6 exactly
+- [x] Review with human ✋
 
 ## Phase 3: LLM Abstraction
 - [ ] Task 6: LLM backend base interface (ABC + factory)
