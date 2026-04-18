@@ -24,5 +24,4 @@ gh release create \
   "${TARGET_VERSION}" \
   ./dist/* \
   --title "${TARGET_VERSION}" \
-  --notes "${NOTES}" \
-  --draft
+  --notes "${NOTES}"
