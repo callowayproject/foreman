@@ -76,4 +76,4 @@ uv run pytest
 
 ## License
 
-Foreman is licensed under the [BSD-3-Clause](LICENSE) license. See the [`LICENSE`](LICENSE) file for more information.
+Foreman is licensed under the [MIT](LICENSE) license. See the [`LICENSE`](LICENSE) file for more information.
