@@ -1,8 +1,8 @@
 # Changelog
 
-## Unreleased (2026-04-18)
+## 0.2.0 (2026-04-18)
 
-[Compare the full difference.](https://github.com/callowayproject/foreman/compare/0.1.0...HEAD)
+[Compare the full difference.](https://github.com/callowayproject/foreman/compare/0.1.0...0.2.0)
 
 ### Fixes
 
@@ -14,7 +14,15 @@
 
   **co-authored-by:** Claude Sonnet 4.6 <noreply@anthropic.com>
 
+### New
+
+- Add docstrings for clarity in LLM backend tests, remove unused imports, and update CLAUDE.md with test-writing guidance. [0b73671](https://github.com/callowayproject/foreman/commit/0b736714465dc6313bb2fa2d91a606cee967cb31)
+
 ### Other
+
+- Replace `mkdocs gh-deploy` with `zensical build --clean` in docs workflows. [4e22796](https://github.com/callowayproject/foreman/commit/4e22796d789c8dcce3bd4d20004facae2eca62e8)
+
+- Generated the changelog. [2f35d59](https://github.com/callowayproject/foreman/commit/2f35d59b98b589dc0f97dc06f7a38c5a355be892)
 
 - Bump the github-actions group with 10 updates. [f1cb391](https://github.com/callowayproject/foreman/commit/f1cb391e51f63a5982e313c5ae6505a1fddf62c3)
 
@@ -97,6 +105,15 @@
 
   **signed-off-by:** dependabot[bot] <support@github.com>
 
+- Phase 3 Tasks 6-7: implement LLM backend abstraction. [02733dc](https://github.com/callowayproject/foreman/commit/02733dceba4331aedbb4cbf1de53786fe3cf00eb)
+
+  - LLMBackend ABC with complete() method and from_config() factory in base.py
+  - AnthropicBackend and OllamaBackend wrapping LiteLLM
+  - Recorded fixture files for both backends (no live LLM calls in tests)
+  - 16 new tests across test_llm_base.py and test_llm_backends.py
+
+  **co-authored-by:** Claude Sonnet 4.6 <noreply@anthropic.com>
+
 - Refine type annotations and optimize imports in protocol and memory tests. [12a6bd8](https://github.com/callowayproject/foreman/commit/12a6bd81808ebdafc23a11cba0977b58cf876946)
 
 - Phase 2 human review approved. [3846ea8](https://github.com/callowayproject/foreman/commit/3846ea849be096d3e1a51c9218f8a94f4d6a4cae)
@@ -139,6 +156,8 @@
   **co-authored-by:** Claude Sonnet 4.6 <noreply@anthropic.com>
 
 ### Updates
+
+- Remove unused GitHub Actions workflows and update dependabot configuration. [7bbcfb0](https://github.com/callowayproject/foreman/commit/7bbcfb04a104467f712413c87ed2ad08a94bfe69)
 
 - Update httpx requirement from >=0.27 to >=0.28.1. [5cef88e](https://github.com/callowayproject/foreman/commit/5cef88e7648e0cb137d1678c52c62d968459f473)
 
