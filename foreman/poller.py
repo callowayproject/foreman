@@ -1,6 +1,6 @@
 """Asyncio polling loop for GitHub repositories.
 
-Polls all configured repositories concurrently, bounded by a semaphore to
+Polls all configured repositories concurrently, bounded by semaphore to
 avoid GitHub API rate limits.  Issues authored by repo collaborators are
 skipped by default.  Exponential backoff is applied on 403/429 responses.
 """
@@ -12,21 +12,23 @@ from datetime import datetime, timezone
 from typing import TYPE_CHECKING, Any
 
 import structlog
-from github import Github, GithubException
+from github import Auth, Github, GithubException
 
 if TYPE_CHECKING:
     from collections.abc import Awaitable, Callable
+
+    from pydantic import SecretStr
 
     from foreman.config import RepoConfig
     from foreman.memory import MemoryStore
 
 logger = structlog.get_logger(__name__)
 
-#: Default maximum number of repos polled at the same time.
 _DEFAULT_MAX_CONCURRENT = 5
+"""Default maximum number of repos polled at the same time."""
 
-#: Initial backoff delay in seconds on rate-limit errors.
 _BACKOFF_BASE_SECONDS = 10.0
+"""Initial backoff delay in seconds on rate-limit errors."""
 
 
 class GitHubPoller:
@@ -42,8 +44,9 @@ class GitHubPoller:
         max_concurrent: Maximum number of repos polled simultaneously.
     """
 
-    def __init__(self, token: str, memory: MemoryStore, max_concurrent: int = _DEFAULT_MAX_CONCURRENT) -> None:
-        self._github = Github(token)
+    def __init__(self, token: SecretStr, memory: MemoryStore, max_concurrent: int = _DEFAULT_MAX_CONCURRENT) -> None:
+        auth = Auth.Token(token.get_secret_value())
+        self._github = Github(auth=auth)
         self._memory = memory
         self._max_concurrent = max_concurrent
 

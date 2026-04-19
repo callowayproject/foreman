@@ -80,7 +80,7 @@ class TestLoadConfig:
         """Loaded config contains expected identity values."""
         config = load_config(valid_config_file)
         assert config.identity.github_user == "test-bot"
-        assert config.identity.github_token == "ghp_test_token"
+        assert config.identity.github_token.get_secret_value() == "ghp_test_token"
 
     def test_returns_correct_llm_config(self, valid_config_file: Path) -> None:
         """Loaded config contains expected LLM values."""
@@ -138,8 +138,8 @@ class TestEnvVarResolution:
         monkeypatch.setenv("GITHUB_TOKEN", "ghp_from_env")
         monkeypatch.setenv("ANTHROPIC_API_KEY", "sk-from-env")
         config = load_config(env_ref_config_file)
-        assert config.identity.github_token == "ghp_from_env"
-        assert config.llm.api_key == "sk-from-env"
+        assert config.identity.github_token.get_secret_value() == "ghp_from_env"
+        assert config.llm.api_key.get_secret_value() == "sk-from-env"
 
     def test_missing_env_var_raises_config_error(
         self, env_ref_config_file: Path, monkeypatch: pytest.MonkeyPatch

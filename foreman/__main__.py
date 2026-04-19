@@ -116,7 +116,7 @@ def _run_start(args: Any) -> None:
     memory = MemoryStore(db_path)
 
     # 3. Create core components.
-    poller = GitHubPoller(token=str(config.identity.github_token), memory=memory)
+    poller = GitHubPoller(token=config.identity.github_token, memory=memory)
     dispatcher = Dispatcher(config=config, memory=memory)
 
     logger.info(
