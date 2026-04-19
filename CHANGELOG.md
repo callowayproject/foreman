@@ -1,5 +1,44 @@
 # Changelog
 
+## 0.2.3 (2026-04-19)
+
+[Compare the full difference.](https://github.com/callowayproject/foreman/compare/0.2.2...0.2.3)
+
+### New
+
+- Add .api-env to .gitignore. [ff63ae3](https://github.com/callowayproject/foreman/commit/ff63ae3825ca1f46ddabc25906571436b2fd9624)
+
+  Prevents accidental commit of local env file containing GitHub token and API keys.
+
+  **co-authored-by:** Claude Sonnet 4.6 <noreply@anthropic.com>
+
+- Add initial README with project description, features, requirements, and setup instructions. [3a9e9ba](https://github.com/callowayproject/foreman/commit/3a9e9bab536fb4fcd49741d0d87fa24ecc2730ac)
+
+### Other
+
+- Phase 5 — Harness Core + polling error visibility. [0a3c781](https://github.com/callowayproject/foreman/commit/0a3c7811b17861055231560633dee575b1ba1092)
+
+  Implements router, server dispatch loop, and main entrypoint (Tasks 10–12).
+  Fixes two bugs found during integration testing:
+
+  - SQLite connection used across threads now opens with check_same_thread=False
+  - Poller task was created but never awaited; fixed by running concurrently in \_run_loop
+
+  Also fixes silent failure on GitHub API errors: non-rate-limit exceptions
+  (including 401 bad credentials) are now logged immediately at critical/error level
+  instead of being swallowed until process shutdown. Done callback on the poller task
+  surfaces any unexpected crash in real time.
+
+  156 tests passing, all pre-commit hooks green.
+
+  **co-authored-by:** Claude Sonnet 4.6 <noreply@anthropic.com>
+
+### Updates
+
+- Update license in README to MIT. [64a1e71](https://github.com/callowayproject/foreman/commit/64a1e71af4e9d7309af6383c488c451a323914d6)
+
+- Update dependency versions in `uv.lock` file, including FastAPI (0.136.0), FastAPI Cloud CLI (0.17.0), FileLock (3.28.0), HuggingFace Hub (1.11.0), Identify (2.6.19), MkDocStrings (1.0.4), Packaging (26.1), and Virtualenv (21.2.4). [e0bf184](https://github.com/callowayproject/foreman/commit/e0bf1844062bef9cd4e11ce16ca718e7584cdd59)
+
 ## 0.2.2 (2026-04-18)
 
 [Compare the full difference.](https://github.com/callowayproject/foreman/compare/0.2.1...0.2.2)
