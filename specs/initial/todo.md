@@ -39,12 +39,12 @@
 - [x] Review with human ✋
 
 ## Phase 5: Harness Core
-- [ ] Task 10: Router — implement `foreman/routers/agent.py` (event → agent URL mapping)
-- [ ] Task 11: Extend existing `server.py` scaffolding with dispatch loop
-- [ ] Task 12: Main entrypoint and startup validation
+- [x] Task 10: Router — implement `foreman/routers/agent.py` (event → agent URL mapping)
+- [x] Task 11: Extend existing `server.py` scaffolding with dispatch loop
+- [x] Task 12: Main entrypoint and startup validation
 
 ### Checkpoint: Phase 5 — Harness Core
-- [ ] `pytest tests/` passes (all harness tests)
+- [x] `pytest tests/` passes (all harness tests) — 155 passing
 - [ ] `foreman start --config config.example.yaml` starts cleanly
 - [ ] Full Poller → Router → Server → Executor sequence tested
 - [ ] Review with human ✋

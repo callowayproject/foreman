@@ -15,8 +15,8 @@ polling:
   interval_seconds: 60               # how often to poll GitHub (seconds)
 
 repos:
-  - owner: my-org
-    name: my-repo
+  - owner: callowayproject
+    name: bump-my-version
     agents:
       - type: issue-triage
         allow_close: false           # set to true to allow the agent to close issues

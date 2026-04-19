@@ -330,11 +330,14 @@ class TestExponentialBackoff:
         await poller.poll_all([RepoConfig(owner="owner", name="repo")], AsyncMock())
 
     @pytest.mark.asyncio
-    async def test_non_rate_limit_github_exception_propagates(self, memory: MemoryStore, mocker) -> None:
-        """GithubExceptions other than 403/429 are not silenced."""
+    async def test_non_rate_limit_github_exception_logs_error_and_skips_repo(
+        self, memory: MemoryStore, mocker
+    ) -> None:
+        """GithubExceptions other than 403/429 are logged as errors and the repo is skipped."""
         from github import GithubException
 
         mocker.patch("foreman.poller.Github")
+        mock_logger = mocker.patch("foreman.poller.logger")
 
         mocker.patch.object(
             GitHubPoller,
@@ -343,8 +346,30 @@ class TestExponentialBackoff:
         )
 
         poller = GitHubPoller(token="test-token", memory=memory)
-        with pytest.raises(GithubException):
-            await poller.poll_all([RepoConfig(owner="owner", name="repo")], AsyncMock())
+        # Must not raise — error is logged and repo is skipped this cycle
+        await poller.poll_all([RepoConfig(owner="owner", name="repo")], AsyncMock())
+
+        mock_logger.error.assert_called_once()
+
+    @pytest.mark.asyncio
+    async def test_bad_credentials_logs_critical_and_skips_repo(self, memory: MemoryStore, mocker) -> None:
+        """A 401 BadCredentials error is logged at critical level and the repo is skipped."""
+        from github import GithubException
+
+        mocker.patch("foreman.poller.Github")
+        mock_logger = mocker.patch("foreman.poller.logger")
+
+        mocker.patch.object(
+            GitHubPoller,
+            "poll_repo",
+            side_effect=GithubException(401, {"message": "Bad credentials"}, {}),
+        )
+
+        poller = GitHubPoller(token="test-token", memory=memory)
+        # Must not raise — critical is logged and repo is skipped
+        await poller.poll_all([RepoConfig(owner="owner", name="repo")], AsyncMock())
+
+        mock_logger.critical.assert_called_once()
 
 
 # ---------------------------------------------------------------------------

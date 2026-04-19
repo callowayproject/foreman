@@ -81,6 +81,13 @@ class GitHubPoller:
 
         issues = list(gh_repo.get_issues(**get_issues_kwargs))
 
+        logger.info(
+            "Polled repo",
+            repo=repo_name,
+            issues_found=len(issues),
+            since=last_polled.isoformat() if last_polled else "beginning",
+        )
+
         events: list[dict[str, Any]] = []
         for issue in issues:
             if issue.user.login in collaborator_logins:
@@ -171,7 +178,20 @@ class GitHubPoller:
                     )
                     return
                 else:
-                    raise
+                    if exc.status == 401:
+                        logger.critical(
+                            "Bad GitHub credentials — check GITHUB_TOKEN; skipping repo this cycle",
+                            repo=f"{repo_cfg.owner}/{repo_cfg.name}",
+                            status=exc.status,
+                        )
+                    else:
+                        logger.error(
+                            "GitHub API error polling repo; skipping this cycle",
+                            repo=f"{repo_cfg.owner}/{repo_cfg.name}",
+                            status=exc.status,
+                            error=str(exc),
+                        )
+                    return
 
     # ------------------------------------------------------------------
     # Continuous polling loop
