@@ -50,16 +50,17 @@
 - [ ] Review with human ✋
 
 ## Phase 6: Issue Triage Agent
-- [ ] Task 13: Container lifecycle manager (harness starts/stops agent containers)
-- [ ] Task 14: Agent HTTP server scaffold + Dockerfile (with /health endpoint)
-- [ ] Task 15: Triage logic and prompt
+- [x] Task 13: Container lifecycle manager (harness starts/stops agent containers)
+- [x] Task 14: Agent HTTP server scaffold + Dockerfile (with /health endpoint)
+- [x] Task 15: Triage logic and prompt
+- [x] Task 13b: Wire ContainerManager into startup sequence (`__main__.py`)
 
 ### Checkpoint: Phase 6 — Issue Triage Agent
-- [ ] `docker build` succeeds
-- [ ] Container lifecycle manager starts and stops the triage container cleanly
-- [ ] Integration tests (container + harness) pass
-- [ ] Triage decisions verified against all four decision types
-- [ ] Review with human ✋
+- [x] `docker build` succeeds
+- [x] Container lifecycle manager starts and stops the triage container cleanly
+- [x] Integration tests (container + harness) pass
+- [x] Triage decisions verified against all four decision types
+- [x] Review with human ✋
 
 ## Phase 7: Integration and Polish
 - [ ] Task 16: End-to-end integration test

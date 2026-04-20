@@ -9,7 +9,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 # Make the agent importable without installing it as a package.
-_AGENT_DIR = Path(__file__).parent.parent / "agents" / "issue-triage"
+_AGENT_DIR = Path(__file__).parent.parent / "agents" / "issue-triage" / "issue_triage"
 if str(_AGENT_DIR) not in sys.path:
     sys.path.insert(0, str(_AGENT_DIR))
 

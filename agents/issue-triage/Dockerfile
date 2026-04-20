@@ -3,11 +3,11 @@ WORKDIR /app
 
 # Install dependencies first (layer cache)
 COPY pyproject.toml .
-RUN pip install --no-cache-dir ".[runtime]"
+RUN pip install --no-cache-dir .
 
 # Copy application code
-COPY agent.py .
-COPY prompts/ prompts/
+COPY issue_triage/agent.py .
+COPY issue_triage/prompts/ prompts/
 
 EXPOSE 8000
 

@@ -482,6 +482,41 @@ Known issues to fix (spec §12):
 
 ---
 
+---
+
+### Task 13b: Wire ContainerManager into startup sequence
+
+**Description:** `ContainerManager` (Task 13) was built as a standalone component but is never instantiated or called from `__main__.py`. The `Router.register_url()` method exists for exactly this purpose but is also never called. This task wires container startup/shutdown into `_run_start` / `_run_loop` and calls `router.register_url()` so that dynamically-assigned container ports are used at dispatch time.
+
+Changes needed in `foreman/__main__.py`:
+1. Instantiate `ContainerManager` in `_run_start` (or pass it into `_run_loop`).
+2. Collect the unique agent types configured across all repos.
+3. For each unique agent type, call `container_manager.start_agent(agent_type)` to pull/start the container and get its URL.
+4. Call `router.register_url(agent_type, url)` for each started container before the poll loop begins.
+5. On shutdown (the `finally` block in `_run_loop`), call `container_manager.stop_all()`.
+6. Catch `ContainerError` at startup and exit with a clear error message (non-zero).
+
+**Acceptance criteria:**
+- [ ] `foreman start` pulls and starts agent containers before the poll loop begins
+- [ ] `router.register_url` is called for each successfully started container
+- [ ] `stop_all` is called on clean shutdown (SIGINT/SIGTERM)
+- [ ] `ContainerError` on Docker unavailability exits with a clear error (non-zero exit code)
+- [ ] If no agents are configured with a known image, startup proceeds without Docker (graceful degradation)
+
+**Verification:**
+- [ ] `pytest tests/test_main.py` covers container startup, URL registration, and shutdown paths (mocked Docker SDK)
+- [ ] Manual: `foreman start --config config.example.yaml` brings up the triage container and registers its URL before the first poll
+
+**Dependencies:** Tasks 10, 12, 13
+
+**Files likely touched:**
+- `foreman/__main__.py`
+- `tests/test_main.py`
+
+**Estimated scope:** Small (1–2 files)
+
+---
+
 ### Checkpoint: Phase 6 — Issue Triage Agent
 
 - [ ] `docker build` succeeds
