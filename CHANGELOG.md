@@ -1,5 +1,49 @@
 # Changelog
 
+## 0.2.4 (2026-04-20)
+
+[Compare the full difference.](https://github.com/callowayproject/foreman/compare/0.2.3...0.2.4)
+
+### Other
+
+- Wire `ContainerManager` and agent lifecycle into `foreman start`. Update agent paths, config, tests, and Dockerfile to align with refactored `issue-triage` structure. Mark Phase 6 tasks as complete. [7e7846d](https://github.com/callowayproject/foreman/commit/7e7846df97f8026d41d7adb435a26be8dc6dd19e)
+
+- Use `SecretStr` for sensitive fields in configuration and GitHubPoller, removing custom masking logic. Update tests accordingly. [d2e437a](https://github.com/callowayproject/foreman/commit/d2e437ae2582135c2a72388f7662c348a6d85032)
+
+- Task 15: Triage logic and prompt (prompts/triage.py). [6518095](https://github.com/callowayproject/foreman/commit/65180958d45351e5de9e246e00ba939328165549)
+
+  - build_prompt: formats issue title/body/author/labels + memory_summary
+  - parse_llm_response: extracts JSON from prose, validates decision type,
+    applies allow_close guard, defaults to skip on parse failure
+  - \_call_llm: LiteLLM wrapper (provider/model from task context)
+  - run_triage: duplicate-comment guard (memory keyword check) before LLM call
+  - 18 triage tests + full suite at 195 passing
+
+  **co-authored-by:** Claude Sonnet 4.6 <noreply@anthropic.com>
+
+- Task 14: Agent HTTP server scaffold + Dockerfile. [60778eb](https://github.com/callowayproject/foreman/commit/60778eb13fe3a6676b42f6ef7e9b6c588a7789d7)
+
+  - FastAPI app with POST /task (DecisionMessage) and GET /health (200 ok)
+  - Self-contained protocol models (TaskMessage, DecisionMessage, ActionItem)
+  - triage() delegates to prompts/triage.run_triage() — stub for Task 15
+  - Dockerfile installs deps and runs uvicorn on port 8000
+  - agents/issue-triage/pyproject.toml with runtime deps
+  - 7 agent server tests; full suite at 177 passing
+
+  **co-authored-by:** Claude Sonnet 4.6 <noreply@anthropic.com>
+
+- Task 13: Container lifecycle manager (foreman/containers.py). [7e7c407](https://github.com/callowayproject/foreman/commit/7e7c407a0211bee197abb68ce2ee8f39cf351fde)
+
+  - ContainerManager pulls images on demand, starts containers, waits for /health
+  - stop_all() stops all managed containers; safe to call multiple times
+  - handle_container_exit() logs error and restarts once; marks failed on second exit
+  - ContainerError raised when Docker socket is unavailable at init
+  - 14 tests covering all acceptance criteria; full suite at 170 passing
+
+  **co-authored-by:** Claude Sonnet 4.6 <noreply@anthropic.com>
+
+- Set environment to `github-pages` for `publish-docs` workflow. [e2f100f](https://github.com/callowayproject/foreman/commit/e2f100f8e8cdf543e19b9f8ffe4ba93bc86714af)
+
 ## 0.2.3 (2026-04-19)
 
 [Compare the full difference.](https://github.com/callowayproject/foreman/compare/0.2.2...0.2.3)
