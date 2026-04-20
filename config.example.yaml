@@ -21,6 +21,20 @@ repos:
       - type: issue-triage
         allow_close: false           # set to true to allow the agent to close issues
         config:
+          # --- Container lifecycle (recommended) ---
+          # Foreman pulls the image (if needed), starts the container, and
+          # stops it on shutdown.  Both 'image' and 'port' are required for
+          # this mode.
+          image: "foreman-issue-triage:latest"  # Docker image to run
+          port: 9001                            # host port to bind container port 8000 to
+
+          # --- Pre-running agent (alternative) ---
+          # If you manage the container yourself (or point at a remote agent),
+          # omit 'image'/'port' and supply 'url' instead.  Foreman will not
+          # start or stop the container.
+          # url: "http://localhost:9001"
+
+          # --- Triage behaviour ---
           stale_days: 30
           labels:
             bug: ["crash", "exception", "error"]

@@ -12,7 +12,7 @@ from pathlib import Path
 from typing import Any, Optional
 
 import yaml
-from pydantic import BaseModel, field_validator, model_validator
+from pydantic import BaseModel, SecretStr, model_validator
 
 _ENV_REF_RE = re.compile(r"\$\{([^}]+)\}")
 
@@ -68,23 +68,6 @@ def _resolve_refs_in(obj: Any) -> Any:
 
 
 # ---------------------------------------------------------------------------
-# Secret-masking string type
-# ---------------------------------------------------------------------------
-
-
-class _SecretStr(str):
-    """A string subclass that masks its value in repr and str output."""
-
-    def __repr__(self) -> str:
-        """Return masked representation."""
-        return "'**********'"
-
-    def __str__(self) -> str:
-        """Return masked string value."""
-        return "**********"
-
-
-# ---------------------------------------------------------------------------
 # Pydantic models
 # ---------------------------------------------------------------------------
 
@@ -92,17 +75,11 @@ class _SecretStr(str):
 class IdentityConfig(BaseModel):
     """Bot GitHub identity configuration."""
 
-    github_token: str
+    github_token: SecretStr
     """GitHub Personal Access Token for the bot account."""
 
     github_user: str
     """GitHub username of the bot account."""
-
-    @field_validator("github_token", mode="after")
-    @classmethod
-    def mask_token(cls, v: str) -> str:
-        """Wrap the token in a secret-masking string."""
-        return _SecretStr(v)
 
 
 class LLMConfig(BaseModel):
@@ -114,14 +91,8 @@ class LLMConfig(BaseModel):
     model: str
     """Model name / identifier."""
 
-    api_key: Optional[str] = None
+    api_key: Optional[SecretStr] = None
     """API key; omit for local providers such as Ollama."""
-
-    @field_validator("api_key", mode="after")
-    @classmethod
-    def mask_api_key(cls, v: Optional[str]) -> Optional[str]:
-        """Wrap the API key in a secret-masking string if present."""
-        return _SecretStr(v) if v is not None else None
 
 
 class PollingConfig(BaseModel):

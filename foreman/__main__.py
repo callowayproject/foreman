@@ -17,6 +17,7 @@ import structlog
 import uvicorn
 
 from foreman.config import ConfigError, load_config
+from foreman.containers import ContainerError, ContainerManager
 from foreman.memory import MemoryStore
 from foreman.poller import GitHubPoller
 from foreman.routers import Router, RoutingError
@@ -92,6 +93,33 @@ def main(argv: list[str] | None = None) -> None:
         _run_start(args)
 
 
+def _collect_agent_images(config: ForemanConfig) -> list[tuple[str, str, int]]:
+    """Collect unique ``(agent_type, image, port)`` specs from the config.
+
+    Only includes agents that have both ``image`` and ``port`` in their
+    ``config`` dict.  Deduplicates by agent type — if the same agent type
+    appears in multiple repos, the first occurrence wins.
+
+    Args:
+        config: Validated :class:`~foreman.config.ForemanConfig`.
+
+    Returns:
+        List of ``(agent_type, image, port)`` tuples, deduplicated by agent type.
+    """
+    seen: set[str] = set()
+    specs: list[tuple[str, str, int]] = []
+    for repo in config.repos:
+        for agent in repo.agents:
+            if agent.type in seen:
+                continue
+            image = agent.config.get("image")
+            port = agent.config.get("port")
+            if image and port:
+                seen.add(agent.type)
+                specs.append((agent.type, str(image), int(port)))
+    return specs
+
+
 def _run_start(args: Any) -> None:
     """Execute the ``start`` sub-command.
 
@@ -116,8 +144,27 @@ def _run_start(args: Any) -> None:
     memory = MemoryStore(db_path)
 
     # 3. Create core components.
-    poller = GitHubPoller(token=str(config.identity.github_token), memory=memory)
+    poller = GitHubPoller(token=config.identity.github_token, memory=memory)
     dispatcher = Dispatcher(config=config, memory=memory)
+
+    # 4. Start agent containers (if any are configured with image + port).
+    container_manager: ContainerManager | None = None
+    agent_urls: dict[str, str] = {}
+    agent_specs = _collect_agent_images(config)
+
+    if agent_specs:
+        try:
+            container_manager = ContainerManager()
+        except ContainerError as exc:
+            print(f"Error: {exc}", file=sys.stderr)
+            sys.exit(1)
+        for agent_type, image, port in agent_specs:
+            try:
+                url = container_manager.start_agent(agent_type, image=image, port=port)
+                agent_urls[agent_type] = url
+            except ContainerError as exc:
+                print(f"Error starting agent '{agent_type}': {exc}", file=sys.stderr)
+                sys.exit(1)
 
     logger.info(
         "Foreman initialised",
@@ -127,8 +174,8 @@ def _run_start(args: Any) -> None:
         poll_interval_seconds=config.polling.interval_seconds,
     )
 
-    # 4. Run the poller and HTTP server concurrently.
-    asyncio.run(_run_loop(config, memory, poller, dispatcher, args.host, args.port))
+    # 5. Run the poller and HTTP server concurrently.
+    asyncio.run(_run_loop(config, memory, poller, dispatcher, args.host, args.port, container_manager, agent_urls))
 
 
 async def _run_loop(
@@ -138,11 +185,14 @@ async def _run_loop(
     dispatcher: Dispatcher,
     host: str,
     port: int,
+    container_manager: ContainerManager | None = None,
+    agent_urls: dict[str, str] | None = None,
 ) -> None:
     """Run the poll loop and HTTP server concurrently.
 
     The poller is started as an asyncio task alongside the uvicorn server.
-    On shutdown (SIGINT/SIGTERM), the poller task is cancelled cleanly.
+    On shutdown (SIGINT/SIGTERM), the poller task is cancelled cleanly and
+    any managed containers are stopped.
 
     Args:
         config: Validated runtime configuration.
@@ -151,8 +201,15 @@ async def _run_loop(
         dispatcher: Initialised :class:`~foreman.server.Dispatcher`.
         host: Bind address for the HTTP server.
         port: Port for the HTTP server.
+        container_manager: Optional :class:`~foreman.containers.ContainerManager`
+            to stop on shutdown.
+        agent_urls: Mapping of agent type → base URL for pre-started containers.
+            Each entry is registered with the router before polling begins.
     """
     router = Router(config)
+
+    for agent_type, url in (agent_urls or {}).items():
+        router.register_url(agent_type, url)
 
     async def on_event(repo_config: RepoConfig, event: dict[str, Any]) -> None:
         """Handle one poller event: route it and dispatch to the appropriate agent.
@@ -208,6 +265,8 @@ async def _run_loop(
             await poller_task
         except asyncio.CancelledError:
             logger.info("Poller stopped cleanly")
+        if container_manager is not None:
+            container_manager.stop_all()
 
 
 if __name__ == "__main__":

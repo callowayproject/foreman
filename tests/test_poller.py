@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING
 from unittest.mock import AsyncMock, MagicMock
 
 import pytest
+from pydantic import SecretStr
 
 from foreman.config import RepoConfig
 from foreman.memory import MemoryStore
@@ -75,7 +76,7 @@ class TestPollRepo:
         mock_repo.get_issues.return_value = [make_issue(1), make_issue(2)]
         mock_repo.get_collaborators.return_value = []
 
-        poller = GitHubPoller(token="test-token", memory=memory)
+        poller = GitHubPoller(token=SecretStr("test-token"), memory=memory)
         events = poller.poll_repo(RepoConfig(owner="owner", name="repo"))
 
         assert len(events) == 2
@@ -88,7 +89,7 @@ class TestPollRepo:
         mock_repo.get_issues.return_value = [make_issue(7)]
         mock_repo.get_collaborators.return_value = []
 
-        poller = GitHubPoller(token="test-token", memory=memory)
+        poller = GitHubPoller(token=SecretStr("test-token"), memory=memory)
         events = poller.poll_repo(RepoConfig(owner="owner", name="repo"))
 
         assert len(events) == 1
@@ -108,7 +109,7 @@ class TestPollRepo:
         ]
         mock_repo.get_collaborators.return_value = [make_collaborator("maintainer")]
 
-        poller = GitHubPoller(token="test-token", memory=memory)
+        poller = GitHubPoller(token=SecretStr("test-token"), memory=memory)
         events = poller.poll_repo(RepoConfig(owner="owner", name="repo"))
 
         assert len(events) == 1
@@ -125,7 +126,7 @@ class TestPollRepo:
         last_polled = datetime(2024, 6, 1, tzinfo=timezone.utc)
         memory.set_last_polled("owner/repo", last_polled)
 
-        poller = GitHubPoller(token="test-token", memory=memory)
+        poller = GitHubPoller(token=SecretStr("test-token"), memory=memory)
         poller.poll_repo(RepoConfig(owner="owner", name="repo"))
 
         call_kwargs = mock_repo.get_issues.call_args
@@ -139,7 +140,7 @@ class TestPollRepo:
         mock_repo.get_issues.return_value = []
         mock_repo.get_collaborators.return_value = []
 
-        poller = GitHubPoller(token="test-token", memory=memory)
+        poller = GitHubPoller(token=SecretStr("test-token"), memory=memory)
         poller.poll_repo(RepoConfig(owner="owner", name="repo"))
 
         call_kwargs = mock_repo.get_issues.call_args
@@ -155,7 +156,7 @@ class TestPollRepo:
 
         assert memory.get_last_polled("owner/repo") is None
 
-        poller = GitHubPoller(token="test-token", memory=memory)
+        poller = GitHubPoller(token=SecretStr("test-token"), memory=memory)
         poller.poll_repo(RepoConfig(owner="owner", name="repo"))
 
         assert memory.get_last_polled("owner/repo") is not None
@@ -168,11 +169,11 @@ class TestPollRepo:
         mock_repo.get_issues.return_value = []
         mock_repo.get_collaborators.return_value = []
 
-        poller1 = GitHubPoller(token="test-token", memory=memory)
+        poller1 = GitHubPoller(token=SecretStr("test-token"), memory=memory)
         poller1.poll_repo(RepoConfig(owner="owner", name="repo"))
         ts1 = memory.get_last_polled("owner/repo")
 
-        poller2 = GitHubPoller(token="test-token", memory=memory)
+        poller2 = GitHubPoller(token=SecretStr("test-token"), memory=memory)
         poller2.poll_repo(RepoConfig(owner="owner", name="repo"))
         ts2 = memory.get_last_polled("owner/repo")
 
@@ -188,7 +189,7 @@ class TestPollRepo:
         mock_repo.get_issues.return_value = [make_issue(3, author_login="alice", title="A bug")]
         mock_repo.get_collaborators.return_value = []
 
-        poller = GitHubPoller(token="test-token", memory=memory)
+        poller = GitHubPoller(token=SecretStr("test-token"), memory=memory)
         events = poller.poll_repo(RepoConfig(owner="owner", name="repo"))
 
         payload = events[0]["payload"]
@@ -211,7 +212,7 @@ class TestPollAll:
         mocker.patch("foreman.poller.Github")
         mock_poll = mocker.patch.object(GitHubPoller, "poll_repo", return_value=[])
 
-        poller = GitHubPoller(token="test-token", memory=memory)
+        poller = GitHubPoller(token=SecretStr("test-token"), memory=memory)
         repos = [
             RepoConfig(owner="org", name="repo1"),
             RepoConfig(owner="org", name="repo2"),
@@ -235,7 +236,7 @@ class TestPollAll:
 
         mocker.patch.object(GitHubPoller, "poll_repo", side_effect=side_effect)
 
-        poller = GitHubPoller(token="test-token", memory=memory)
+        poller = GitHubPoller(token=SecretStr("test-token"), memory=memory)
         repos = [RepoConfig(owner="org", name="repo1"), RepoConfig(owner="org", name="repo2")]
         collected: list[dict] = []
 
@@ -250,7 +251,7 @@ class TestPollAll:
     async def test_poll_all_with_empty_repo_list(self, memory: MemoryStore, mocker) -> None:
         """poll_all completes without error when given an empty repo list."""
         mocker.patch("foreman.poller.Github")
-        poller = GitHubPoller(token="test-token", memory=memory)
+        poller = GitHubPoller(token=SecretStr("test-token"), memory=memory)
         await poller.poll_all([], AsyncMock())  # must not raise
 
 
@@ -281,7 +282,7 @@ class TestExponentialBackoff:
 
         mocker.patch.object(GitHubPoller, "poll_repo", side_effect=fail_then_succeed)
 
-        poller = GitHubPoller(token="test-token", memory=memory)
+        poller = GitHubPoller(token=SecretStr("test-token"), memory=memory)
         await poller.poll_all([RepoConfig(owner="owner", name="repo")], AsyncMock())
 
         assert call_count == 2, "should retry once after 429"
@@ -306,7 +307,7 @@ class TestExponentialBackoff:
 
         mocker.patch.object(GitHubPoller, "poll_repo", side_effect=fail_then_succeed)
 
-        poller = GitHubPoller(token="test-token", memory=memory)
+        poller = GitHubPoller(token=SecretStr("test-token"), memory=memory)
         await poller.poll_all([RepoConfig(owner="owner", name="repo")], AsyncMock())
 
         assert call_count == 2
@@ -325,7 +326,7 @@ class TestExponentialBackoff:
             side_effect=GithubException(429, {"message": "rate limited"}, {}),
         )
 
-        poller = GitHubPoller(token="test-token", memory=memory)
+        poller = GitHubPoller(token=SecretStr("test-token"), memory=memory)
         # Must not raise
         await poller.poll_all([RepoConfig(owner="owner", name="repo")], AsyncMock())
 
@@ -345,7 +346,7 @@ class TestExponentialBackoff:
             side_effect=GithubException(500, {"message": "server error"}, {}),
         )
 
-        poller = GitHubPoller(token="test-token", memory=memory)
+        poller = GitHubPoller(token=SecretStr("test-token"), memory=memory)
         # Must not raise — error is logged and repo is skipped this cycle
         await poller.poll_all([RepoConfig(owner="owner", name="repo")], AsyncMock())
 
@@ -365,7 +366,7 @@ class TestExponentialBackoff:
             side_effect=GithubException(401, {"message": "Bad credentials"}, {}),
         )
 
-        poller = GitHubPoller(token="test-token", memory=memory)
+        poller = GitHubPoller(token=SecretStr("test-token"), memory=memory)
         # Must not raise — critical is logged and repo is skipped
         await poller.poll_all([RepoConfig(owner="owner", name="repo")], AsyncMock())
 
@@ -383,14 +384,14 @@ class TestSemaphore:
     def test_default_max_concurrent_is_five(self, memory: MemoryStore, mocker) -> None:
         """GitHubPoller defaults to max_concurrent=5."""
         mocker.patch("foreman.poller.Github")
-        poller = GitHubPoller(token="test-token", memory=memory)
-        assert poller._max_concurrent == 5  # noqa: SLF001
+        poller = GitHubPoller(token=SecretStr("test-token"), memory=memory)
+        assert poller._max_concurrent == 5
 
     def test_custom_max_concurrent_is_stored(self, memory: MemoryStore, mocker) -> None:
         """max_concurrent passed to __init__ is stored on the instance."""
         mocker.patch("foreman.poller.Github")
-        poller = GitHubPoller(token="test-token", memory=memory, max_concurrent=2)
-        assert poller._max_concurrent == 2  # noqa: SLF001
+        poller = GitHubPoller(token=SecretStr("test-token"), memory=memory, max_concurrent=2)
+        assert poller._max_concurrent == 2
 
 
 # ---------------------------------------------------------------------------
