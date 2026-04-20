@@ -63,12 +63,12 @@
 - [x] Review with human ✋
 
 ## Phase 7: Integration and Polish
-- [ ] Task 16: End-to-end integration test
-- [ ] Task 17: config.example.yaml and CHANGELOG bootstrap
+- [x] Task 16: End-to-end integration test
+- [x] Task 17: config.example.yaml and CHANGELOG bootstrap
 
 ### Final Checkpoint
-- [ ] `pytest tests/` passes ≥85% line / ≥80% branch coverage
-- [ ] `pre-commit run --all-files` exits 0
+- [x] `pytest tests/` passes ≥85% line / ≥80% branch coverage
+- [x] `pre-commit run --all-files` exits 0
 - [ ] `foreman start --config config.example.yaml` starts and polls a test repo
 - [ ] Issue triage works end-to-end: new issue → labeled + commented by bot
 - [ ] Human acceptance test: install on real repo, triage one issue in <30 minutes ✋
