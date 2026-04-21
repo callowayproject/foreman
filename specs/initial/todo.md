@@ -45,9 +45,9 @@
 
 ### Checkpoint: Phase 5 — Harness Core
 - [x] `pytest tests/` passes (all harness tests) — 155 passing
-- [ ] `foreman start --config config.example.yaml` starts cleanly
-- [ ] Full Poller → Router → Server → Executor sequence tested
-- [ ] Review with human ✋
+- [x] `foreman start --config config.example.yaml` starts cleanly
+- [x] Full Poller → Router → Server → Executor sequence tested
+- [x] Review with human ✋
 
 ## Phase 6: Issue Triage Agent
 - [x] Task 13: Container lifecycle manager (harness starts/stops agent containers)
@@ -69,6 +69,6 @@
 ### Final Checkpoint
 - [x] `pytest tests/` passes ≥85% line / ≥80% branch coverage
 - [x] `pre-commit run --all-files` exits 0
-- [ ] `foreman start --config config.example.yaml` starts and polls a test repo
-- [ ] Issue triage works end-to-end: new issue → labeled + commented by bot
-- [ ] Human acceptance test: install on real repo, triage one issue in <30 minutes ✋
+- [x] `foreman start --config config.example.yaml` starts and polls a test repo
+- [x] Issue triage works end-to-end: new issue → labeled + commented by bot
+- [x] Human acceptance test: install on real repo, triage one issue in <30 minutes ✋
