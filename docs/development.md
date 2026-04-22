@@ -1,58 +1,121 @@
 ---
-title: Development 
-summary: How to develop Foreman. 
-date: 2026-04-14T16:51:58.665341+00:00
+title: Developer Guide
+summary: Development environment setup, testing, and tooling reference for contributors to Foreman.
+date: 2026-04-21T00:00:00.000000+00:00
 ---
 
-# Installing from source for development
+# Developer Guide
 
-`uv` is recommended. [Install `uv`](https://docs.astral.sh/uv/getting-started/installation/).
+## Setup
 
+Install all dependency groups (runtime, dev, test, docs):
 
-Clone the repo:
-
-```shell
-$ git clone https://github.com/callowayproject/foreman
+```bash
+uv sync
 ```
 
-Setup the environment.
+Install the git pre-commit hooks:
 
-```shell
-$ cd foreman
-$ uv sync --upgrade --all-groups
+```bash
+pre-commit install
 ```
 
-Run Foreman's tests from the source tree on your machine:
+Pre-commit runs automatically on every `git commit`.
+To run all hooks manually against every file:
 
-```shell
-$ uv run pytest
+```bash
+pre-commit run --all-files
 ```
 
-## Development Flow
+## Running Tests
 
-This project uses the [GitHubFlow](https://docs.github.com/en/get-started/quickstart/github-flow) workflow.
+| Command                                         | Description                           |
+| ----------------------------------------------- | ------------------------------------- |
+| `uv run pytest`                                 | Run the full test suite with coverage |
+| `uv run pytest tests/test_config.py`            | Run a single test file                |
+| `uv run pytest tests/test_config.py::test_name` | Run a single test                     |
+| `uv run pytest --no-cov`                        | Run tests without coverage reporting  |
 
-Rationale:
+Coverage targets: **≥85% line coverage, ≥80% branch coverage.**
 
-* The primary branch is always releasable.
-* Lightweight.
-* Single long-lived branch. Less maintenance overhead, faster iterations.
-* Simple for one person projects, as well as collaboration.
+Reports are written to the terminal and to `htmlcov/` after each run.
 
-Put simply:
+## Pre-Commit Hooks
 
-1. Anything in the primary branch is deployable
-2. To work on something new, create a descriptively named branch off the primary branch (ie: new-oauth2-scopes)
-3. Commit to that branch locally and regularly push your work to the same named branch on GitHub
-4. When you need feedback or help, or you think the branch is ready for merging, open a pull request
-5. After someone else has reviewed and signed off on the feature, you can merge it into the primary branch
-6. Once it is merged and pushed to the primary branch, you can and should deploy immediately
+The following hooks run on every commit:
 
-**Merging**
+| Hook               | Tool                       | What it checks                                               |
+| ------------------ | -------------------------- | ------------------------------------------------------------ |
+| Format             | `ruff-format`              | Code style (line length 119)                                 |
+| Lint               | `ruff-check`               | Import order, style rules, common errors                     |
+| Type check         | `mypy`                     | Type annotations (`--no-strict-optional --ignore-missing-imports`) |
+| Docstring style    | `pydoclint`                | Google-style docstrings                                      |
+| Docstring coverage | `interrogate`              | ≥90% public function/method docstring coverage               |
+| Secret detection   | `detect-secrets`           | Prevents committing credentials                              |
+| Syntax             | `check-yaml`, `check-toml` | Valid YAML and TOML files                                    |
+| Upgrade syntax     | `pyupgrade`                | Modernizes Python syntax to 3.12+                            |
 
-Merges are done via Pull Requests. 
+## Code Style
 
+| Concern        | Tool / Setting                                                 |
+|----------------|----------------------------------------------------------------|
+| Formatter      | ruff-format, line length 119                                   |
+| Linter         | ruff (see `[tool.ruff]` in `pyproject.toml` for full rule set) |
+| Docstrings     | Google convention (`pydoclint`, `interrogate`)                 |
+| Type hints     | Required on all public functions and methods                   |
+| Python minimum | 3.12                                                           |
 
-**Tags**
+## Testing Strategy
 
-Tags are used to denote releases.
+### LLM calls
+
+LLM calls use recorded fixtures in `tests/fixtures/`.
+Real responses are captured once and replayed in CI.
+No live LLM calls are made during tests.
+
+### GitHub API calls
+
+Mock PyGithub and httpx at the boundary using `pytest-mock`.
+Do not make real GitHub API calls in tests.
+
+### SQLite
+
+Use a real in-memory or temp-file database via `pytest`'s `tmp_path` fixture.
+Do not mock SQLite.
+
+```python
+def test_something(tmp_path):
+    store = MemoryStore(tmp_path / "test.db")
+    ...
+```
+
+### Agent protocol
+
+Integration tests spin up the agent container locally and send real HTTP task messages.
+These are in `tests/integration/`.
+
+## Project Structure
+
+```text
+foreman/
+├── config.py        # YAML loader and Pydantic config models
+├── credentials.py   # Environment variable resolution, get_github_token()
+├── server.py        # FastAPI dispatch loop
+├── poller.py        # asyncio GitHub polling loop
+├── router.py        # event_type + repo → RouteTarget
+├── executor.py      # DecisionMessage actions → GitHub API calls
+├── memory.py        # SQLite: action_log, memory_summary, poll_state
+├── protocol.py      # Pydantic models: TaskMessage, DecisionMessage, ActionItem
+├── containers.py    # Docker container lifecycle management
+└── llm/
+    ├── base.py      # Abstract LLMBackend + from_config() factory
+    ├── anthropic.py # Anthropic via LiteLLM
+    └── ollama.py    # Ollama via LiteLLM
+agents/
+└── issue-triage/
+    ├── agent.py         # FastAPI: POST /task, GET /health
+    └── prompts/triage.py
+tests/
+├── fixtures/        # Recorded LLM response fixtures
+└── integration/     # Agent container integration tests
+```

@@ -54,11 +54,12 @@ repos:
     hooks:
       - id: interrogate
         exclude: test.*
-  - repo: https://github.com/python-jsonschema/check-jsonschema
-    rev: 0.37.1
+  - repo: https://github.com/rvben/rumdl-pre-commit
+    rev: v0.1.78  # Use latest version
     hooks:
-      - id: check-github-actions
-      - id: check-github-workflows
+      - id: rumdl      # Lint + auto-fix, fails if unfixable issues remain
+      - id: rumdl-fmt  # Pure format, always exits 0
+
 
 ci:
   autofix_prs: false
