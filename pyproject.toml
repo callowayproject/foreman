@@ -90,7 +90,7 @@ disable = [
     "MD070",  # frontmatter-key-sort
 ]
 line-length = 120
-exclude = ["node_modules", "build", "dist"]
+exclude = ["node_modules", "build", "dist", "CHANGELOG.md"]
 include = ["docs/*.md", "README.md"]
 respect-gitignore = true
 flavor = "mkdocs"
