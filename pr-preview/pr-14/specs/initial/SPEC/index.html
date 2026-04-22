@@ -1,0 +1,1810 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="A Python harness that acts as an always-on AI co-maintainer for OSS repositories.">
+      
+      
+        <meta name="author" content="Corey Oordt">
+      
+      
+        <link rel="canonical" href="https://callowayproject.github.io/foreman/specs/initial/SPEC/">
+      
+      
+        <link rel="prev" href="../../../reference/configuration/">
+      
+      
+        <link rel="next" href="../agent-harness/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/favicon.png">
+      <meta name="generator" content="zensical-0.0.33">
+    
+    
+      
+        <title>Foreman , Project Specification - Foreman</title>
+      
+    
+    
+      
+        
+      
+      <link rel="stylesheet" href="../../../assets/stylesheets/modern/main.53a7feaf.min.css">
+      
+        
+          
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/modern/palette.dfe2e883.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,300i,400,400i,500,500i,700,700i%7CJetBrains+Mono:400,400i,700,700i&amp;display=fallback">
+        <style>:root{--md-text-font:"Inter";--md-code-font:"JetBrains Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/css/extra.css">
+    
+      <link rel="stylesheet" href="../../../assets/css/mkdocstrings.css">
+    
+      <link rel="stylesheet" href="../../../assets/css/cards.css">
+    
+      <link rel="stylesheet" href="../../../assets/css/field-list.css">
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,t)=>(e<<5)-e+t.charCodeAt(0)),0),__md_get=(e,t=localStorage,a=__md_scope)=>JSON.parse(t.getItem(a.pathname+"."+e)),__md_set=(e,t,a=localStorage,_=__md_scope)=>{try{a.setItem(_.pathname+"."+e,JSON.stringify(t))}catch(e){}},document.documentElement.setAttribute("data-platform",navigator.platform)</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer" aria-label="Navigation"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#foreman-project-specification" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="Foreman" class="md-header__button md-logo" aria-label="Foreman" data-md-component="logo">
+      
+  <img src="../../../assets/logo.png" alt="Foreman">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer" aria-label="Navigation">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-menu" viewBox="0 0 24 24"><path d="M4 5h16M4 12h16M4 19h16"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Foreman
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Foreman , Project Specification
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-moon" viewBox="0 0 24 24"><path d="M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search" aria-label="Search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-search" viewBox="0 0 24 24"><path d="m21 21-4.34-4.34"/><circle cx="11" cy="11" r="8"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog" aria-label="Search">
+  <button type="button" class="md-search__button">
+    Search
+  </button>
+</div>
+      
+    
+    <div class="md-header__source">
+      
+    </div>
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="Foreman" class="md-nav__button md-logo" aria-label="Foreman" data-md-component="logo">
+      
+  <img src="../../../assets/logo.png" alt="Foreman">
+
+    </a>
+    Foreman
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Foreman
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../development/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Developer Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../explanation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    How Foreman Works
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../quickstart/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../../howtos/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Howtos
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Howtos
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../../reference/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reference
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_7" id="__nav_7_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../reference/agent-protocol/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Agent Protocol Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../reference/cli/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CLI Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../reference/configuration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Configuration Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Specs
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_8">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Specs
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8_1" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_8_1" id="__nav_8_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Initial
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_8_1_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_8_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Initial
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Foreman , Project Specification
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="././" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Foreman , Project Specification
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+
+<nav class="md-nav md-nav--secondary" aria-label="On this page">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-objective" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Objective
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-mvp-scope" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. MVP Scope
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. MVP Scope">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#in" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        In
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#out-of-mvp-protocol-must-not-block-these" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Out of MVP (protocol must not block these)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-agent-protocol-v0" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Agent Protocol v0
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. Agent Protocol v0">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#transport" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Transport
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#message-contract" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Message Contract
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-project-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Project Structure
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. Project Structure">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#scaffolded-vs-planned" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Scaffolded vs. planned
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-configuration-yaml" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Configuration (YAML)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-persistent-memory" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Persistent Memory
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-tech-stack" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Tech Stack
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-code-style" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. Code Style
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-testing-strategy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. Testing Strategy
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10-boundaries" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10. Boundaries
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="10. Boundaries">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#always-do-automatically" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Always do automatically
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ask-before-doing-require-explicit-config-opt-in" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Ask before doing (require explicit config opt-in)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#never-do" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Never do
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#11-open-questions-resolved" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11. Open Questions (resolved)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#12-known-scaffolding-issues-to-fix" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        12. Known Scaffolding Issues to Fix
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#13-key-assumptions-to-validate-before-coding" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        13. Key Assumptions to Validate Before Coding
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../agent-harness/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Agent Harness
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../plan/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Implementation Plan: Foreman — AI OSS Co-Maintainer Harness
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../todo/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Foreman — Task List
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../../tutorials/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tutorials
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_9">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Tutorials
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+                
+
+
+
+  
+
+
+  <nav class="md-path" aria-label="Navigation" >
+    <ol class="md-path__list">
+      
+        
+  
+  
+    <li class="md-path__item">
+      <a href="../../.." class="md-path__link">
+        
+  <span class="md-ellipsis">
+    Foreman
+  </span>
+
+      </a>
+    </li>
+  
+
+      
+      
+        
+  
+  
+    
+    
+      
+  
+  
+    
+    
+      <li class="md-path__item">
+        <a href="././" class="md-path__link">
+          
+  <span class="md-ellipsis">
+    Specs
+  </span>
+
+        </a>
+      </li>
+    
+  
+
+    
+  
+
+      
+        
+  
+  
+    
+    
+      <li class="md-path__item">
+        <a href="././" class="md-path__link">
+          
+  <span class="md-ellipsis">
+    Initial
+  </span>
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ol>
+  </nav>
+
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+<h1 id="foreman-project-specification">Foreman , Project Specification<a class="headerlink" href="#foreman-project-specification" title="Permanent link">&para;</a></h1>
+<blockquote>
+<p>Status: In progress , scaffolding complete, implementation underway</p>
+</blockquote>
+<h2 id="1-objective">1. Objective<a class="headerlink" href="#1-objective" title="Permanent link">&para;</a></h2>
+<p>Build a minimal Python harness that acts as an always-on AI co-maintainer for OSS repositories.
+The harness manages process lifecycle, credential injection, message routing, and scheduling.
+All intelligence lives in agents.
+The system must be composable from specialized agents and runnable anywhere without writing integration glue each time.</p>
+<p><strong>Target user:</strong> A solo OSS maintainer who wants automated triage, dependency updates,
+and releases across multiple repos, with a co-maintainer who has their own GitHub identity and opinions.</p>
+<p><strong>Success criterion for MVP:</strong> A maintainer can install the harness, configure one repo, and have an issue triaged
+(labeled, responded to, or closed) without writing any code — in under 30 minutes.</p>
+<h2 id="2-mvp-scope">2. MVP Scope<a class="headerlink" href="#2-mvp-scope" title="Permanent link">&para;</a></h2>
+<h3 id="in">In<a class="headerlink" href="#in" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Component</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Harness core</td>
+<td>Process management, credential injection, HTTP message routing, GitHub event polling</td>
+</tr>
+<tr>
+<td>Agent protocol v0</td>
+<td>JSON over HTTP ,  task in, decision out, action taken</td>
+</tr>
+<tr>
+<td>Issue Triage agent</td>
+<td>Label, respond, close stale issues</td>
+</tr>
+<tr>
+<td>LLM backend abstraction</td>
+<td>At least Anthropic and Ollama backends via a common interface (LiteLLM or thin adapter)</td>
+</tr>
+<tr>
+<td>Config file</td>
+<td>YAML ,  defines repos, agent assignments, LLM backend</td>
+</tr>
+<tr>
+<td>Persistent action memory</td>
+<td>Per-repo summary store of past agent decisions to inform future ones</td>
+</tr>
+<tr>
+<td>GitHub bot identity</td>
+<td>Dedicated bot account; harness authenticates as the bot</td>
+</tr>
+<tr>
+<td>Polling trigger</td>
+<td>GitHub API polling as primary trigger (no public URL required)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="out-of-mvp-protocol-must-not-block-these">Out of MVP (protocol must not block these)<a class="headerlink" href="#out-of-mvp-protocol-must-not-block-these" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Multi-agent DAG workflow engine</li>
+<li>Dependency update agent</li>
+<li>Release agent</li>
+<li>Plugin/sharing registry</li>
+<li>Web UI</li>
+<li>Webhook listener (defer until public URL is a supported deployment mode)</li>
+<li>Multi-model routing/fallback logic</li>
+</ul>
+<h2 id="3-agent-protocol-v0">3. Agent Protocol v0<a class="headerlink" href="#3-agent-protocol-v0" title="Permanent link">&para;</a></h2>
+<h3 id="transport">Transport<a class="headerlink" href="#transport" title="Permanent link">&para;</a></h3>
+<p>HTTP (JSON over REST).
+The harness runs an internal HTTP server.
+Each agent runs in a Docker container and exposes an HTTP endpoint.
+The harness POSTs tasks to agents; agents return decisions synchronously.</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>Harness  →  POST /task  →  Agent container
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>Harness  ←  200 {decision, actions}  ←  Agent container
+</span></code></pre></div>
+<h3 id="message-contract">Message Contract<a class="headerlink" href="#message-contract" title="Permanent link">&para;</a></h3>
+<p><strong>Task (harness → agent):</strong></p>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="p">{</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">  </span><span class="nt">&quot;task_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;uuid4&quot;</span><span class="p">,</span>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">  </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;issue.triage&quot;</span><span class="p">,</span>
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">  </span><span class="nt">&quot;repo&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;owner/repo&quot;</span><span class="p">,</span>
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">  </span><span class="nt">&quot;payload&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* GitHub event payload */</span><span class="w"> </span><span class="p">},</span>
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="w">  </span><span class="nt">&quot;context&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="w">    </span><span class="nt">&quot;memory_summary&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string ,  prior actions on this issue/repo&quot;</span><span class="p">,</span>
+</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="w">    </span><span class="nt">&quot;llm_backend&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;provider&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;anthropic&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;model&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;claude-sonnet-4-6&quot;</span><span class="w"> </span><span class="p">}</span>
+</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="p">}</span>
+</span></code></pre></div>
+<p><strong>Decision (agent → harness):</strong></p>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="p">{</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span><span class="nt">&quot;task_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;uuid4&quot;</span><span class="p">,</span>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">  </span><span class="nt">&quot;decision&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;label_and_respond | close | escalate | skip&quot;</span><span class="p">,</span>
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">  </span><span class="nt">&quot;rationale&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="p">,</span>
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w">  </span><span class="nt">&quot;actions&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="w">    </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;add_label&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;label&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;bug&quot;</span><span class="w"> </span><span class="p">},</span>
+</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="w">    </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;comment&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;body&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="w"> </span><span class="p">}</span>
+</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="w">  </span><span class="p">]</span>
+</span><span id="__span-2-9"><a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="p">}</span>
+</span></code></pre></div>
+<p><strong>Constraint:</strong> The harness executes all GitHub API calls.
+Agents produce decisions and action lists , they never call GitHub directly.
+This keeps credentials out of agent containers.</p>
+<h2 id="4-project-structure">4. Project Structure<a class="headerlink" href="#4-project-structure" title="Permanent link">&para;</a></h2>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>foreman/
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>├── foreman/
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>│   ├── __init__.py
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>│   ├── config.py           # YAML config loader and validator (runtime repos/agents/LLM config)
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>│   ├── settings.py         # App-level operational settings via pydantic-settings (env vars)
+</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>│   ├── server.py           # FastAPI app ,  dispatch loop: fetch memory → build task → POST to agent → execute
+</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>│   ├── poller.py           # GitHub API polling loop (asyncio + semaphore)
+</span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>│   ├── executor.py         # Execute actions returned by agents (GitHub API calls)
+</span><span id="__span-3-9"><a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>│   ├── memory.py           # Persistent action memory (SQLite ,  action_log + memory_summary)
+</span><span id="__span-3-10"><a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a>│   ├── credentials.py      # Credential injection and secret management (${VAR} resolution)
+</span><span id="__span-3-11"><a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a>│   ├── protocol.py         # Pydantic models: TaskMessage, DecisionMessage, ActionItem
+</span><span id="__span-3-12"><a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a>│   ├── containers.py       # Docker container lifecycle manager for agent containers
+</span><span id="__span-3-13"><a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a>│   ├── logging_info.py     # structlog configuration (dev: console, prod: JSON)
+</span><span id="__span-3-14"><a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a>│   ├── middleware.py       # Correlation ID middleware for request tracing
+</span><span id="__span-3-15"><a id="__codelineno-3-15" name="__codelineno-3-15" href="#__codelineno-3-15"></a>│   ├── otel.py             # OpenTelemetry configuration and FastAPI instrumentation
+</span><span id="__span-3-16"><a id="__codelineno-3-16" name="__codelineno-3-16" href="#__codelineno-3-16"></a>│   ├── routers/
+</span><span id="__span-3-17"><a id="__codelineno-3-17" name="__codelineno-3-17" href="#__codelineno-3-17"></a>│   │   ├── __init__.py
+</span><span id="__span-3-18"><a id="__codelineno-3-18" name="__codelineno-3-18" href="#__codelineno-3-18"></a>│   │   ├── health.py       # GET /healthcheck and GET /healthcheck/ready endpoints
+</span><span id="__span-3-19"><a id="__codelineno-3-19" name="__codelineno-3-19" href="#__codelineno-3-19"></a>│   │   └── agent.py        # Event → agent routing logic (repo+event_type → RouteTarget)
+</span><span id="__span-3-20"><a id="__codelineno-3-20" name="__codelineno-3-20" href="#__codelineno-3-20"></a>│   └── llm/
+</span><span id="__span-3-21"><a id="__codelineno-3-21" name="__codelineno-3-21" href="#__codelineno-3-21"></a>│       ├── __init__.py
+</span><span id="__span-3-22"><a id="__codelineno-3-22" name="__codelineno-3-22" href="#__codelineno-3-22"></a>│       ├── base.py         # Abstract LLMBackend ABC + from_config() factory
+</span><span id="__span-3-23"><a id="__codelineno-3-23" name="__codelineno-3-23" href="#__codelineno-3-23"></a>│       ├── anthropic.py    # Anthropic backend (wraps LiteLLM)
+</span><span id="__span-3-24"><a id="__codelineno-3-24" name="__codelineno-3-24" href="#__codelineno-3-24"></a>│       └── ollama.py       # Ollama backend (wraps LiteLLM)
+</span><span id="__span-3-25"><a id="__codelineno-3-25" name="__codelineno-3-25" href="#__codelineno-3-25"></a>├── agents/
+</span><span id="__span-3-26"><a id="__codelineno-3-26" name="__codelineno-3-26" href="#__codelineno-3-26"></a>│   └── issue-triage/
+</span><span id="__span-3-27"><a id="__codelineno-3-27" name="__codelineno-3-27" href="#__codelineno-3-27"></a>│       ├── Dockerfile
+</span><span id="__span-3-28"><a id="__codelineno-3-28" name="__codelineno-3-28" href="#__codelineno-3-28"></a>│       ├── agent.py        # FastAPI: POST /task, GET /health
+</span><span id="__span-3-29"><a id="__codelineno-3-29" name="__codelineno-3-29" href="#__codelineno-3-29"></a>│       ├── prompts/
+</span><span id="__span-3-30"><a id="__codelineno-3-30" name="__codelineno-3-30" href="#__codelineno-3-30"></a>│       │   └── triage.py
+</span><span id="__span-3-31"><a id="__codelineno-3-31" name="__codelineno-3-31" href="#__codelineno-3-31"></a>│       └── pyproject.toml
+</span><span id="__span-3-32"><a id="__codelineno-3-32" name="__codelineno-3-32" href="#__codelineno-3-32"></a>├── tests/
+</span><span id="__span-3-33"><a id="__codelineno-3-33" name="__codelineno-3-33" href="#__codelineno-3-33"></a>│   ├── fixtures/           # Recorded LLM response fixtures (replayed in CI)
+</span><span id="__span-3-34"><a id="__codelineno-3-34" name="__codelineno-3-34" href="#__codelineno-3-34"></a>│   ├── test_config.py
+</span><span id="__span-3-35"><a id="__codelineno-3-35" name="__codelineno-3-35" href="#__codelineno-3-35"></a>│   ├── test_router.py
+</span><span id="__span-3-36"><a id="__codelineno-3-36" name="__codelineno-3-36" href="#__codelineno-3-36"></a>│   ├── test_executor.py
+</span><span id="__span-3-37"><a id="__codelineno-3-37" name="__codelineno-3-37" href="#__codelineno-3-37"></a>│   ├── test_memory.py
+</span><span id="__span-3-38"><a id="__codelineno-3-38" name="__codelineno-3-38" href="#__codelineno-3-38"></a>│   ├── test_protocol.py
+</span><span id="__span-3-39"><a id="__codelineno-3-39" name="__codelineno-3-39" href="#__codelineno-3-39"></a>│   ├── test_poller.py
+</span><span id="__span-3-40"><a id="__codelineno-3-40" name="__codelineno-3-40" href="#__codelineno-3-40"></a>│   ├── test_containers.py
+</span><span id="__span-3-41"><a id="__codelineno-3-41" name="__codelineno-3-41" href="#__codelineno-3-41"></a>│   ├── test_server.py
+</span><span id="__span-3-42"><a id="__codelineno-3-42" name="__codelineno-3-42" href="#__codelineno-3-42"></a>│   ├── test_main.py
+</span><span id="__span-3-43"><a id="__codelineno-3-43" name="__codelineno-3-43" href="#__codelineno-3-43"></a>│   ├── test_logging_info.py
+</span><span id="__span-3-44"><a id="__codelineno-3-44" name="__codelineno-3-44" href="#__codelineno-3-44"></a>│   ├── test_middleware.py
+</span><span id="__span-3-45"><a id="__codelineno-3-45" name="__codelineno-3-45" href="#__codelineno-3-45"></a>│   ├── test_otel.py
+</span><span id="__span-3-46"><a id="__codelineno-3-46" name="__codelineno-3-46" href="#__codelineno-3-46"></a>│   └── test_agent_triage.py
+</span><span id="__span-3-47"><a id="__codelineno-3-47" name="__codelineno-3-47" href="#__codelineno-3-47"></a>├── config.example.yaml
+</span><span id="__span-3-48"><a id="__codelineno-3-48" name="__codelineno-3-48" href="#__codelineno-3-48"></a>├── pyproject.toml
+</span><span id="__span-3-49"><a id="__codelineno-3-49" name="__codelineno-3-49" href="#__codelineno-3-49"></a>├── SPEC.md
+</span><span id="__span-3-50"><a id="__codelineno-3-50" name="__codelineno-3-50" href="#__codelineno-3-50"></a>└── CHANGELOG.md
+</span></code></pre></div>
+<h3 id="scaffolded-vs-planned">Scaffolded vs. planned<a class="headerlink" href="#scaffolded-vs-planned" title="Permanent link">&para;</a></h3>
+<p>The following modules exist in the scaffolding and are ready for Foreman-specific implementation:</p>
+<table>
+<thead>
+<tr>
+<th>Module</th>
+<th>State</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>server.py</code></td>
+<td>Scaffolded (template)</td>
+<td>Generic FastAPI app with CORS, GZip, middleware; needs dispatch loop added</td>
+</tr>
+<tr>
+<td><code>settings.py</code></td>
+<td>Scaffolded</td>
+<td><code>pydantic-settings</code> env-var loading for operational settings (log level, OTEL); distinct from YAML config</td>
+</tr>
+<tr>
+<td><code>logging_info.py</code></td>
+<td>Scaffolded</td>
+<td>structlog setup with dev/prod renderers and OTel trace injection</td>
+</tr>
+<tr>
+<td><code>middleware.py</code></td>
+<td>Scaffolded</td>
+<td>Correlation ID bound to each request's log context</td>
+</tr>
+<tr>
+<td><code>otel.py</code></td>
+<td>Scaffolded</td>
+<td>OpenTelemetry with optional OTLP exporter and debug console exporter</td>
+</tr>
+<tr>
+<td><code>routers/health.py</code></td>
+<td>Scaffolded</td>
+<td><code>/healthcheck</code> and <code>/healthcheck/ready</code> endpoints</td>
+</tr>
+<tr>
+<td>All other modules</td>
+<td>Not yet created</td>
+<td>Per the implementation plan</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Distinction between <code>settings.py</code> and <code>config.py</code>:</strong></p>
+<ul>
+<li><code>settings.py</code> , operational settings loaded from environment variables at startup
+    (log level, OTEL connection, environment name).
+    Uses <code>pydantic-settings</code>.
+    No YAML.</li>
+<li><code>config.py</code> , runtime harness config loaded from <code>config.yaml</code> (repos, agents, LLM backend, polling interval).
+    Uses PyYAML + Pydantic.
+    Secrets resolved via <code>${VAR}</code> substitution.</li>
+</ul>
+<h2 id="5-configuration-yaml">5. Configuration (YAML)<a class="headerlink" href="#5-configuration-yaml" title="Permanent link">&para;</a></h2>
+<div class="language-yaml highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="c1"># config.yaml</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="nt">identity</span><span class="p">:</span>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">  </span><span class="nt">github_token</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;${GITHUB_TOKEN}&quot;</span><span class="w">    </span><span class="c1"># bot account PAT</span>
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="w">  </span><span class="nt">github_user</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;my-bot&quot;</span>
+</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>
+</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="nt">llm</span><span class="p">:</span>
+</span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="w">  </span><span class="nt">provider</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">anthropic</span><span class="w">                </span><span class="c1"># anthropic | ollama</span>
+</span><span id="__span-4-8"><a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="w">  </span><span class="nt">model</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">claude-sonnet-4-6</span>
+</span><span id="__span-4-9"><a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="w">  </span><span class="nt">api_key</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;${ANTHROPIC_API_KEY}&quot;</span><span class="w">    </span><span class="c1"># omit for ollama</span>
+</span><span id="__span-4-10"><a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a>
+</span><span id="__span-4-11"><a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a><span class="nt">polling</span><span class="p">:</span>
+</span><span id="__span-4-12"><a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a><span class="w">  </span><span class="nt">interval_seconds</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">60</span>
+</span><span id="__span-4-13"><a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a>
+</span><span id="__span-4-14"><a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a><span class="nt">repos</span><span class="p">:</span>
+</span><span id="__span-4-15"><a id="__codelineno-4-15" name="__codelineno-4-15" href="#__codelineno-4-15"></a><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">owner</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">my-org</span>
+</span><span id="__span-4-16"><a id="__codelineno-4-16" name="__codelineno-4-16" href="#__codelineno-4-16"></a><span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">my-repo</span>
+</span><span id="__span-4-17"><a id="__codelineno-4-17" name="__codelineno-4-17" href="#__codelineno-4-17"></a><span class="w">    </span><span class="nt">agents</span><span class="p">:</span>
+</span><span id="__span-4-18"><a id="__codelineno-4-18" name="__codelineno-4-18" href="#__codelineno-4-18"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">issue-triage</span>
+</span><span id="__span-4-19"><a id="__codelineno-4-19" name="__codelineno-4-19" href="#__codelineno-4-19"></a><span class="w">        </span><span class="nt">config</span><span class="p">:</span>
+</span><span id="__span-4-20"><a id="__codelineno-4-20" name="__codelineno-4-20" href="#__codelineno-4-20"></a><span class="w">          </span><span class="nt">stale_days</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">30</span>
+</span><span id="__span-4-21"><a id="__codelineno-4-21" name="__codelineno-4-21" href="#__codelineno-4-21"></a><span class="w">          </span><span class="nt">labels</span><span class="p">:</span>
+</span><span id="__span-4-22"><a id="__codelineno-4-22" name="__codelineno-4-22" href="#__codelineno-4-22"></a><span class="w">            </span><span class="nt">bug</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;crash&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;exception&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;error&quot;</span><span class="p p-Indicator">]</span>
+</span><span id="__span-4-23"><a id="__codelineno-4-23" name="__codelineno-4-23" href="#__codelineno-4-23"></a><span class="w">            </span><span class="nt">question</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;how</span><span class="nv"> </span><span class="s">do</span><span class="nv"> </span><span class="s">I&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;how</span><span class="nv"> </span><span class="s">to&quot;</span><span class="p p-Indicator">]</span>
+</span></code></pre></div>
+<p>All secrets are environment variables (<code>${VAR}</code>).
+The config file itself never contains raw secrets.</p>
+<h2 id="6-persistent-memory">6. Persistent Memory<a class="headerlink" href="#6-persistent-memory" title="Permanent link">&para;</a></h2>
+<p><strong>Storage:</strong> SQLite, local file (<code>~/.agent-harness/memory.db</code> by default, overridable in config).</p>
+<p><strong>Schema:</strong></p>
+<div class="language-sql highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="k">CREATE</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">action_log</span><span class="w"> </span><span class="p">(</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">  </span><span class="n">id</span><span class="w">          </span><span class="nb">INTEGER</span><span class="w"> </span><span class="k">PRIMARY</span><span class="w"> </span><span class="k">KEY</span><span class="p">,</span>
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="w">  </span><span class="n">repo</span><span class="w">        </span><span class="nb">TEXT</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span><span class="w">        </span><span class="c1">-- &quot;owner/repo&quot;</span>
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="w">  </span><span class="n">issue_id</span><span class="w">    </span><span class="nb">INTEGER</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span>
+</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="w">  </span><span class="n">task_type</span><span class="w">   </span><span class="nb">TEXT</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span>
+</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="w">  </span><span class="n">decision</span><span class="w">    </span><span class="nb">TEXT</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span>
+</span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="w">  </span><span class="n">rationale</span><span class="w">   </span><span class="nb">TEXT</span><span class="p">,</span>
+</span><span id="__span-5-8"><a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="w">  </span><span class="n">actions</span><span class="w">     </span><span class="nb">TEXT</span><span class="p">,</span><span class="w">                 </span><span class="c1">-- JSON array</span>
+</span><span id="__span-5-9"><a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a><span class="w">  </span><span class="k">timestamp</span><span class="w">   </span><span class="n">DATETIME</span><span class="w"> </span><span class="k">DEFAULT</span><span class="w"> </span><span class="k">CURRENT_TIMESTAMP</span>
+</span><span id="__span-5-10"><a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a><span class="p">);</span>
+</span><span id="__span-5-11"><a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a>
+</span><span id="__span-5-12"><a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a><span class="k">CREATE</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">memory_summary</span><span class="w"> </span><span class="p">(</span>
+</span><span id="__span-5-13"><a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a><span class="w">  </span><span class="n">repo</span><span class="w">        </span><span class="nb">TEXT</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span>
+</span><span id="__span-5-14"><a id="__codelineno-5-14" name="__codelineno-5-14" href="#__codelineno-5-14"></a><span class="w">  </span><span class="n">issue_id</span><span class="w">    </span><span class="nb">INTEGER</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span>
+</span><span id="__span-5-15"><a id="__codelineno-5-15" name="__codelineno-5-15" href="#__codelineno-5-15"></a><span class="w">  </span><span class="n">summary</span><span class="w">     </span><span class="nb">TEXT</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span><span class="w">        </span><span class="c1">-- LLM-generated summary of prior actions</span>
+</span><span id="__span-5-16"><a id="__codelineno-5-16" name="__codelineno-5-16" href="#__codelineno-5-16"></a><span class="w">  </span><span class="n">updated_at</span><span class="w">  </span><span class="n">DATETIME</span><span class="p">,</span>
+</span><span id="__span-5-17"><a id="__codelineno-5-17" name="__codelineno-5-17" href="#__codelineno-5-17"></a><span class="w">  </span><span class="k">PRIMARY</span><span class="w"> </span><span class="k">KEY</span><span class="w"> </span><span class="p">(</span><span class="n">repo</span><span class="p">,</span><span class="w"> </span><span class="n">issue_id</span><span class="p">)</span>
+</span><span id="__span-5-18"><a id="__codelineno-5-18" name="__codelineno-5-18" href="#__codelineno-5-18"></a><span class="p">);</span>
+</span></code></pre></div>
+<p>The <code>memory_summary</code> table is updated after each action.
+When dispatching a new task, the harness fetches the relevant summary and injects it into the task context.</p>
+<h2 id="7-tech-stack">7. Tech Stack<a class="headerlink" href="#7-tech-stack" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Concern</th>
+<th>Choice</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Language</td>
+<td>Python 3.12+</td>
+</tr>
+<tr>
+<td>Build system</td>
+<td>Hatchling</td>
+</tr>
+<tr>
+<td>Package manager</td>
+<td>uv</td>
+</tr>
+<tr>
+<td>HTTP (harness server)</td>
+<td>FastAPI</td>
+</tr>
+<tr>
+<td>HTTP (agent client)</td>
+<td>httpx</td>
+</tr>
+<tr>
+<td>GitHub API</td>
+<td>PyGithub or raw httpx calls</td>
+</tr>
+<tr>
+<td>LLM abstraction</td>
+<td>LiteLLM (validate with triage prompt against both backends)</td>
+</tr>
+<tr>
+<td>Agent packaging</td>
+<td>Docker containers</td>
+</tr>
+<tr>
+<td>YAML config parsing</td>
+<td>PyYAML + Pydantic for validation</td>
+</tr>
+<tr>
+<td>App/env settings</td>
+<td>pydantic-settings (env var loading for operational config)</td>
+</tr>
+<tr>
+<td>Memory store</td>
+<td>SQLite via stdlib <code>sqlite3</code></td>
+</tr>
+<tr>
+<td>Structured logging</td>
+<td>structlog (dev: console, prod: JSON; with OTel trace injection)</td>
+</tr>
+<tr>
+<td>Observability</td>
+<td>OpenTelemetry (FastAPI instrumentation; optional OTLP export)</td>
+</tr>
+<tr>
+<td>Container management</td>
+<td>Docker SDK for Python (<code>docker</code> package)</td>
+</tr>
+<tr>
+<td>Versioning</td>
+<td>bump-my-version</td>
+</tr>
+</tbody>
+</table>
+<h2 id="8-code-style">8. Code Style<a class="headerlink" href="#8-code-style" title="Permanent link">&para;</a></h2>
+<p>Matches the project's established toolchain:</p>
+<ul>
+<li><strong>Formatter/linter:</strong> ruff (line length 119, Google docstring convention)</li>
+<li><strong>Type checking:</strong> mypy (<code>--no-strict-optional --ignore-missing-imports</code>)</li>
+<li><strong>Docstring coverage:</strong> interrogate (≥90%, Google style, validated by pydoclint)</li>
+<li><strong>Pre-commit hooks:</strong> ruff-format, ruff-check, mypy, pydoclint, interrogate, detect-secrets, pyupgrade, check-yaml,
+    check-toml, check-github-actions, check-github-workflows</li>
+<li><strong>Type hints:</strong> Required on all public functions and methods; <code>--keep-runtime-typing</code></li>
+<li><strong>Python minimum:</strong> 3.12</li>
+</ul>
+<h2 id="9-testing-strategy">9. Testing Strategy<a class="headerlink" href="#9-testing-strategy" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Framework:</strong> pytest + pytest-cov (branch coverage)</li>
+<li><strong>LLM calls:</strong> Recorded fixtures , real LLM responses captured once and replayed.
+    No live LLM calls in CI.
+    Fixture files live in <code>tests/fixtures/</code>.</li>
+<li><strong>GitHub API calls:</strong> pytest-mock to mock PyGithub/httpx calls at the boundary</li>
+<li><strong>Agent protocol:</strong> Integration tests that spin up the agent container locally and send real HTTP task messages;
+    record expected response fixtures</li>
+<li><strong>Coverage target:</strong> ≥85% line coverage, ≥80% branch coverage</li>
+<li><strong>What is NOT mocked:</strong> SQLite memory store (use a real in-memory or temp-file DB in tests)</li>
+</ul>
+<h2 id="10-boundaries">10. Boundaries<a class="headerlink" href="#10-boundaries" title="Permanent link">&para;</a></h2>
+<h3 id="always-do-automatically">Always do automatically<a class="headerlink" href="#always-do-automatically" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Poll configured repos on the set interval without user intervention</li>
+<li>Inject credentials from the environment; never log or expose them</li>
+<li>Write every decision and action to the action log before executing</li>
+<li>Validate config file on startup; fail fast with a clear error if invalid</li>
+</ul>
+<h3 id="ask-before-doing-require-explicit-config-opt-in">Ask before doing (require explicit config opt-in)<a class="headerlink" href="#ask-before-doing-require-explicit-config-opt-in" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Closing an issue (default: label + comment only; closing requires <code>allow_close: true</code> in agent config)</li>
+<li>Acting on issues created by repo owners or maintainers (default: skip)</li>
+<li>Posting more than one comment on the same issue within 24 hours</li>
+</ul>
+<h3 id="never-do">Never do<a class="headerlink" href="#never-do" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Call GitHub API as anything other than the configured bot identity</li>
+<li>Store raw secrets in config files, logs, or the memory database</li>
+<li>Execute shell commands or arbitrary code from agent decision payloads</li>
+<li>Implement a DAG workflow engine in v1</li>
+<li>Build a web UI in v1</li>
+<li>Assume a public-facing URL exists for webhook delivery</li>
+</ul>
+<h2 id="11-open-questions-resolved">11. Open Questions (resolved)<a class="headerlink" href="#11-open-questions-resolved" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Question</th>
+<th>Decision</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Wire protocol</td>
+<td>HTTP (JSON over REST)</td>
+</tr>
+<tr>
+<td>Persistent memory in v1?</td>
+<td>Yes ,  per-issue action summary injected into task context</td>
+</tr>
+<tr>
+<td>Config format</td>
+<td>YAML</td>
+</tr>
+<tr>
+<td>Agent packaging</td>
+<td>Docker containers</td>
+</tr>
+<tr>
+<td>Webhook vs. polling</td>
+<td>Polling only in v1; no public URL assumed</td>
+</tr>
+<tr>
+<td>LLM test strategy</td>
+<td>Recorded fixtures</td>
+</tr>
+<tr>
+<td>Code style</td>
+<td>ruff + mypy + pydoclint + interrogate (existing toolchain)</td>
+</tr>
+</tbody>
+</table>
+<h2 id="12-known-scaffolding-issues-to-fix">12. Known Scaffolding Issues to Fix<a class="headerlink" href="#12-known-scaffolding-issues-to-fix" title="Permanent link">&para;</a></h2>
+<p>The following issues were identified in the boilerplate scaffolding and must be fixed before or during implementation:</p>
+<ol>
+<li><strong><code>pyproject.toml</code> missing CLI entry point:</strong> The <code>[project.scripts]</code> section is commented out.
+    Uncomment and point to the Foreman CLI once <code>foreman/__main__.py</code> is implemented.</li>
+<li><strong><code>pyproject.toml</code> missing runtime dependencies:</strong> <code>PyYAML</code>, <code>PyGithub</code>, <code>litellm</code>, <code>httpx</code>, <code>docker</code>
+    (Python SDK) are not yet listed.
+    Add these during the relevant implementation tasks.</li>
+<li><strong><code>server.py</code> is a template, not Foreman's dispatch loop:</strong> The scaffolded <code>server.py</code> is a generic FastAPI app.
+    It must be extended to implement the task dispatch loop described in §3
+    while retaining the existing middleware/CORS/logging setup.</li>
+</ol>
+<h2 id="13-key-assumptions-to-validate-before-coding">13. Key Assumptions to Validate Before Coding<a class="headerlink" href="#13-key-assumptions-to-validate-before-coding" title="Permanent link">&para;</a></h2>
+<ol>
+<li>HTTP round-trip latency between harness and agent container (localhost) is acceptable for a polling-based system:
+    <em>sketch one full triage flow end-to-end before building the full protocol</em></li>
+<li>LiteLLM abstraction works transparently for both Anthropic and Ollama without capability gaps on triage prompts:
+    <em>test same prompt against both backends before committing</em></li>
+<li>SQLite is sufficient for memory at single-maintainer scale:
+    <em>revisit only if concurrent multi-repo polling causes locking issues</em></li>
+<li>Docker is available in the target deployment environment: <em>document as a hard prerequisite</em></li>
+</ol>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-circle-arrow-up" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m16 12-4-4-4 4M12 16V8"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2026 Corey Oordt
+
+    </div>
+  
+  
+    Made with
+    <a href="https://zensical.org/" target="_blank" rel="noopener">
+      Zensical
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate":null,"base":"../../..","features":["announce.dismiss","content.action.edit","content.action.view","content.code.annotate","content.code.copy","content.code.select","content.footnote.tooltips","content.tabs.link","content.tooltips","navigation.indexes","navigation.instant.prefetch","navigation.path","navigation.sections","navigation.top","navigation.tracking","search.highlight","toc.integrate"],"search":"../../../assets/javascripts/workers/search.e2d2d235.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.63456bd9.min.js"></script>
+      
+    
+  </body>
+</html>
