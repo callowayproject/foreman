@@ -62,7 +62,7 @@ Foreman uses a YAML configuration file to define repositories, agents, and LLM b
     ```
 
 For detailed configuration options, see [config.example.yaml](config.example.yaml)
-and the [Project Specification](docs/specs/initial/SPEC.md).
+and the [Project Specification](docs/specs/01-agent-harness/SPEC.md).
 
 ## Project Structure
 
