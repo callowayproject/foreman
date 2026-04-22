@@ -24,13 +24,10 @@ The community looks forward to your contributions.
 - [Reporting Bugs](#reporting-bugs)
 - [Suggesting Enhancements](#suggesting-enhancements)
 - [Your First Code Contribution](#your-first-code-contribution)
-- [Improving The Documentation](#improving-the-documentation)
-- [Styleguides](#styleguides)
-- [Join The Project Team](#join-the-project-team)
 
 ## Code of Conduct
 
-This project and everyone participating is governed by the [Foreman Code of Conduct](../CODE_OF_CONDUCT.md).
+This project and everyone participating is governed by the [Foreman Code of Conduct](CODE_OF_CONDUCT.md).
 
 By participating, you are expected to uphold this code.
 Please report unacceptable behavior to <coreyoordt@gmail.com>.
