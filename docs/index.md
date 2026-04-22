@@ -10,4 +10,9 @@ date: 2026-04-14T16:51:58.665341+00:00
 
 ## What Next
 
-To get going quickly head over to the [Quick Start](quickstart.md) tutorial, then check out the [Tutorials](tutorials/index.md), [Reference](reference/index.md), or [How-tos](howtos/index.md) for more information. Developers should check out the [Developer Guide](development.md) for even more detailed information and advice on how to extend Foreman.
+To get started, see [Installation,](installation.md) then follow the [Quick Start](quickstart.md) guide.
+For a deeper understanding of how Foreman works, read [How Foreman Works](explanation.md).
+
+Once you're up and running, check out the [Reference](reference/index.md) for technical details on configuration,
+the CLI, and the agent protocol.
+Developers extending Foreman should read the [Developer Guide](development.md).

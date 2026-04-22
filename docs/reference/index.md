@@ -1,15 +1,16 @@
 ---
-title: Reference 
-summary: Technical reference of Foreman.
-date: 2026-04-14T16:51:58.665341+00:00
+title: Reference
+summary: Technical reference for Foreman — configuration, CLI, and the agent protocol.
+date: 2026-04-21T00:00:00.000000+00:00
 ---
 
-The *Reference* is intended as technical descriptions of the parts of Foreman.
+# Reference
 
-!!! warning
+Technical descriptions of Foreman's configuration, command-line interface,
+and the message protocol between the harness and agent containers.
 
-    Reference not implemented yet!
-
-Reference guides are technical descriptions of the machinery and how to operate it. Reference material is **information-oriented.**
-
-[More information](https://diataxis.fr/reference/)
+| Document                            | Description                                                                             |
+|-------------------------------------|-----------------------------------------------------------------------------------------|
+| [Configuration](configuration.md)   | Complete YAML configuration schema — all fields, types, defaults, and examples          |
+| [CLI](cli.md)                       | `foreman` command-line reference — commands, options, and exit codes                    |
+| [Agent Protocol](agent-protocol.md) | Harness↔agent message contract — `TaskMessage`, `DecisionMessage`, and all action types |
