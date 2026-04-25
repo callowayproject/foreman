@@ -17,7 +17,7 @@ license = { file = "LICENSE" }
 requires-python = ">=3.12"
 dependencies = [
     "orjson>=3.8.12",
-    "pydantic-settings>=2.13.1",
+    "pydantic-settings>=2.14.0",
     "opentelemetry-api>=1.41.0",
     "fastapi[standard]",
     "opentelemetry-instrumentation-fastapi",
@@ -28,7 +28,7 @@ dependencies = [
     "opentelemetry-exporter-otlp",
     "PyYAML>=6.0",
     "PyGithub>=2.0",
-    "litellm>=1.83.9",
+    "litellm>=1.83.13",
     "httpx>=0.28.1",
     "docker>=7.1.0",
 ]
@@ -65,7 +65,7 @@ test = [
     "pytest-agent-digest",
 ]
 docs = [
-    "zensical>=0.0.33",
+    "zensical>=0.0.36",
     "griffe-pydantic",
     "griffe-fieldz",
     "mkdocstrings[python]",
