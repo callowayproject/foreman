@@ -343,7 +343,7 @@ Inherits all project conventions from `CLAUDE.md`:
 
 ### Ask First (Require Explicit Config)
 
-- `allow_close: true` — closing issues (unchanged from current behaviour).
+- `allow_close: true` — closing issues (unchanged from current behavior).
 - `max_retries` changes beyond the default — operators must set this deliberately.
 
 ### Never Do
@@ -359,7 +359,7 @@ Inherits all project conventions from `CLAUDE.md`:
 
 - Multiple agent containers per queue (no consumer groups).
 - External queue backends (Redis, NATS) — pluggable interface defined, SQLite only implemented.
-- Task prioritisation or ordering beyond FIFO.
+- Task prioritization or ordering beyond FIFO.
 - Monitoring UI.
 - `GET /queue/status` operator endpoint.
 

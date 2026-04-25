@@ -43,16 +43,16 @@ Update `config.example.yaml` with the new section (commented out, showing defaul
 
 **Acceptance criteria:**
 
-- [ ] `QueueConfig` model exists with fields: `db_path: Path | None`, `claim_timeout_seconds: int = 300`,
+- [x] `QueueConfig` model exists with fields: `db_path: Path | None`, `claim_timeout_seconds: int = 300`,
   `max_retries: int = 3`, `drain_interval_seconds: int = 10`, `requeue_interval_seconds: int = 60`
-- [ ] `ForemanConfig.queue` defaults to a zero-config `QueueConfig()` when the section is absent
-- [ ] `${VAR}` references in `db_path` resolve correctly (inherits `_resolve_refs_in`)
-- [ ] Existing config tests still pass
+- [x] `ForemanConfig.queue` defaults to a zero-config `QueueConfig()` when the section is absent
+- [x] `${VAR}` references in `db_path` resolve correctly (inherits `_resolve_refs_in`)
+- [x] Existing config tests still pass
 
 **Verification:**
 
-- [ ] `uv run pytest --agent-digest=term tests/test_config.py`
-- [ ] `pre-commit run --all-files`
+- [x] `uv run pytest --agent-digest=term tests/test_config.py`
+- [x] `pre-commit run --all-files`
 
 **Dependencies:** None
 
@@ -77,20 +77,20 @@ or a `SELECT … FOR UPDATE` workaround to be concurrency-safe under multiple si
 
 **Acceptance criteria:**
 
-- [ ] `queue.db` schema matches spec (§3.1): `task_queue` table with all columns + index
-- [ ] `enqueue()` inserts with `status=pending`
-- [ ] `claim_next()` atomically claims oldest pending task for the given `agent_url`; returns `None` when empty
-- [ ] `complete()` sets `status=completed` and stores the serialised `DecisionMessage`
-- [ ] `heartbeat()` updates `last_heartbeat`
-- [ ] `drain_completed()` returns all `completed` rows and sets them to `done`
-- [ ] `requeue_stale()` re-enqueues `claimed` tasks past the claim timeout; increments `retry_count`
-- [ ] `fail_exhausted()` marks tasks with `retry_count >= max_retries` as `failed`
-- [ ] DB file and parent directories are auto-created (matching `MemoryStore` behaviour)
+- [x] `queue.db` schema matches spec (§3.1): `task_queue` table with all columns + index
+- [x] `enqueue()` inserts with `status=pending`
+- [x] `claim_next()` atomically claims oldest pending task for the given `agent_url`; returns `None` when empty
+- [x] `complete()` sets `status=completed` and stores the serialised `DecisionMessage`
+- [x] `heartbeat()` updates `last_heartbeat`
+- [x] `drain_completed()` returns all `completed` rows and sets them to `done`
+- [x] `requeue_stale()` re-enqueues `claimed` tasks past the claim timeout; increments `retry_count`
+- [x] `fail_exhausted()` marks tasks with `retry_count >= max_retries` as `failed`
+- [x] DB file and parent directories are auto-created (matching `MemoryStore` behaviour)
 
 **Verification:**
 
-- [ ] `uv run pytest --agent-digest=term tests/test_queue.py` (written in Task 3)
-- [ ] `pre-commit run --all-files`
+- [x] `uv run pytest --agent-digest=term tests/test_queue.py` (written in Task 3)
+- [x] `pre-commit run --all-files`
 
 **Dependencies:** Task 1
 
@@ -108,19 +108,19 @@ Use `freezegun` or manual timestamp manipulation to test timeout-based behaviour
 
 **Acceptance criteria:**
 
-- [ ] Schema creation: `task_queue` table and index exist after init
-- [ ] `enqueue` + `claim_next` happy path: task round-trips correctly
-- [ ] `claim_next` returns `None` on empty queue
-- [ ] `complete` + `drain_completed`: completed task is returned and marked `done`
-- [ ] `requeue_stale`: task claimed but not heartbeated past timeout → re-enqueued, `retry_count` incremented
-- [ ] `fail_exhausted`: task at `max_retries` → `status=failed`
-- [ ] Concurrent claim: two threads call `claim_next()` simultaneously; only one receives the task
-- [ ] Coverage ≥85% line / ≥80% branch for `foreman/queue.py`
+- [x] Schema creation: `task_queue` table and index exist after init
+- [x] `enqueue` + `claim_next` happy path: task round-trips correctly
+- [x] `claim_next` returns `None` on empty queue
+- [x] `complete` + `drain_completed`: completed task is returned and marked `done`
+- [x] `requeue_stale`: task claimed but not heartbeated past timeout → re-enqueued, `retry_count` incremented
+- [x] `fail_exhausted`: task at `max_retries` → `status=failed`
+- [x] Concurrent claim: two threads call `claim_next()` simultaneously; only one receives the task
+- [x] Coverage ≥85% line / ≥80% branch for `foreman/queue.py`
 
 **Verification:**
 
-- [ ] `uv run pytest --agent-digest=term tests/test_queue.py --cov=foreman/queue.py`
-- [ ] `pre-commit run --all-files`
+- [x] `uv run pytest --agent-digest=term tests/test_queue.py --cov=foreman/queue.py`
+- [x] `pre-commit run --all-files`
 
 **Dependencies:** Task 2
 
