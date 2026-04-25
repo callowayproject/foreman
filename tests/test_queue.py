@@ -5,6 +5,7 @@ from __future__ import annotations
 import threading
 import time
 from pathlib import Path
+from typing import Any, Generator
 
 import pytest
 
@@ -38,9 +39,11 @@ def _make_decision(task_id: str = "task-1") -> DecisionMessage:
 
 
 @pytest.fixture()
-def queue(tmp_path: Path) -> TaskQueue:
+def queue(tmp_path: Path) -> Generator[TaskQueue, Any, None]:
     """Return a TaskQueue backed by a temp-file SQLite DB."""
-    return TaskQueue(db_path=tmp_path / "queue.db")
+    q = TaskQueue(db_path=tmp_path / "queue.db")
+    yield q
+    q.close()
 
 
 # ---------------------------------------------------------------------------

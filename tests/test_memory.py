@@ -19,14 +19,16 @@ class TestMemoryStoreInit:
     def test_creates_db_file(self, tmp_path: Path) -> None:
         """MemoryStore creates the SQLite DB file at the given path."""
         db_path = tmp_path / "memory.db"
-        MemoryStore(db_path)
+        m = MemoryStore(db_path)
         assert db_path.exists()
+        m.close()
 
     def test_creates_parent_directories(self, tmp_path: Path) -> None:
         """MemoryStore creates intermediate directories if they don't exist."""
         db_path = tmp_path / "nested" / "dir" / "memory.db"
-        MemoryStore(db_path)
+        m = MemoryStore(db_path)
         assert db_path.exists()
+        m.close()
 
     def test_action_log_table_exists(self, tmp_path: Path) -> None:
         """action_log table is created with the correct schema."""

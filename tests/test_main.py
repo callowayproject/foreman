@@ -95,7 +95,7 @@ class TestMainStartupSequence:
         mock_memory_cls = mocker.patch("foreman.__main__.MemoryStore")
         mocker.patch("foreman.__main__.GitHubPoller")
         mocker.patch("foreman.__main__.Dispatcher")
-        mocker.patch("foreman.__main__.asyncio.run")
+        mocker.patch("foreman.__main__.asyncio.run", side_effect=lambda c: c.close())
 
         main(["start", "--config", str(config_path)])
 
@@ -109,7 +109,7 @@ class TestMainStartupSequence:
         mocker.patch("foreman.__main__.MemoryStore")
         mocker.patch("foreman.__main__.GitHubPoller")
         mocker.patch("foreman.__main__.Dispatcher")
-        mock_run = mocker.patch("foreman.__main__.asyncio.run")
+        mock_run = mocker.patch("foreman.__main__.asyncio.run", side_effect=lambda c: c.close())
 
         main(["start", "--config", str(config_path)])
 
@@ -123,7 +123,7 @@ class TestMainStartupSequence:
         mocker.patch("foreman.__main__.MemoryStore")
         mock_poller_cls = mocker.patch("foreman.__main__.GitHubPoller")
         mocker.patch("foreman.__main__.Dispatcher")
-        mocker.patch("foreman.__main__.asyncio.run")
+        mocker.patch("foreman.__main__.asyncio.run", side_effect=lambda c: c.close())
 
         main(["start", "--config", str(config_path)])
 
@@ -137,7 +137,7 @@ class TestMainStartupSequence:
         mocker.patch("foreman.__main__.MemoryStore")
         mocker.patch("foreman.__main__.GitHubPoller")
         mock_dispatcher_cls = mocker.patch("foreman.__main__.Dispatcher")
-        mocker.patch("foreman.__main__.asyncio.run")
+        mocker.patch("foreman.__main__.asyncio.run", side_effect=lambda c: c.close())
 
         main(["start", "--config", str(config_path)])
 
@@ -272,7 +272,7 @@ class TestMainContainerStartup:
         mocker.patch("foreman.__main__.MemoryStore")
         mocker.patch("foreman.__main__.GitHubPoller")
         mocker.patch("foreman.__main__.Dispatcher")
-        mocker.patch("foreman.__main__.asyncio.run")
+        mocker.patch("foreman.__main__.asyncio.run", side_effect=lambda c: c.close())
         mock_cm_cls = mocker.patch("foreman.__main__.ContainerManager")
 
         main(["start", "--config", str(config_path)])
@@ -318,7 +318,7 @@ class TestMainContainerStartup:
         mocker.patch("foreman.__main__.MemoryStore")
         mocker.patch("foreman.__main__.GitHubPoller")
         mocker.patch("foreman.__main__.Dispatcher")
-        mocker.patch("foreman.__main__.asyncio.run")
+        mocker.patch("foreman.__main__.asyncio.run", side_effect=lambda c: c.close())
         mock_cm = mocker.MagicMock()
         mock_cm.start_agent.return_value = "http://localhost:9001"
         mocker.patch("foreman.__main__.ContainerManager", return_value=mock_cm)

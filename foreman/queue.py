@@ -7,6 +7,7 @@ no mocks.  Tests must use a real temp-file database via ``pytest tmp_path``.
 from __future__ import annotations
 
 import sqlite3
+import threading
 import time
 from typing import TYPE_CHECKING
 
@@ -56,6 +57,7 @@ class TaskQueue:
         # so that BEGIN IMMEDIATE works for atomic claim_next().
         self._conn = sqlite3.connect(str(db_path), check_same_thread=False, isolation_level=None)
         self._conn.executescript(_SCHEMA)
+        self._lock = threading.Lock()
 
     # ------------------------------------------------------------------
     # Public interface
@@ -80,8 +82,9 @@ class TaskQueue:
     def claim_next(self, agent_url: str) -> TaskMessage | None:
         """Claim the oldest pending task for agent_url.
 
-        Uses a single ``BEGIN IMMEDIATE`` transaction so that concurrent callers
-        cannot double-claim the same task.
+        Uses a threading lock plus ``BEGIN IMMEDIATE`` so that concurrent
+        callers — whether in the same process or different ones — cannot
+        double-claim the same task.
 
         Args:
             agent_url: The agent URL requesting a task.
@@ -92,37 +95,38 @@ class TaskQueue:
         """
         from foreman.protocol import TaskMessage as _TaskMessage
 
-        # BEGIN IMMEDIATE acquires a write lock before SELECT — SQLite
-        # serialises all writes so no second thread can claim the same row.
-        self._conn.execute("BEGIN IMMEDIATE")
-        try:
-            row = self._conn.execute(
-                """
-                SELECT task_id, payload FROM task_queue
-                WHERE status = 'pending' AND agent_url = ?
-                ORDER BY created_at ASC
-                LIMIT 1
-                """,
-                (agent_url,),
-            ).fetchone()
-            if row is None:
+        # _lock serialises same-process threads; BEGIN IMMEDIATE handles
+        # cross-process / cross-connection contention at the SQLite level.
+        with self._lock:
+            self._conn.execute("BEGIN IMMEDIATE")
+            try:
+                row = self._conn.execute(
+                    """
+                    SELECT task_id, payload FROM task_queue
+                    WHERE status = 'pending' AND agent_url = ?
+                    ORDER BY created_at ASC
+                    LIMIT 1
+                    """,
+                    (agent_url,),
+                ).fetchone()
+                if row is None:
+                    self._conn.execute("ROLLBACK")
+                    return None
+                task_id, payload_json = row
+                now = time.time()
+                self._conn.execute(
+                    """
+                    UPDATE task_queue
+                    SET status = 'claimed', claimed_at = ?, last_heartbeat = ?
+                    WHERE task_id = ?
+                    """,
+                    (now, now, task_id),
+                )
+                self._conn.execute("COMMIT")
+            except Exception:
                 self._conn.execute("ROLLBACK")
-                return None
-            task_id, payload_json = row
-            now = time.time()
-            self._conn.execute(
-                """
-                UPDATE task_queue
-                SET status = 'claimed', claimed_at = ?, last_heartbeat = ?
-                WHERE task_id = ?
-                """,
-                (now, now, task_id),
-            )
-            self._conn.execute("COMMIT")
-        except Exception:
-            self._conn.execute("ROLLBACK")
-            raise
-        return _TaskMessage.model_validate_json(payload_json)
+                raise
+            return _TaskMessage.model_validate_json(payload_json)
 
     def complete(self, task_id: str, decision: DecisionMessage) -> None:
         """Mark a task completed and store the decision result.
