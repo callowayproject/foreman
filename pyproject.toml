@@ -257,6 +257,11 @@ dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
 typing-modules = ["typing", "types", "typing_extensions", "mypy", "mypy_extensions"]
 
 [tool.ruff.lint.per-file-ignores]
+"foreman/routers/*.py" = [
+    "B008",   # FastAPI Depends() in argument defaults is idiomatic
+    "TC001",  # Application imports needed at runtime for FastAPI dependency resolution
+    "TC003",  # Stdlib imports needed at runtime for FastAPI dependency resolution
+]
 "tests/*" = [
     "ANN001", # missing-type-function-argument
     "ANN002", # missing-type-args

@@ -17,6 +17,8 @@ from foreman.middleware import LogCorrelationIdMiddleware
 from foreman.otel import configure_otel
 from foreman.protocol import DecisionMessage, LLMBackendRef, TaskContext, TaskMessage
 from foreman.routers import health
+from foreman.routers import queue as queue_router
+from foreman.routers import result as result_router
 from foreman.settings import settings
 
 if TYPE_CHECKING:
@@ -164,5 +166,7 @@ app.add_middleware(GZipMiddleware, minimum_size=500)
 app.add_middleware(LogCorrelationIdMiddleware)
 
 app.include_router(health.router)
+app.include_router(queue_router.router)
+app.include_router(result_router.router)
 
 configure_otel(app, settings)
