@@ -1,0 +1,2311 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="A Python harness that acts as an always-on AI co-maintainer for OSS repositories.">
+      
+      
+        <meta name="author" content="Corey Oordt">
+      
+      
+        <link rel="canonical" href="https://callowayproject.github.io/foreman/specs/02-messaging-update/plan/">
+      
+      
+        <link rel="prev" href="../idea/">
+      
+      
+        <link rel="next" href="../../../tutorials/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/favicon.png">
+      <meta name="generator" content="zensical-0.0.33">
+    
+    
+      
+        <title>Implementation Plan: Queue-Mediated Agent Protocol - Foreman</title>
+      
+    
+    
+      
+        
+      
+      <link rel="stylesheet" href="../../../assets/stylesheets/modern/main.53a7feaf.min.css">
+      
+        
+          
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/modern/palette.dfe2e883.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,300i,400,400i,500,500i,700,700i%7CJetBrains+Mono:400,400i,700,700i&amp;display=fallback">
+        <style>:root{--md-text-font:"Inter";--md-code-font:"JetBrains Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/css/extra.css">
+    
+      <link rel="stylesheet" href="../../../assets/css/mkdocstrings.css">
+    
+      <link rel="stylesheet" href="../../../assets/css/cards.css">
+    
+      <link rel="stylesheet" href="../../../assets/css/field-list.css">
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,t)=>(e<<5)-e+t.charCodeAt(0)),0),__md_get=(e,t=localStorage,a=__md_scope)=>JSON.parse(t.getItem(a.pathname+"."+e)),__md_set=(e,t,a=localStorage,_=__md_scope)=>{try{a.setItem(_.pathname+"."+e,JSON.stringify(t))}catch(e){}},document.documentElement.setAttribute("data-platform",navigator.platform)</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer" aria-label="Navigation"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#implementation-plan-queue-mediated-agent-protocol" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="Foreman" class="md-header__button md-logo" aria-label="Foreman" data-md-component="logo">
+      
+  <img src="../../../assets/logo.png" alt="Foreman">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer" aria-label="Navigation">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-menu" viewBox="0 0 24 24"><path d="M4 5h16M4 12h16M4 19h16"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Foreman
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Implementation Plan: Queue-Mediated Agent Protocol
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-moon" viewBox="0 0 24 24"><path d="M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search" aria-label="Search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-search" viewBox="0 0 24 24"><path d="m21 21-4.34-4.34"/><circle cx="11" cy="11" r="8"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog" aria-label="Search">
+  <button type="button" class="md-search__button">
+    Search
+  </button>
+</div>
+      
+    
+    <div class="md-header__source">
+      
+    </div>
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="Foreman" class="md-nav__button md-logo" aria-label="Foreman" data-md-component="logo">
+      
+  <img src="../../../assets/logo.png" alt="Foreman">
+
+    </a>
+    Foreman
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Foreman
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../development/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Developer Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../explanation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    How Foreman Works
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../quickstart/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../../howtos/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Howtos
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Howtos
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../../reference/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reference
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_7" id="__nav_7_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../reference/agent-protocol/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Agent Protocol Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../reference/cli/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CLI Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../reference/configuration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Configuration Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8" checked>
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Specs
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_8" id="__nav_8_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_8">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Specs
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_8_2" id="__nav_8_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01 agent harness
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_8_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    01 agent harness
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../01-agent-harness/SPEC/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Foreman , Project Specification
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../01-agent-harness/idea/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Agent Harness
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../01-agent-harness/plan/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Implementation Plan: Foreman — AI OSS Co-Maintainer Harness
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../01-agent-harness/todo/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Foreman — Task List
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_8_3" id="__nav_8_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    02 messaging update
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_8_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_8_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    02 messaging update
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../SPEC/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Spec: Queue-Mediated Agent Protocol
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../idea/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Messaging Update: Queue-Mediated Agent Protocol
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Implementation Plan: Queue-Mediated Agent Protocol
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="././" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Implementation Plan: Queue-Mediated Agent Protocol
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+
+<nav class="md-nav md-nav--secondary" aria-label="On this page">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Overview
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#architecture-decisions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Architecture Decisions
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#open-questions-resolve-before-phase-4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Open Questions (resolve before Phase 4)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#task-list" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task List
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Task List">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#phase-1-configuration-and-queue-foundation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 1: Configuration and Queue Foundation
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Phase 1: Configuration and Queue Foundation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#task-1-add-queueconfig-to-configpy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 1: Add QueueConfig to config.py
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-2-implement-foremanqueuepy-taskqueue" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 2: Implement foreman/queue.py — TaskQueue
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-3-tests-for-taskqueue" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 3: Tests for TaskQueue
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#checkpoint-phase-1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Checkpoint: Phase 1
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-2-harness-queue-api-endpoints" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 2: Harness Queue API Endpoints
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Phase 2: Harness Queue API Endpoints">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#task-4-queue-http-endpoints-foremanroutersqueuepy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 4: Queue HTTP endpoints — foreman/routers/queue.py
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-5-post-harnessresult-endpoint-foremanroutersresultpy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 5: POST /harness/result endpoint — foreman/routers/result.py
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-6-tests-for-harness-queue-endpoints" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 6: Tests for harness queue endpoints
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#checkpoint-phase-2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Checkpoint: Phase 2
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-3-foreman-client-package" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 3: foreman-client Package
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Phase 3: foreman-client Package">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#task-7-scaffold-foreman-client-package-modelspy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 7: Scaffold foreman-client package + models.py
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-8-implement-foremanclient-in-foremanclientclientpy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 8: Implement ForemanClient in foremanclient/client.py
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-9-tests-for-foremanclient" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 9: Tests for foremanclient
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#checkpoint-phase-3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Checkpoint: Phase 3
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-4-dispatcher-refactor-and-background-loops" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 4: Dispatcher Refactor and Background Loops
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Phase 4: Dispatcher Refactor and Background Loops">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#task-10-refactor-dispatcherdispatch-to-enqueue-nudge" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 10: Refactor Dispatcher.dispatch() to enqueue + nudge
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-11-add-drain-and-requeue-background-loops-to-fastapi-lifespan" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 11: Add drain and requeue background loops to FastAPI lifespan
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-12-wire-taskqueue-into-__main__py" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 12: Wire TaskQueue into __main__.py
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-13-tests-for-updated-dispatcher-and-background-loops" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 13: Tests for updated Dispatcher and background loops
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#checkpoint-phase-4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Checkpoint: Phase 4
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-5-agent-update" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 5: Agent Update
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Phase 5: Agent Update">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#task-14-update-reference-agent-to-use-foremanclient" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 14: Update reference agent to use ForemanClient
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-15-tests-for-updated-reference-agent" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 15: Tests for updated reference agent
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#checkpoint-phase-5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Checkpoint: Phase 5
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-6-documentation-and-integration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 6: Documentation and Integration
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Phase 6: Documentation and Integration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#task-16-write-docshow-towrite-an-agentmd" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 16: Write docs/how-to/write-an-agent.md
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-17-integration-test-agent-restart-resilience" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 17: Integration test — agent restart resilience
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#checkpoint-phase-6-final" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Checkpoint: Phase 6 (Final)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#risks-and-mitigations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Risks and Mitigations
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#out-of-scope-mvp" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Out of Scope (MVP)
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../../tutorials/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tutorials
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_9">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Tutorials
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+                
+
+
+
+  
+
+
+  <nav class="md-path" aria-label="Navigation" >
+    <ol class="md-path__list">
+      
+        
+  
+  
+    <li class="md-path__item">
+      <a href="../../.." class="md-path__link">
+        
+  <span class="md-ellipsis">
+    Foreman
+  </span>
+
+      </a>
+    </li>
+  
+
+      
+      
+        
+  
+  
+    
+    
+      <li class="md-path__item">
+        <a href="../../" class="md-path__link">
+          
+  <span class="md-ellipsis">
+    Specs
+  </span>
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+    
+    
+      <li class="md-path__item">
+        <a href="../SPEC/" class="md-path__link">
+          
+  <span class="md-ellipsis">
+    02 messaging update
+  </span>
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ol>
+  </nav>
+
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+<h1 id="implementation-plan-queue-mediated-agent-protocol">Implementation Plan: Queue-Mediated Agent Protocol<a class="headerlink" href="#implementation-plan-queue-mediated-agent-protocol" title="Permanent link">&para;</a></h1>
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p>Replace the synchronous <code>POST /task → DecisionMessage</code> dispatch in <code>server.py</code> with a durable, SQLite-backed task queue.
+Events are enqueued before any dispatch attempt; agents claim tasks via HTTP;
+the harness drains completed tasks on a background loop.
+Zero task loss under an agent restart is the MVP acceptance criterion.</p>
+<h2 id="architecture-decisions">Architecture Decisions<a class="headerlink" href="#architecture-decisions" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Config-first:</strong> Add <code>QueueConfig</code> to <code>config.py</code> before writing <code>TaskQueue</code> — the timeout
+  and retry defaults flow from config into every other component.</li>
+<li><strong>Harness owns the database:</strong> Agents never touch <code>queue.db</code> directly.
+  All queue I/O goes through HTTP endpoints on the harness.
+  <code>foreman-client</code> wraps these calls.</li>
+<li><strong>Three new harness endpoints:</strong> <code>POST /queue/next</code> (claim), <code>POST /queue/complete</code>
+  (store result), <code>POST /queue/heartbeat</code> (extend claim window); plus <code>POST /harness/result</code> (drain nudge).
+  Only <code>/harness/result</code> is specified in the spec;
+  the other three are the implicit contract required by <code>ForemanClient.next_task()</code> / <code>complete_task()</code> / <code>heartbeat()</code>.</li>
+<li><strong><code>complete_task()</code> does two things:</strong> stores the <code>DecisionMessage</code> in the queue DB <em>and</em>
+  sends <code>POST /harness/result</code> to nudge the drain loop — so agent authors call only one method.</li>
+<li><strong>Delete the synchronous path entirely in Phase 4:</strong> no fallback, no feature flag.</li>
+</ul>
+<h2 id="open-questions-resolve-before-phase-4">Open Questions (resolve before Phase 4)<a class="headerlink" href="#open-questions-resolve-before-phase-4" title="Permanent link">&para;</a></h2>
+<ul>
+<li>What HTTP status code should <code>POST /queue/next</code> return when the queue is empty —
+  <code>204 No Content</code> or <code>200</code> with a <code>null</code> body?
+  (Plan assumes <code>204</code>.)</li>
+<li>Should <code>POST /queue/complete</code> accept a standalone <code>DecisionMessage</code>, or a wrapper <code>{task_id, decision}</code>?
+  (Plan assumes the full <code>DecisionMessage</code> as the body, since it already carries <code>task_id</code>.)</li>
+</ul>
+<h2 id="task-list">Task List<a class="headerlink" href="#task-list" title="Permanent link">&para;</a></h2>
+<h3 id="phase-1-configuration-and-queue-foundation">Phase 1: Configuration and Queue Foundation<a class="headerlink" href="#phase-1-configuration-and-queue-foundation" title="Permanent link">&para;</a></h3>
+<h4 id="task-1-add-queueconfig-to-configpy">Task 1: Add <code>QueueConfig</code> to <code>config.py</code><a class="headerlink" href="#task-1-add-queueconfig-to-configpy" title="Permanent link">&para;</a></h4>
+<p><strong>Description:</strong> Extend <code>ForemanConfig</code> with a new optional <code>queue: QueueConfig</code> section.
+Mirror the pattern used for <code>PollingConfig</code> — a Pydantic model with typed fields and defaults,
+added as an optional field on <code>ForemanConfig</code>.
+Update <code>config.example.yaml</code> with the new section (commented out, showing defaults).</p>
+<p><strong>Acceptance criteria:</strong></p>
+<ul class="task-list">
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> <code>QueueConfig</code> model exists with fields: <code>db_path: Path | None</code>, <code>claim_timeout_seconds: int = 300</code>,
+  <code>max_retries: int = 3</code>, <code>drain_interval_seconds: int = 10</code>, <code>requeue_interval_seconds: int = 60</code></li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> <code>ForemanConfig.queue</code> defaults to a zero-config <code>QueueConfig()</code> when the section is absent</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> <code>${VAR}</code> references in <code>db_path</code> resolve correctly (inherits <code>_resolve_refs_in</code>)</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> Existing config tests still pass</li>
+</ul>
+<p><strong>Verification:</strong></p>
+<ul class="task-list">
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> <code>uv run pytest --agent-digest=term tests/test_config.py</code></li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> <code>pre-commit run --all-files</code></li>
+</ul>
+<p><strong>Dependencies:</strong> None</p>
+<p><strong>Files likely touched:</strong></p>
+<ul>
+<li><code>foreman/config.py</code></li>
+<li><code>config.example.yaml</code></li>
+<li><code>tests/test_config.py</code></li>
+</ul>
+<p><strong>Estimated scope:</strong> S</p>
+<h4 id="task-2-implement-foremanqueuepy-taskqueue">Task 2: Implement <code>foreman/queue.py</code> — <code>TaskQueue</code><a class="headerlink" href="#task-2-implement-foremanqueuepy-taskqueue" title="Permanent link">&para;</a></h4>
+<p><strong>Description:</strong> Create <code>foreman/queue.py</code> with the <code>TaskQueue</code> class and <code>queue.db</code> schema.
+Follow the exact patterns from <code>memory.py</code>: <code>PRAGMA journal_mode=WAL</code>, <code>check_same_thread=False</code>,
+<code>executescript</code> for DDL, no ORM.
+Implement all six public methods from the spec.</p>
+<p>The <code>claim_next()</code> method must use a single <code>UPDATE … RETURNING</code>
+or a <code>SELECT … FOR UPDATE</code> workaround to be concurrency-safe under multiple simultaneous callers
+(SQLite serialises writes, so <code>BEGIN IMMEDIATE</code> + <code>SELECT</code> + <code>UPDATE</code> in a single transaction is sufficient).</p>
+<p><strong>Acceptance criteria:</strong></p>
+<ul class="task-list">
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> <code>queue.db</code> schema matches spec (§3.1): <code>task_queue</code> table with all columns + index</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> <code>enqueue()</code> inserts with <code>status=pending</code></li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> <code>claim_next()</code> atomically claims oldest pending task for the given <code>agent_url</code>; returns <code>None</code> when empty</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> <code>complete()</code> sets <code>status=completed</code> and stores the serialised <code>DecisionMessage</code></li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> <code>heartbeat()</code> updates <code>last_heartbeat</code></li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> <code>drain_completed()</code> returns all <code>completed</code> rows and sets them to <code>done</code></li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> <code>requeue_stale()</code> re-enqueues <code>claimed</code> tasks past the claim timeout; increments <code>retry_count</code></li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> <code>fail_exhausted()</code> marks tasks with <code>retry_count &gt;= max_retries</code> as <code>failed</code></li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> DB file and parent directories are auto-created (matching <code>MemoryStore</code> behaviour)</li>
+</ul>
+<p><strong>Verification:</strong></p>
+<ul class="task-list">
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> <code>uv run pytest --agent-digest=term tests/test_queue.py</code> (written in Task 3)</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> <code>pre-commit run --all-files</code></li>
+</ul>
+<p><strong>Dependencies:</strong> Task 1</p>
+<p><strong>Files likely touched:</strong></p>
+<ul>
+<li><code>foreman/queue.py</code> (new)</li>
+</ul>
+<p><strong>Estimated scope:</strong> M</p>
+<h4 id="task-3-tests-for-taskqueue">Task 3: Tests for <code>TaskQueue</code><a class="headerlink" href="#task-3-tests-for-taskqueue" title="Permanent link">&para;</a></h4>
+<p><strong>Description:</strong> Write <code>tests/test_queue.py</code> covering all <code>TaskQueue</code> methods.
+Use a real temp-file SQLite DB via <code>pytest tmp_path</code> — never mock SQLite.
+Use <code>freezegun</code> or manual timestamp manipulation to test timeout-based behaviour.</p>
+<p><strong>Acceptance criteria:</strong></p>
+<ul class="task-list">
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> Schema creation: <code>task_queue</code> table and index exist after init</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> <code>enqueue</code> + <code>claim_next</code> happy path: task round-trips correctly</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> <code>claim_next</code> returns <code>None</code> on empty queue</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> <code>complete</code> + <code>drain_completed</code>: completed task is returned and marked <code>done</code></li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> <code>requeue_stale</code>: task claimed but not heartbeated past timeout → re-enqueued, <code>retry_count</code> incremented</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> <code>fail_exhausted</code>: task at <code>max_retries</code> → <code>status=failed</code></li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> Concurrent claim: two threads call <code>claim_next()</code> simultaneously; only one receives the task</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> Coverage ≥85% line / ≥80% branch for <code>foreman/queue.py</code></li>
+</ul>
+<p><strong>Verification:</strong></p>
+<ul class="task-list">
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> <code>uv run pytest --agent-digest=term tests/test_queue.py --cov=foreman/queue.py</code></li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> <code>pre-commit run --all-files</code></li>
+</ul>
+<p><strong>Dependencies:</strong> Task 2</p>
+<p><strong>Files likely touched:</strong></p>
+<ul>
+<li><code>tests/test_queue.py</code> (new)</li>
+</ul>
+<p><strong>Estimated scope:</strong> M</p>
+<h3 id="checkpoint-phase-1">Checkpoint: Phase 1<a class="headerlink" href="#checkpoint-phase-1" title="Permanent link">&para;</a></h3>
+<ul class="task-list">
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> <code>uv run pytest --agent-digest=term</code> — all tests pass</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> <code>pre-commit run --all-files</code> — clean</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> <code>TaskQueue</code> is fully exercised; concurrent-claim test passes</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Human review before proceeding</li>
+</ul>
+<h3 id="phase-2-harness-queue-api-endpoints">Phase 2: Harness Queue API Endpoints<a class="headerlink" href="#phase-2-harness-queue-api-endpoints" title="Permanent link">&para;</a></h3>
+<h4 id="task-4-queue-http-endpoints-foremanroutersqueuepy">Task 4: Queue HTTP endpoints — <code>foreman/routers/queue.py</code><a class="headerlink" href="#task-4-queue-http-endpoints-foremanroutersqueuepy" title="Permanent link">&para;</a></h4>
+<p><strong>Description:</strong> Add three new harness endpoints that <code>ForemanClient</code> will call.
+Follow the existing router pattern (<code>foreman/routers/health.py</code>).
+The router receives a <code>TaskQueue</code> instance via FastAPI dependency injection (use <code>app.state.task_queue</code>).</p>
+<table>
+<thead>
+<tr>
+<th>Endpoint</th>
+<th>Body</th>
+<th>Response</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>POST /queue/next</code></td>
+<td><code>{"agent_url": "..."}</code></td>
+<td><code>TaskMessage</code> (200) or 204 No Content</td>
+</tr>
+<tr>
+<td><code>POST /queue/complete</code></td>
+<td><code>DecisionMessage</code> JSON</td>
+<td>202 Accepted</td>
+</tr>
+<tr>
+<td><code>POST /queue/heartbeat</code></td>
+<td><code>{"task_id": "..."}</code></td>
+<td>202 Accepted</td>
+</tr>
+</tbody>
+</table>
+<p><code>POST /queue/complete</code> calls <code>TaskQueue.complete()</code> then immediately triggers the drain loop
+(same signal mechanism used by <code>POST /harness/result</code>).</p>
+<p><strong>Acceptance criteria:</strong></p>
+<ul class="task-list">
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> <code>POST /queue/next</code> returns 200 + <code>TaskMessage</code> JSON when a task is available</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> <code>POST /queue/next</code> returns 204 when the queue is empty</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> <code>POST /queue/complete</code> stores the decision and returns 202</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> <code>POST /queue/heartbeat</code> updates <code>last_heartbeat</code> and returns 202</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> All endpoints return 202 immediately (no blocking on downstream work)</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Router is included in <code>app</code> (registered in <code>server.py</code>)</li>
+</ul>
+<p><strong>Verification:</strong></p>
+<ul class="task-list">
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> <code>uv run pytest --agent-digest=term tests/test_queue_router.py</code> (written in Task 6)</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> <code>pre-commit run --all-files</code></li>
+</ul>
+<p><strong>Dependencies:</strong> Tasks 2, 3</p>
+<p><strong>Files likely touched:</strong></p>
+<ul>
+<li><code>foreman/routers/queue.py</code> (new)</li>
+<li><code>foreman/server.py</code> (register router, expose <code>task_queue</code> on <code>app.state</code>)</li>
+</ul>
+<p><strong>Estimated scope:</strong> M</p>
+<h4 id="task-5-post-harnessresult-endpoint-foremanroutersresultpy">Task 5: <code>POST /harness/result</code> endpoint — <code>foreman/routers/result.py</code><a class="headerlink" href="#task-5-post-harnessresult-endpoint-foremanroutersresultpy" title="Permanent link">&para;</a></h4>
+<p><strong>Description:</strong> Add the agent-nudge endpoint from spec §3.4.
+On receipt, it triggers the drain loop immediately (in addition to its background schedule).
+The trigger mechanism is an <code>asyncio.Event</code> set in the background loop and reset after each drain;
+<code>POST /harness/result</code> sets the event.</p>
+<p><strong>Acceptance criteria:</strong></p>
+<ul class="task-list">
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> <code>POST /harness/result</code> accepts <code>{"task_id": "&lt;uuid&gt;"}</code> and returns 202 Accepted</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Receiving the nudge triggers the drain loop event (verified by inspecting <code>app.state</code>)</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Router is included in <code>app</code></li>
+</ul>
+<p><strong>Verification:</strong></p>
+<ul class="task-list">
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> <code>uv run pytest --agent-digest=term tests/test_result_router.py</code> (written in Task 6)</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> <code>pre-commit run --all-files</code></li>
+</ul>
+<p><strong>Dependencies:</strong> Task 4</p>
+<p><strong>Files likely touched:</strong></p>
+<ul>
+<li><code>foreman/routers/result.py</code> (new)</li>
+<li><code>foreman/server.py</code> (register router)</li>
+</ul>
+<p><strong>Estimated scope:</strong> S</p>
+<h4 id="task-6-tests-for-harness-queue-endpoints">Task 6: Tests for harness queue endpoints<a class="headerlink" href="#task-6-tests-for-harness-queue-endpoints" title="Permanent link">&para;</a></h4>
+<p><strong>Description:</strong> Write <code>tests/test_queue_router.py</code> and <code>tests/test_result_router.py</code> using FastAPI's <code>TestClient</code>.
+Mock <code>TaskQueue</code> at the boundary (not SQLite — the queue is already tested in Task 3).
+Verify HTTP contracts only.</p>
+<p><strong>Acceptance criteria:</strong></p>
+<ul class="task-list">
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> <code>POST /queue/next</code> — 200 with task body when queue has a task</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> <code>POST /queue/next</code> — 204 when <code>claim_next()</code> returns <code>None</code></li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> <code>POST /queue/complete</code> — 202; <code>TaskQueue.complete()</code> called with correct args</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> <code>POST /queue/heartbeat</code> — 202; <code>TaskQueue.heartbeat()</code> called with correct <code>task_id</code></li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> <code>POST /harness/result</code> — 202; drain event is set</li>
+</ul>
+<p><strong>Verification:</strong></p>
+<ul class="task-list">
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> <code>uv run pytest --agent-digest=term tests/test_queue_router.py tests/test_result_router.py</code></li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> <code>pre-commit run --all-files</code></li>
+</ul>
+<p><strong>Dependencies:</strong> Tasks 4, 5</p>
+<p><strong>Files likely touched:</strong></p>
+<ul>
+<li><code>tests/test_queue_router.py</code> (new)</li>
+<li><code>tests/test_result_router.py</code> (new)</li>
+</ul>
+<p><strong>Estimated scope:</strong> M</p>
+<h3 id="checkpoint-phase-2">Checkpoint: Phase 2<a class="headerlink" href="#checkpoint-phase-2" title="Permanent link">&para;</a></h3>
+<ul class="task-list">
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> <code>uv run pytest --agent-digest=term</code> — all tests pass</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> All three queue endpoints + <code>/harness/result</code> exist and return correct status codes</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Human review before proceeding</li>
+</ul>
+<h3 id="phase-3-foreman-client-package">Phase 3: <code>foreman-client</code> Package<a class="headerlink" href="#phase-3-foreman-client-package" title="Permanent link">&para;</a></h3>
+<h4 id="task-7-scaffold-foreman-client-package-modelspy">Task 7: Scaffold <code>foreman-client</code> package + <code>models.py</code><a class="headerlink" href="#task-7-scaffold-foreman-client-package-modelspy" title="Permanent link">&para;</a></h4>
+<p><strong>Description:</strong> Create the <code>foreman-client/</code> directory tree with its own <code>pyproject.toml</code>
+(mirroring the main project's tooling: ruff, mypy, interrogate, pydoclint).
+Add <code>models.py</code> that re-exports <code>TaskMessage</code> and <code>DecisionMessage</code> from <code>foreman.protocol</code> — or,
+since <code>foreman-client</code> must be installable independently,
+copy the minimal Pydantic models into <code>foremanclient/models.py</code> (no dependency on the <code>foreman</code> package).</p>
+<p><strong>Acceptance criteria:</strong></p>
+<ul class="task-list">
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Directory structure matches spec §3.3</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> <code>foremanclient/models.py</code> defines <code>TaskMessage</code> and <code>DecisionMessage</code> as standalone
+  Pydantic models (no <code>foreman.*</code> imports)</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> <code>pyproject.toml</code> has <code>httpx</code> and <code>pydantic&gt;=2</code> as runtime deps; dev deps mirror main project</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> <code>uv sync</code> inside <code>foreman-client/</code> succeeds</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> <code>pre-commit run --all-files</code> passes inside <code>foreman-client/</code></li>
+</ul>
+<p><strong>Verification:</strong></p>
+<ul class="task-list">
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> <code>cd foreman-client &amp;&amp; uv sync &amp;&amp; pre-commit run --all-files</code></li>
+</ul>
+<p><strong>Dependencies:</strong> Tasks 4, 5 (need to know the HTTP contract)</p>
+<p><strong>Files likely touched:</strong></p>
+<ul>
+<li><code>foreman-client/pyproject.toml</code> (new)</li>
+<li><code>foreman-client/foremanclient/__init__.py</code> (new)</li>
+<li><code>foreman-client/foremanclient/models.py</code> (new)</li>
+</ul>
+<p><strong>Estimated scope:</strong> S</p>
+<h4 id="task-8-implement-foremanclient-in-foremanclientclientpy">Task 8: Implement <code>ForemanClient</code> in <code>foremanclient/client.py</code><a class="headerlink" href="#task-8-implement-foremanclient-in-foremanclientclientpy" title="Permanent link">&para;</a></h4>
+<p><strong>Description:</strong> Implement the three public methods using <code>httpx</code>.
+All HTTP calls are synchronous (no <code>asyncio</code> in the client — agent authors control their own async if needed).</p>
+<ul>
+<li><code>next_task()</code> → <code>POST /queue/next</code> → parse <code>TaskMessage</code> or return <code>None</code> on 204</li>
+<li><code>complete_task(task_id, decision)</code> → <code>POST /queue/complete</code> (stores decision) then
+  <code>POST /harness/result</code> (nudges drain)</li>
+<li><code>heartbeat(task_id)</code> → <code>POST /queue/heartbeat</code></li>
+</ul>
+<p>Log structured events for each call using <code>structlog</code>
+(already a dep in the main project; add it to <code>foreman-client</code> as well).</p>
+<p><strong>Acceptance criteria:</strong></p>
+<ul class="task-list">
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> <code>next_task()</code> returns a <code>TaskMessage</code> on 200, <code>None</code> on 204</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> <code>complete_task()</code> sends decision to <code>/queue/complete</code> then sends nudge to <code>/harness/result</code></li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> <code>heartbeat()</code> sends <code>{"task_id": ...}</code> to <code>/queue/heartbeat</code></li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> All methods raise <code>ForemanClientError</code> (a custom exception) on non-2xx responses</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> All public methods and the class have Google-style docstrings (pydoclint passes)</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Type hints on all public methods</li>
+</ul>
+<p><strong>Verification:</strong></p>
+<ul class="task-list">
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> <code>uv run pytest --agent-digest=term</code> inside <code>foreman-client/</code> (tests written in Task 9)</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> <code>pre-commit run --all-files</code> inside <code>foreman-client/</code></li>
+</ul>
+<p><strong>Dependencies:</strong> Task 7</p>
+<p><strong>Files likely touched:</strong></p>
+<ul>
+<li><code>foreman-client/foremanclient/client.py</code> (new)</li>
+<li><code>foreman-client/foremanclient/__init__.py</code> (update exports)</li>
+</ul>
+<p><strong>Estimated scope:</strong> M</p>
+<h4 id="task-9-tests-for-foremanclient">Task 9: Tests for <code>foremanclient</code><a class="headerlink" href="#task-9-tests-for-foremanclient" title="Permanent link">&para;</a></h4>
+<p><strong>Description:</strong> Write <code>foreman-client/tests/test_client.py</code> using <code>respx</code>
+(or <code>httpx.MockTransport</code>) to mock the harness HTTP endpoints.
+Never spin up a real harness.</p>
+<p><strong>Acceptance criteria:</strong></p>
+<ul class="task-list">
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> <code>next_task()</code> returns <code>TaskMessage</code> when harness returns 200 + JSON</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> <code>next_task()</code> returns <code>None</code> when harness returns 204</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> <code>complete_task()</code> sends <code>DecisionMessage</code> JSON to <code>/queue/complete</code> then nudge to <code>/harness/result</code></li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> <code>heartbeat()</code> sends <code>{"task_id": ...}</code> to <code>/queue/heartbeat</code></li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> <code>ForemanClientError</code> raised on 4xx/5xx responses</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Coverage ≥85% line / ≥80% branch for <code>foremanclient/client.py</code></li>
+</ul>
+<p><strong>Verification:</strong></p>
+<ul class="task-list">
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> <code>cd foreman-client &amp;&amp; uv run pytest --agent-digest=term --cov=foremanclient/client.py</code></li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> <code>pre-commit run --all-files</code> inside <code>foreman-client/</code></li>
+</ul>
+<p><strong>Dependencies:</strong> Task 8</p>
+<p><strong>Files likely touched:</strong></p>
+<ul>
+<li><code>foreman-client/tests/__init__.py</code> (new)</li>
+<li><code>foreman-client/tests/test_client.py</code> (new)</li>
+</ul>
+<p><strong>Estimated scope:</strong> M</p>
+<h3 id="checkpoint-phase-3">Checkpoint: Phase 3<a class="headerlink" href="#checkpoint-phase-3" title="Permanent link">&para;</a></h3>
+<ul class="task-list">
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> <code>foreman-client</code> tests pass with ≥85% line coverage</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> <code>pre-commit run --all-files</code> passes in both <code>foreman-client/</code> and root</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Human review of <code>ForemanClient</code> public API before proceeding (API is the contract agent
+  authors depend on — changes after this point are breaking)</li>
+</ul>
+<h3 id="phase-4-dispatcher-refactor-and-background-loops">Phase 4: Dispatcher Refactor and Background Loops<a class="headerlink" href="#phase-4-dispatcher-refactor-and-background-loops" title="Permanent link">&para;</a></h3>
+<h4 id="task-10-refactor-dispatcherdispatch-to-enqueue-nudge">Task 10: Refactor <code>Dispatcher.dispatch()</code> to enqueue + nudge<a class="headerlink" href="#task-10-refactor-dispatcherdispatch-to-enqueue-nudge" title="Permanent link">&para;</a></h4>
+<p><strong>Description:</strong> Replace the synchronous HTTP POST in <code>Dispatcher.dispatch()</code> with:</p>
+<ol>
+<li><code>task_queue.enqueue(task, agent_url=route_target.url)</code></li>
+<li>Fire-and-forget <code>POST /task</code> nudge to the agent (body: <code>{"task_id": task.task_id}</code>)
+   using <code>httpx.AsyncClient</code> with a short timeout (5 s); log and continue on failure.</li>
+</ol>
+<p>Remove the synchronous response-parsing block
+(lines 118–147 in current <code>server.py</code>),
+the <code>response.status_code != 200</code> check, and <code>DecisionMessage</code> parsing from this method.
+The method now returns immediately after the nudge.</p>
+<p>The <code>Dispatcher</code> constructor gains a <code>task_queue: TaskQueue</code> parameter.</p>
+<p><strong>Acceptance criteria:</strong></p>
+<ul class="task-list">
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> <code>dispatch()</code> calls <code>task_queue.enqueue()</code> with correct <code>TaskMessage</code> and <code>agent_url</code></li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> <code>dispatch()</code> sends <code>POST &lt;agent_url&gt;/task</code> with body <code>{"task_id": ...}</code> and returns 202</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> <code>dispatch()</code> does not await agent response or parse <code>DecisionMessage</code></li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Nudge HTTP errors are logged and swallowed (fire-and-forget)</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> All synchronous response-parsing code is deleted</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> <code>Dispatcher.__init__</code> accepts <code>task_queue: TaskQueue</code></li>
+</ul>
+<p><strong>Verification:</strong></p>
+<ul class="task-list">
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> <code>uv run pytest --agent-digest=term tests/test_server.py</code></li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> <code>pre-commit run --all-files</code></li>
+</ul>
+<p><strong>Dependencies:</strong> Tasks 2, 6</p>
+<p><strong>Files likely touched:</strong></p>
+<ul>
+<li><code>foreman/server.py</code></li>
+<li><code>tests/test_server.py</code> (update existing tests)</li>
+</ul>
+<p><strong>Estimated scope:</strong> M</p>
+<h4 id="task-11-add-drain-and-requeue-background-loops-to-fastapi-lifespan">Task 11: Add drain and requeue background loops to FastAPI lifespan<a class="headerlink" href="#task-11-add-drain-and-requeue-background-loops-to-fastapi-lifespan" title="Permanent link">&para;</a></h4>
+<p><strong>Description:</strong> Add a FastAPI lifespan context manager to <code>server.py</code> that starts two background <code>asyncio</code> tasks:</p>
+<table>
+<thead>
+<tr>
+<th>Task</th>
+<th>Interval</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>drain_loop</code></td>
+<td><code>queue.drain_interval_seconds</code> (default 10 s)</td>
+<td><code>drain_completed()</code> → <code>executor.execute()</code> → <code>memory.upsert_memory_summary()</code> → <code>queue.mark_done()</code></td>
+</tr>
+<tr>
+<td><code>requeue_loop</code></td>
+<td><code>queue.requeue_interval_seconds</code> (default 60 s)</td>
+<td><code>requeue_stale()</code> + <code>fail_exhausted()</code></td>
+</tr>
+</tbody>
+</table>
+<p>The drain loop also wakes immediately when <code>POST /harness/result</code> sets the drain <code>asyncio.Event</code>
+(the event is stored on <code>app.state.drain_event</code>).</p>
+<p>Both tasks are cancelled cleanly on shutdown.</p>
+<p><strong>Acceptance criteria:</strong></p>
+<ul class="task-list">
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> <code>drain_loop</code> calls <code>drain_completed()</code> and passes each <code>(TaskMessage, DecisionMessage)</code> to
+  <code>executor.execute()</code> and <code>memory.upsert_memory_summary()</code></li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> <code>drain_loop</code> wakes immediately when <code>drain_event</code> is set</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> <code>requeue_loop</code> calls <code>requeue_stale()</code> and <code>fail_exhausted(max_retries=config.queue.max_retries)</code></li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Both tasks log structured events on each cycle</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Both tasks are cancelled without error on SIGINT/shutdown</li>
+</ul>
+<p><strong>Verification:</strong></p>
+<ul class="task-list">
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> <code>uv run pytest --agent-digest=term tests/test_server.py</code></li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> <code>pre-commit run --all-files</code></li>
+</ul>
+<p><strong>Dependencies:</strong> Task 10</p>
+<p><strong>Files likely touched:</strong></p>
+<ul>
+<li><code>foreman/server.py</code></li>
+<li><code>tests/test_server.py</code></li>
+</ul>
+<p><strong>Estimated scope:</strong> M</p>
+<h4 id="task-12-wire-taskqueue-into-__main__py">Task 12: Wire <code>TaskQueue</code> into <code>__main__.py</code><a class="headerlink" href="#task-12-wire-taskqueue-into-__main__py" title="Permanent link">&para;</a></h4>
+<p><strong>Description:</strong> Update <code>_run_start()</code>
+and <code>_run_loop()</code> in <code>__main__.py</code> to construct a <code>TaskQueue</code> from <code>config.queue</code>, pass it to <code>Dispatcher</code>,
+and attach it to <code>app.state</code> so the router dependencies can access it.
+Add <code>--queue-db</code> CLI argument (overrides <code>config.queue.db_path</code>).</p>
+<p><strong>Acceptance criteria:</strong></p>
+<ul class="task-list">
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> <code>TaskQueue</code> is constructed with the resolved <code>db_path</code> and <code>claim_timeout_seconds</code></li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> <code>Dispatcher</code> receives the <code>task_queue</code> instance</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> <code>app.state.task_queue</code> and <code>app.state.drain_event</code> are set before the server starts</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Default <code>db_path</code> is <code>~/.agent-harness/queue.db</code> when not set in config</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Existing <code>--db</code> arg for <code>memory.db</code> is unchanged</li>
+</ul>
+<p><strong>Verification:</strong></p>
+<ul class="task-list">
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> <code>uv run pytest --agent-digest=term tests/test_main.py</code></li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> <code>pre-commit run --all-files</code></li>
+</ul>
+<p><strong>Dependencies:</strong> Tasks 10, 11</p>
+<p><strong>Files likely touched:</strong></p>
+<ul>
+<li><code>foreman/__main__.py</code></li>
+<li><code>tests/test_main.py</code></li>
+</ul>
+<p><strong>Estimated scope:</strong> S</p>
+<h4 id="task-13-tests-for-updated-dispatcher-and-background-loops">Task 13: Tests for updated <code>Dispatcher</code> and background loops<a class="headerlink" href="#task-13-tests-for-updated-dispatcher-and-background-loops" title="Permanent link">&para;</a></h4>
+<p><strong>Description:</strong> Update and extend <code>tests/test_server.py</code>.
+Mock <code>TaskQueue</code> at the boundary (not SQLite).
+Test the drain loop by injecting a mocked <code>drain_completed()</code> return and verifying <code>executor.execute()</code> is called.</p>
+<p><strong>Acceptance criteria:</strong></p>
+<ul class="task-list">
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> <code>dispatch()</code> test: <code>enqueue()</code> called with correct task + agent_url; nudge POST is fire-and-forget</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> <code>dispatch()</code> test: nudge HTTP error is swallowed and logged; no exception propagated</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Drain loop test: <code>drain_completed()</code> returning one task → <code>executor.execute()</code> called once</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Drain loop test: <code>drain_event</code> set → drain loop wakes immediately</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Requeue loop test: <code>requeue_stale()</code> and <code>fail_exhausted()</code> called on schedule</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> No test directly touches <code>queue.db</code></li>
+</ul>
+<p><strong>Verification:</strong></p>
+<ul class="task-list">
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> <code>uv run pytest --agent-digest=term tests/test_server.py</code></li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> <code>pre-commit run --all-files</code></li>
+</ul>
+<p><strong>Dependencies:</strong> Tasks 10, 11, 12</p>
+<p><strong>Files likely touched:</strong></p>
+<ul>
+<li><code>tests/test_server.py</code></li>
+</ul>
+<p><strong>Estimated scope:</strong> M</p>
+<h3 id="checkpoint-phase-4">Checkpoint: Phase 4<a class="headerlink" href="#checkpoint-phase-4" title="Permanent link">&para;</a></h3>
+<ul class="task-list">
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> <code>uv run pytest --agent-digest=term</code> — all tests pass</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Synchronous dispatch path is fully deleted from <code>server.py</code></li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> <code>pre-commit run --all-files</code> — clean</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Human review before proceeding</li>
+</ul>
+<h3 id="phase-5-agent-update">Phase 5: Agent Update<a class="headerlink" href="#phase-5-agent-update" title="Permanent link">&para;</a></h3>
+<h4 id="task-14-update-reference-agent-to-use-foremanclient">Task 14: Update reference agent to use <code>ForemanClient</code><a class="headerlink" href="#task-14-update-reference-agent-to-use-foremanclient" title="Permanent link">&para;</a></h4>
+<p><strong>Description:</strong> Rewrite <code>agents/issue-triage/issue_triage/agent.py</code> to use <code>ForemanClient</code>.
+The <code>POST /task</code> endpoint now accepts <code>{"task_id": "&lt;uuid&gt;"}</code>, returns 202 immediately,
+and fires an asyncio background task that calls <code>client.next_task()</code>, processes it, and calls <code>client.complete_task()</code>.</p>
+<p>Remove the inline <code>TaskMessage</code> / <code>DecisionMessage</code> model definitions (they came from <code>foremanclient.models</code>).
+Add <code>foreman-client</code> as a runtime dependency in the agent's <code>pyproject.toml</code>.</p>
+<p>Add a startup poll: on <code>@app.on_event("startup")</code>
+(or lifespan), call <code>client.next_task()</code> to pick up any tasks queued while the agent was down.</p>
+<p><strong>Acceptance criteria:</strong></p>
+<ul class="task-list">
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> <code>POST /task</code> returns 202 Accepted immediately (not 200 + body)</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Background task calls <code>client.next_task()</code> and <code>client.complete_task()</code></li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Startup poll calls <code>client.next_task()</code> once on boot</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Agent no longer defines its own <code>TaskMessage</code> / <code>DecisionMessage</code> models</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> <code>foreman-client</code> appears in <code>agents/issue-triage/pyproject.toml</code> dependencies</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> <code>GET /health</code> is unchanged</li>
+</ul>
+<p><strong>Verification:</strong></p>
+<ul class="task-list">
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> <code>uv run pytest --agent-digest=term tests/test_agent_server.py</code></li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> <code>pre-commit run --all-files</code></li>
+</ul>
+<p><strong>Dependencies:</strong> Tasks 8, 9</p>
+<p><strong>Files likely touched:</strong></p>
+<ul>
+<li><code>agents/issue-triage/issue_triage/agent.py</code></li>
+<li><code>agents/issue-triage/pyproject.toml</code></li>
+</ul>
+<p><strong>Estimated scope:</strong> M</p>
+<h4 id="task-15-tests-for-updated-reference-agent">Task 15: Tests for updated reference agent<a class="headerlink" href="#task-15-tests-for-updated-reference-agent" title="Permanent link">&para;</a></h4>
+<p><strong>Description:</strong> Update <code>tests/test_agent_server.py</code> to reflect the new 202 response
+and mock <code>ForemanClient</code> at the boundary.
+Test startup poll behaviour.</p>
+<p><strong>Acceptance criteria:</strong></p>
+<ul class="task-list">
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> <code>POST /task</code> returns 202 (not 200)</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Background task is triggered; <code>client.next_task()</code> and <code>client.complete_task()</code> called</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> <code>client.next_task()</code> returning <code>None</code> does not crash the background task</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Startup poll fires <code>client.next_task()</code> once on lifespan start</li>
+</ul>
+<p><strong>Verification:</strong></p>
+<ul class="task-list">
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> <code>uv run pytest --agent-digest=term tests/test_agent_server.py</code></li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> <code>pre-commit run --all-files</code></li>
+</ul>
+<p><strong>Dependencies:</strong> Task 14</p>
+<p><strong>Files likely touched:</strong></p>
+<ul>
+<li><code>tests/test_agent_server.py</code></li>
+</ul>
+<p><strong>Estimated scope:</strong> S</p>
+<h3 id="checkpoint-phase-5">Checkpoint: Phase 5<a class="headerlink" href="#checkpoint-phase-5" title="Permanent link">&para;</a></h3>
+<ul class="task-list">
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> <code>uv run pytest --agent-digest=term</code> — full suite passes</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Reference agent uses <code>ForemanClient</code>; no inline protocol models remain</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Human review before proceeding</li>
+</ul>
+<h3 id="phase-6-documentation-and-integration">Phase 6: Documentation and Integration<a class="headerlink" href="#phase-6-documentation-and-integration" title="Permanent link">&para;</a></h3>
+<h4 id="task-16-write-docshow-towrite-an-agentmd">Task 16: Write <code>docs/how-to/write-an-agent.md</code><a class="headerlink" href="#task-16-write-docshow-towrite-an-agentmd" title="Permanent link">&para;</a></h4>
+<p><strong>Description:</strong> Agent author guide covering: installing <code>foreman-client</code>, the three-method API
+(<code>next_task</code>, <code>complete_task</code>, <code>heartbeat</code>),
+heartbeat requirements (every 30 s during long LLM calls), idempotency contract
+(<code>task_id</code> as idempotency key), and a minimal working example using <code>ForemanClient</code>.</p>
+<p><strong>Acceptance criteria:</strong></p>
+<ul class="task-list">
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Covers: install, <code>ForemanClient.__init__</code> args, <code>next_task()</code>, <code>complete_task()</code>, <code>heartbeat()</code></li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Explains claim timeout and heartbeat cadence requirement</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Explains idempotency: what to do if <code>next_task()</code> returns an already-processed task</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Includes a ≤30-line end-to-end example agent using <code>ForemanClient</code></li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Doc is in <code>docs/how-to/write-an-agent.md</code></li>
+</ul>
+<p><strong>Verification:</strong></p>
+<ul class="task-list">
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Human reads and approves the draft</li>
+</ul>
+<p><strong>Dependencies:</strong> Tasks 8, 14</p>
+<p><strong>Files likely touched:</strong></p>
+<ul>
+<li><code>docs/how-to/write-an-agent.md</code> (new)</li>
+</ul>
+<p><strong>Estimated scope:</strong> S</p>
+<h4 id="task-17-integration-test-agent-restart-resilience">Task 17: Integration test — agent restart resilience<a class="headerlink" href="#task-17-integration-test-agent-restart-resilience" title="Permanent link">&para;</a></h4>
+<p><strong>Description:</strong> Write <code>tests/test_integration.py</code>
+(extend existing file)
+with a test that satisfies the MVP acceptance criterion: zero task loss under a simulated agent restart.</p>
+<p>Use real local processes (not mocks): spin up the harness and the reference agent, enqueue a task, stop the agent,
+restart it, assert the task reaches <code>status=done</code> in <code>queue.db</code>.</p>
+<p><strong>Acceptance criteria:</strong></p>
+<ul class="task-list">
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Test spins up harness (subprocess or <code>TestClient</code> + real <code>TaskQueue</code>)</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> GitHub poller event is injected (mock the poller, call <code>dispatcher.dispatch()</code> directly)</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Agent is stopped immediately after task is enqueued (before it can claim)</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Agent is restarted; startup poll picks up the pending task</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> <code>task_queue</code> row reaches <code>status=done</code></li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> <code>action_log</code> has an entry for the decision</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Test is marked <code>@pytest.mark.integration</code> and skipped in CI unless <code>--run-integration</code> flag is set</li>
+</ul>
+<p><strong>Verification:</strong></p>
+<ul class="task-list">
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> <code>uv run pytest --agent-digest=term -m integration --run-integration tests/test_integration.py</code></li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Human observes the test pass end-to-end</li>
+</ul>
+<p><strong>Dependencies:</strong> Tasks 12, 14</p>
+<p><strong>Files likely touched:</strong></p>
+<ul>
+<li><code>tests/test_integration.py</code></li>
+<li><code>conftest.py</code> (add <code>--run-integration</code> flag if not present)</li>
+</ul>
+<p><strong>Estimated scope:</strong> L</p>
+<h3 id="checkpoint-phase-6-final">Checkpoint: Phase 6 (Final)<a class="headerlink" href="#checkpoint-phase-6-final" title="Permanent link">&para;</a></h3>
+<ul class="task-list">
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> <code>uv run pytest --agent-digest=term</code> — full unit suite passes</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Integration test passes manually</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> <code>pre-commit run --all-files</code> — clean</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> <code>docs/how-to/write-an-agent.md</code> approved</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> No synchronous dispatch path exists anywhere in the codebase</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Human sign-off before merge</li>
+</ul>
+<h2 id="risks-and-mitigations">Risks and Mitigations<a class="headerlink" href="#risks-and-mitigations" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Risk</th>
+<th>Impact</th>
+<th>Mitigation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SQLite concurrency under concurrent claim</td>
+<td>High</td>
+<td>Use <code>BEGIN IMMEDIATE</code> transaction in <code>claim_next()</code> — SQLite serialises writes, preventing double-claim</td>
+</tr>
+<tr>
+<td><code>foreman-client</code> endpoint contract diverges from harness</td>
+<td>High</td>
+<td>Define request/response Pydantic models in <code>foreman/routers/queue.py</code> and reference them in <code>foremanclient/models.py</code> (or keep them in sync manually)</td>
+</tr>
+<tr>
+<td>Drain loop misses a completed task</td>
+<td>Medium</td>
+<td>Background poll every 10 s is the safety net; <code>/harness/result</code> nudge is the fast path</td>
+</tr>
+<tr>
+<td>Agent processes same task twice after restart</td>
+<td>Medium</td>
+<td><code>task_id</code> idempotency key in <code>action_log</code> (existing invariant, preserved)</td>
+</tr>
+<tr>
+<td><code>foreman-client</code> is sync but agent is async</td>
+<td>Low</td>
+<td><code>httpx</code> supports both sync and async; document that authors should use <code>asyncio.to_thread()</code> if calling from async context</td>
+</tr>
+</tbody>
+</table>
+<h2 id="out-of-scope-mvp">Out of Scope (MVP)<a class="headerlink" href="#out-of-scope-mvp" title="Permanent link">&para;</a></h2>
+<p>Per spec §10: multiple agents per queue, external backends, prioritization, monitoring UI, <code>GET /queue/status</code>.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-circle-arrow-up" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m16 12-4-4-4 4M12 16V8"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2026 Corey Oordt
+
+    </div>
+  
+  
+    Made with
+    <a href="https://zensical.org/" target="_blank" rel="noopener">
+      Zensical
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate":null,"base":"../../..","features":["announce.dismiss","content.action.edit","content.action.view","content.code.annotate","content.code.copy","content.code.select","content.footnote.tooltips","content.tabs.link","content.tooltips","navigation.indexes","navigation.instant.prefetch","navigation.path","navigation.sections","navigation.top","navigation.tracking","search.highlight","toc.integrate"],"search":"../../../assets/javascripts/workers/search.e2d2d235.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.63456bd9.min.js"></script>
+      
+    
+  </body>
+</html>
