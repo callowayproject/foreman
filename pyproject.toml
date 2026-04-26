@@ -143,6 +143,8 @@ norecursedirs = [
     "venv",
     "requirements*",
     "lib",
+    "foreman-client",
+    "agents",
 ]
 python_files = [
     "test_*.py",
