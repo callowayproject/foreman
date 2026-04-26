@@ -37,18 +37,28 @@ class ForemanClient:
             the harness knows which agent holds the claim.
 
     Example:
-        >>> client = ForemanClient(
+        >>> with ForemanClient(
         ...     harness_url="http://localhost:8000",
         ...     agent_url="http://localhost:9001",
-        ... )
-        >>> task = client.next_task()
-        >>> if task:
-        ...     client.complete_task(task.task_id, decision)
+        ... ) as client:
+        ...     task = client.next_task()
+        ...     if task:
+        ...         client.complete_task(task.task_id, decision)
     """
 
     def __init__(self, harness_url: str, agent_url: str) -> None:
         self._agent_url = agent_url
         self._http = httpx.Client(base_url=harness_url)
+
+    def close(self) -> None:
+        """Close the underlying HTTP connection pool."""
+        self._http.close()
+
+    def __enter__(self) -> ForemanClient:
+        return self
+
+    def __exit__(self, *_: object) -> None:
+        self.close()
 
     def next_task(self) -> TaskMessage | None:
         """Claim and return the next pending task from the harness queue.

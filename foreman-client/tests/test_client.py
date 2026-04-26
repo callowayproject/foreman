@@ -2,6 +2,9 @@
 
 from __future__ import annotations
 
+import json
+from unittest.mock import patch
+
 import httpx
 import pytest
 import respx
@@ -102,9 +105,6 @@ class TestCompleteTask:
 
         assert complete_route.called
         assert nudge_route.called
-        # Verify /queue/complete was called first
-        assert complete_route.calls[0].request is not None
-        assert nudge_route.calls[0].request is not None
 
     @respx.mock
     def test_complete_endpoint_receives_decision_json(self) -> None:
@@ -114,10 +114,7 @@ class TestCompleteTask:
 
         _make_client().complete_task("task-123", _DECISION)
 
-        body = route.calls.last.request.read()
-        import json
-
-        parsed = json.loads(body)
+        parsed = json.loads(route.calls.last.request.read())
         assert parsed["task_id"] == "task-123"
         assert parsed["decision"] == "label_and_respond"
 
@@ -128,8 +125,6 @@ class TestCompleteTask:
         route = respx.post(f"{_HARNESS_URL}/harness/result").mock(return_value=httpx.Response(202))
 
         _make_client().complete_task("task-123", _DECISION)
-
-        import json
 
         body = json.loads(route.calls.last.request.read())
         assert body["task_id"] == "task-123"
@@ -181,8 +176,6 @@ class TestHeartbeat:
         _make_client().heartbeat("task-123")
 
         assert route.called
-        import json
-
         body = json.loads(route.calls.last.request.read())
         assert body["task_id"] == "task-123"
 
@@ -200,6 +193,37 @@ class TestHeartbeat:
         with pytest.raises(ForemanClientError) as exc_info:
             _make_client().heartbeat("task-123")
         assert exc_info.value.status_code == 400
+
+
+# ---------------------------------------------------------------------------
+# ForemanClient lifecycle (close / context manager)
+# ---------------------------------------------------------------------------
+
+
+class TestForemanClientLifecycle:
+    """Tests for ForemanClient.close() and context manager support."""
+
+    def test_close_closes_http_client(self) -> None:
+        """close() delegates to the underlying httpx.Client.close()."""
+        client = _make_client()
+        with patch.object(client._http, "close") as mock_close:
+            client.close()
+        mock_close.assert_called_once()
+
+    def test_context_manager_closes_on_exit(self) -> None:
+        """Exiting the context manager calls close()."""
+        client = _make_client()
+        with patch.object(client._http, "close") as mock_close:
+            with client:
+                pass
+        mock_close.assert_called_once()
+
+    def test_context_manager_returns_client(self) -> None:
+        """__enter__ returns the client instance."""
+        client = _make_client()
+        with patch.object(client._http, "close"):
+            with client as c:
+                assert c is client
 
 
 # ---------------------------------------------------------------------------

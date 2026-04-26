@@ -250,16 +250,16 @@ copy the minimal Pydantic models into `foremanclient/models.py` (no dependency o
 
 **Acceptance criteria:**
 
-- [ ] Directory structure matches spec §3.3
-- [ ] `foremanclient/models.py` defines `TaskMessage` and `DecisionMessage` as standalone
+- [x] Directory structure matches spec §3.3
+- [x] `foremanclient/models.py` defines `TaskMessage` and `DecisionMessage` as standalone
   Pydantic models (no `foreman.*` imports)
-- [ ] `pyproject.toml` has `httpx` and `pydantic>=2` as runtime deps; dev deps mirror main project
-- [ ] `uv sync` inside `foreman-client/` succeeds
-- [ ] `pre-commit run --all-files` passes inside `foreman-client/`
+- [x] `pyproject.toml` has `httpx` and `pydantic>=2` as runtime deps; dev deps mirror main project
+- [x] `uv sync` inside `foreman-client/` succeeds
+- [x] `pre-commit run --all-files` passes inside `foreman-client/`
 
 **Verification:**
 
-- [ ] `cd foreman-client && uv sync && pre-commit run --all-files`
+- [x] `cd foreman-client && uv sync && pre-commit run --all-files`
 
 **Dependencies:** Tasks 4, 5 (need to know the HTTP contract)
 
@@ -286,17 +286,17 @@ Log structured events for each call using `structlog`
 
 **Acceptance criteria:**
 
-- [ ] `next_task()` returns a `TaskMessage` on 200, `None` on 204
-- [ ] `complete_task()` sends decision to `/queue/complete` then sends nudge to `/harness/result`
-- [ ] `heartbeat()` sends `{"task_id": ...}` to `/queue/heartbeat`
-- [ ] All methods raise `ForemanClientError` (a custom exception) on non-2xx responses
-- [ ] All public methods and the class have Google-style docstrings (pydoclint passes)
-- [ ] Type hints on all public methods
+- [x] `next_task()` returns a `TaskMessage` on 200, `None` on 204
+- [x] `complete_task()` sends decision to `/queue/complete` then sends nudge to `/harness/result`
+- [x] `heartbeat()` sends `{"task_id": ...}` to `/queue/heartbeat`
+- [x] All methods raise `ForemanClientError` (a custom exception) on non-2xx responses
+- [x] All public methods and the class have Google-style docstrings (pydoclint passes)
+- [x] Type hints on all public methods
 
 **Verification:**
 
-- [ ] `uv run pytest --agent-digest=term` inside `foreman-client/` (tests written in Task 9)
-- [ ] `pre-commit run --all-files` inside `foreman-client/`
+- [x] `uv run pytest --agent-digest=term` inside `foreman-client/` (tests written in Task 9)
+- [x] `pre-commit run --all-files` inside `foreman-client/`
 
 **Dependencies:** Task 7
 
@@ -315,17 +315,17 @@ Never spin up a real harness.
 
 **Acceptance criteria:**
 
-- [ ] `next_task()` returns `TaskMessage` when harness returns 200 + JSON
-- [ ] `next_task()` returns `None` when harness returns 204
-- [ ] `complete_task()` sends `DecisionMessage` JSON to `/queue/complete` then nudge to `/harness/result`
-- [ ] `heartbeat()` sends `{"task_id": ...}` to `/queue/heartbeat`
-- [ ] `ForemanClientError` raised on 4xx/5xx responses
-- [ ] Coverage ≥85% line / ≥80% branch for `foremanclient/client.py`
+- [x] `next_task()` returns `TaskMessage` when harness returns 200 + JSON
+- [x] `next_task()` returns `None` when harness returns 204
+- [x] `complete_task()` sends `DecisionMessage` JSON to `/queue/complete` then nudge to `/harness/result`
+- [x] `heartbeat()` sends `{"task_id": ...}` to `/queue/heartbeat`
+- [x] `ForemanClientError` raised on 4xx/5xx responses
+- [x] Coverage ≥85% line / ≥80% branch for `foremanclient/client.py`
 
 **Verification:**
 
-- [ ] `cd foreman-client && uv run pytest --agent-digest=term --cov=foremanclient/client.py`
-- [ ] `pre-commit run --all-files` inside `foreman-client/`
+- [x] `cd foreman-client && uv run pytest --agent-digest=term --cov=foremanclient/client.py`
+- [x] `pre-commit run --all-files` inside `foreman-client/`
 
 **Dependencies:** Task 8
 
@@ -338,9 +338,9 @@ Never spin up a real harness.
 
 ### Checkpoint: Phase 3
 
-- [ ] `foreman-client` tests pass with ≥85% line coverage
-- [ ] `pre-commit run --all-files` passes in both `foreman-client/` and root
-- [ ] Human review of `ForemanClient` public API before proceeding (API is the contract agent
+- [x] `foreman-client` tests pass with ≥85% line coverage
+- [x] `pre-commit run --all-files` passes in both `foreman-client/` and root
+- [x] Human review of `ForemanClient` public API before proceeding (API is the contract agent
   authors depend on — changes after this point are breaking)
 
 ### Phase 4: Dispatcher Refactor and Background Loops
