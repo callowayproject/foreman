@@ -1,7 +1,7 @@
 """Foreman client — HTTP client for the Foreman agent harness."""
 
 from foremanclient.client import ForemanClient, ForemanClientError
-from foremanclient.models import ActionItem, DecisionMessage, DecisionType, TaskMessage
+from foremanclient.models import ActionItem, DecisionMessage, DecisionType, LLMBackendRef, TaskContext, TaskMessage
 
 __all__ = [
     "ActionItem",
@@ -9,5 +9,7 @@ __all__ = [
     "DecisionType",
     "ForemanClient",
     "ForemanClientError",
+    "LLMBackendRef",
+    "TaskContext",
     "TaskMessage",
 ]
