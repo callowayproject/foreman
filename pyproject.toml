@@ -65,10 +65,10 @@ test = [
     "pytest-agent-digest",
 ]
 docs = [
-    "zensical>=0.0.33",
-    "griffe-pydantic",
     "griffe-fieldz",
+    "griffe-pydantic",
     "mkdocstrings[python]",
+    "zensical>=0.0.33",
 ]
 
 

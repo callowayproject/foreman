@@ -9,7 +9,7 @@ date: 2026-04-21T00:00:00.000000+00:00
 This guide walks you through installing Foreman and having it triage issues on a single GitHub repository.
 
 **Prerequisites:** Python 3.12+ installed, Docker running, and a GitHub account with a bot identity set up.
-See [Installation](installation.md) for setup.
+See [Installation](../installation.md) for setup.
 
 ## Step 1: Create a GitHub account for a bot
 
@@ -103,5 +103,5 @@ Within the next polling interval (up to 60 seconds), Foreman will:
 
 - Adjust labels, keywords, and stale_days in config.yaml to match your project.
 - Add more repositories under `repos`.
-- Read the [Configuration Reference](reference/configuration.md) for all available options.
-- Read the [Agent Protocol Reference](reference/agent-protocol.md) to understand how to build your own agents.
+- Read the [Configuration Reference](../reference/configuration.md) for all available options.
+- Read the [Agent Protocol Reference](../reference/agent-protocol.md) to understand how to build your own agents.
