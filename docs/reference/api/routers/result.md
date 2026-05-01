@@ -1,1 +1,0 @@
-::: foreman.routers.result

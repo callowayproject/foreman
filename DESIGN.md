@@ -9,19 +9,19 @@ colors:
   construction-orange: "#FE6400"
 typography:
   headline:
-    fontFamily: "Roboto, system-ui, -apple-system, sans-serif"
+    fontFamily: "Public Sans, system-ui, -apple-system, sans-serif"
     fontSize: "1.5rem"
     fontWeight: 700
     lineHeight: 1.334
     letterSpacing: "normal"
   body:
-    fontFamily: "Roboto, system-ui, -apple-system, sans-serif"
+    fontFamily: "Public Sans, system-ui, -apple-system, sans-serif"
     fontSize: "1rem"
     fontWeight: 400
     lineHeight: 1.6
     letterSpacing: "normal"
   label:
-    fontFamily: "Roboto, system-ui, -apple-system, sans-serif"
+    fontFamily: "Public Sans, system-ui, -apple-system, sans-serif"
     fontSize: "0.8125rem"
     fontWeight: 500
     lineHeight: 1.75
@@ -98,35 +98,37 @@ the way a hard hat orange does.
 
 ### Primary
 
-- **Blueprint Steel** (`#43527A` / `hsl(224, 29%, 37%)`): The workhorse color.
+- **Blueprint Steel** (`oklch(42% 0.065 258)` / `--blueprint-steel`): The workhorse color.
     Used for the navigation header, card headers, active states, and links.
     Medium slate-blue — calm, authoritative, legible against white.
     Not vibrant enough to feel "AI startup blue."
-- **Pre-Dawn Navy** (`#172A54` / `hsl(221, 57%, 21%)`): The darkest brand tone.
+- **Pre-Dawn Navy** (`oklch(23% 0.085 263)` / `--pre-dawn-navy`): The darkest brand tone.
     Used for deep backgrounds, heavy text contexts, and the logo mark.
     Its intensity signals depth and seriousness.
 
 ### Secondary
 
-- **Site Signal Amber** (`#F7B526` / `hsl(41, 93%, 56%)`): The accent.
+- **Site Signal Amber** (`oklch(77% 0.17 80)` / `--site-signal-amber`): The accent.
     Used for interactive highlights, hover states, and emphasis marks.
     Warm and high-contrast against navy — the equivalent of a fluorescent safety marker.
-- **Construction Orange** (`#FE6400`): The logo's action color.
+- **Construction Orange** (`oklch(63% 0.22 42)` / `--construction-orange`): The logo's action color.
     Reserved for primary CTAs and the most important interactive actions on a page.
     Use sparingly: its rarity is the point.
 
 ### Tertiary
 
-- **Safety Tape Pale** (`#FDF396` / `hsl(54, 96%, 79%)`): A pale, almost-neutral lemon-yellow.
+- **Safety Tape Pale** (`oklch(95% 0.14 103)` / `--safety-tape-pale`): A pale, almost-neutral lemon-yellow.
     Used at very low opacity as a surface tint (sidebar background wash).
     Never as a foreground or text color — it reads as highlight, not content.
 
 ### Neutral
 
-- **Near-Black** (inherited from Material theme — target `hsl(221, 15%, 10%)`): Tint text toward the brand hue.
-    Pure `#000000` is forbidden.
-- **Surface whites and off-whites**: Material theme defaults.
-    Card bodies are white; the sidebar receives the Safety Tape Pale wash at 7% opacity (`--light-gold--lightest`).
+- **Near-Black** (`oklch(15% 0.015 258)` / `--near-black`): The default body text color.
+    Set as `--md-default-fg-color` override.
+    Tinted toward the brand hue — pure `#000000` is forbidden.
+- **Surface whites and off-whites**: Zensical theme defaults.
+    Card bodies are white; the sidebar receives the Safety Tape Pale wash at 7% opacity
+    (`--safety-tape-pale--lightest`).
 
 ### Named Rules
 
@@ -142,8 +144,9 @@ Replace both with tints and shades derived from Blueprint Steel, not from unrela
 
 ## 3. Typography
 
-**Body Font:** Roboto (with `system-ui, -apple-system, sans-serif` fallback) **Label/Mono Font:** System monospace stack
-for code samples
+**Body Font:** Public Sans (Google Fonts, via `[project.theme.font] text = "Public Sans"` in `zensical.toml`) with
+`system-ui, -apple-system, sans-serif` fallback.
+**Label/Mono Font:** System monospace stack for code samples.
 
 **Character:** A single neutral sans-serif family.
 No display font.
@@ -182,7 +185,7 @@ Depth is expressed through two mechanisms only:
     Use `rgba(0, 0, 0, 0.12)` or a Blueprint Steel tint at 20% opacity.
 
 Cards do not use Material's three-layer `box-shadow`.
-Replace it with a `1px solid rgba(67, 82, 122, 0.2)` border.
+Use the `--card-border` token: `1px solid oklch(42% 0.065 258 / 20%)`.
 
 **The Flat-First Rule.**
 If you're reaching for `box-shadow`, try a border or background-color shift first.

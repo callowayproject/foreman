@@ -7,32 +7,38 @@
       "blueprint-steel": {
         "role": "primary",
         "displayName": "Blueprint Steel",
-        "canonical": "hsl(224, 29%, 37%)",
+        "canonical": "oklch(42% 0.065 258)",
         "tonalRamp": ["#1A2136", "#252F52", "#2F3D68", "#43527A", "#5D6D97", "#7B8AB0", "#A3AECA", "#D4D9EB"]
       },
       "pre-dawn-navy": {
         "role": "primary",
         "displayName": "Pre-Dawn Navy",
-        "canonical": "hsl(221, 57%, 21%)",
+        "canonical": "oklch(23% 0.085 263)",
         "tonalRamp": ["#0C1524", "#121F38", "#192C50", "#172A54", "#2B4A8C", "#4A6DB8", "#7998D1", "#BAC8E9"]
       },
       "safety-tape-pale": {
         "role": "tertiary",
         "displayName": "Safety Tape Pale",
-        "canonical": "hsl(54, 96%, 79%)",
+        "canonical": "oklch(95% 0.14 103)",
         "tonalRamp": ["#6B5C00", "#8C7A00", "#B89F00", "#D9BC00", "#EDD300", "#F5E84A", "#FDF396", "#FEFBE0"]
       },
       "site-signal-amber": {
         "role": "secondary",
         "displayName": "Site Signal Amber",
-        "canonical": "hsl(41, 93%, 56%)",
+        "canonical": "oklch(77% 0.17 80)",
         "tonalRamp": ["#4A2A00", "#7A4500", "#AB6100", "#D68000", "#F7B526", "#FAC85C", "#FBD98E", "#FCEDB8"]
       },
       "construction-orange": {
         "role": "secondary",
         "displayName": "Construction Orange",
-        "canonical": "#FE6400",
+        "canonical": "oklch(63% 0.22 42)",
         "tonalRamp": ["#5C2000", "#8C3300", "#C04700", "#FE6400", "#FE8033", "#FE9D66", "#FFC099", "#FFDFCC"]
+      },
+      "near-black": {
+        "role": "neutral",
+        "displayName": "Near-Black",
+        "canonical": "oklch(15% 0.015 258)",
+        "tonalRamp": ["#0a0d14", "#131820", "#1d2535", "#263048", "#36456a", "#485e8c", "#6d86b8", "#a8bbd9"]
       }
     },
     "typographyMeta": {
@@ -57,7 +63,7 @@
       "refersTo": "card",
       "description": "Documentation feature card. Flat border replaces Material shadow.",
       "html": "<div class=\"ds-card\"><div class=\"ds-card-header\"><p class=\"ds-card-title\">Issue Triage</p><p class=\"ds-card-subtitle\">Automated agent</p></div><div class=\"ds-card-content\"><p>Analyzes new issues, applies labels, and posts an initial response without human intervention.</p></div><div class=\"ds-card-actions\"><a class=\"ds-card-link\" href=\"#\">READ MORE</a></div></div>",
-      "css": ".ds-card { background-color: #ffffff; border-radius: 4px; border: 1px solid rgba(67, 82, 122, 0.2); overflow: hidden; font-family: Roboto, system-ui, -apple-system, sans-serif; } .ds-card-header { padding: 16px 16px 24px; background-color: #43527A; color: #ffffff; } .ds-card-title { margin: 0 0 2px; font-size: 1.14em; font-weight: 700; line-height: 1.6; } .ds-card-subtitle { margin: 0; font-size: 0.8em; font-weight: 500; line-height: 1.57; opacity: 0.85; } .ds-card-content { padding: 16px; font-size: 1rem; font-weight: 400; line-height: 1.6; color: #172A54; } .ds-card-content p { margin: 0; } .ds-card-actions { padding: 16px; border-top: 1px solid rgba(67, 82, 122, 0.12); } .ds-card-link { font-size: 0.8125rem; font-weight: 500; letter-spacing: 0.03em; text-transform: uppercase; color: #43527A; text-decoration: none; transition: color 150ms cubic-bezier(0.0, 0.0, 0.2, 1); } .ds-card-link:hover { color: #F7B526; }"
+      "css": ".ds-card { background-color: white; border-radius: 4px; border: 1px solid oklch(42% 0.065 258 / 20%); overflow: hidden; font-family: 'Public Sans', system-ui, -apple-system, sans-serif; } .ds-card-header { padding: 16px 16px 24px; background-color: oklch(42% 0.065 258); color: white; } .ds-card-title { margin: 0 0 2px; font-size: 1.14em; font-weight: 700; line-height: 1.6; } .ds-card-subtitle { margin: 0; font-size: 0.8em; font-weight: 500; line-height: 1.57; opacity: 0.85; } .ds-card-content { padding: 16px; font-size: 1rem; font-weight: 400; line-height: 1.6; color: oklch(23% 0.085 263); } .ds-card-content p { margin: 0; } .ds-card-actions { padding: 16px; border-top: 1px solid oklch(42% 0.065 258 / 12%); } .ds-card-link { font-size: 0.8125rem; font-weight: 500; letter-spacing: 0.03em; text-transform: uppercase; color: oklch(42% 0.065 258); text-decoration: none; transition: color 150ms cubic-bezier(0.0, 0.0, 0.2, 1); } .ds-card-link:hover { color: oklch(77% 0.17 80); }"
     },
     {
       "name": "Tag Chip",
@@ -65,15 +71,15 @@
       "refersTo": "tag",
       "description": "Read-only descriptor label. Pill shape, tonal background.",
       "html": "<span class=\"ds-tag\">issue-triage</span>",
-      "css": ".ds-tag { display: inline-flex; align-items: center; height: 24px; padding: 2px 8px; background-color: rgba(23, 42, 84, 0.08); color: #172A54; border-radius: 100px; font-family: Roboto, system-ui, -apple-system, sans-serif; font-size: 0.75rem; font-weight: 500; line-height: 20px; white-space: nowrap; }"
+      "css": ".ds-tag { display: inline-flex; align-items: center; height: 24px; padding: 2px 8px; background-color: oklch(42% 0.065 258 / 8%); color: oklch(23% 0.085 263); border-radius: 100px; font-family: 'Public Sans', system-ui, -apple-system, sans-serif; font-size: 0.75rem; font-weight: 500; line-height: 20px; white-space: nowrap; }"
     },
     {
       "name": "API Doc Label",
       "kind": "chip",
       "refersTo": "doc-label",
       "description": "Inline API documentation label for visibility and type annotations.",
-      "html": "<span class=\"ds-doc-label ds-doc-label--special\">special</span> <span class=\"ds-doc-label ds-doc-label--property\">property</span> <span class=\"ds-doc-label ds-doc-label--private\">private</span>",
-      "css": ".ds-doc-label { display: inline-flex; align-items: center; border-radius: 100px; padding: 0 5px; font-family: Roboto, system-ui, -apple-system, sans-serif; font-size: 0.75rem; font-weight: 500; line-height: 1.6; } .ds-doc-label code { background-color: transparent; color: white; } .ds-doc-label--special { background-color: #43527A; color: #ffffff; } .ds-doc-label--private { background-color: #B03030; color: #ffffff; } .ds-doc-label--property { background-color: #2E7D32; color: #ffffff; } .ds-doc-label--read-only { background-color: #b09000; color: #ffffff; }"
+      "html": "<span class=\"ds-doc-label ds-doc-label--special\">special</span> <span class=\"ds-doc-label ds-doc-label--property\">property</span> <span class=\"ds-doc-label ds-doc-label--private\">private</span> <span class=\"ds-doc-label ds-doc-label--read-only\">read-only</span>",
+      "css": ".ds-doc-label { display: inline-flex; align-items: center; border-radius: 100px; padding: 0 5px; font-family: 'Public Sans', system-ui, -apple-system, sans-serif; font-size: 0.75rem; font-weight: 500; line-height: 1.6; } .ds-doc-label code { background-color: transparent; color: white; } .ds-doc-label--special { background-color: oklch(42% 0.065 258); color: oklch(98% 0.005 258); } .ds-doc-label--private { background-color: oklch(35% 0.12 15); color: oklch(98% 0.005 258); } .ds-doc-label--property { background-color: oklch(33% 0.10 155); color: oklch(98% 0.005 258); } .ds-doc-label--read-only { background-color: oklch(82% 0.16 95); color: oklch(15% 0.015 258); }"
     },
     {
       "name": "Sidebar Nav Item",
@@ -81,7 +87,7 @@
       "refersTo": null,
       "description": "Sidebar navigation item. Active state uses Blueprint Steel text weight, no stripe.",
       "html": "<nav class=\"ds-sidenav\"><ul><li><a class=\"ds-sidenav-item\" href=\"#\">Installation</a></li><li><a class=\"ds-sidenav-item ds-sidenav-item--active\" href=\"#\">Quick Start</a></li><li><a class=\"ds-sidenav-item\" href=\"#\">Configuration</a></li></ul></nav>",
-      "css": ".ds-sidenav { background-color: rgba(253, 243, 150, 0.07); padding: 8px 0; font-family: Roboto, system-ui, -apple-system, sans-serif; } .ds-sidenav ul { list-style: none; margin: 0; padding: 0; } .ds-sidenav-item { display: block; padding: 6px 16px; font-size: 0.875rem; font-weight: 400; color: inherit; text-decoration: none; transition: color 150ms cubic-bezier(0.0, 0.0, 0.2, 1); } .ds-sidenav-item:hover { color: #F7B526; } .ds-sidenav-item--active { color: #43527A; font-weight: 600; }"
+      "css": ".ds-sidenav { background-color: oklch(95% 0.14 103 / 7%); padding: 8px 0; font-family: 'Public Sans', system-ui, -apple-system, sans-serif; } .ds-sidenav ul { list-style: none; margin: 0; padding: 0; } .ds-sidenav-item { display: block; padding: 6px 16px; font-size: 0.875rem; font-weight: 400; color: inherit; text-decoration: none; transition: color 150ms cubic-bezier(0.0, 0.0, 0.2, 1); } .ds-sidenav-item:hover { color: oklch(77% 0.17 80); } .ds-sidenav-item--active { color: oklch(42% 0.065 258); font-weight: 600; }"
     },
     {
       "name": "Primary CTA Button",
@@ -89,7 +95,7 @@
       "refersTo": null,
       "description": "Primary call-to-action. Construction Orange, used once per page.",
       "html": "<button class=\"ds-btn-primary\">Get Started</button>",
-      "css": ".ds-btn-primary { display: inline-flex; align-items: center; padding: 10px 24px; background-color: #FE6400; color: #ffffff; font-family: Roboto, system-ui, -apple-system, sans-serif; font-size: 0.875rem; font-weight: 600; letter-spacing: 0.02em; border: none; border-radius: 4px; cursor: pointer; text-decoration: none; transition: background-color 150ms cubic-bezier(0.0, 0.0, 0.2, 1), transform 150ms cubic-bezier(0.0, 0.0, 0.2, 1); } .ds-btn-primary:hover { background-color: #D45400; } .ds-btn-primary:focus-visible { outline: 2px solid #F7B526; outline-offset: 2px; } .ds-btn-primary:active { transform: translateY(1px); }"
+      "css": ".ds-btn-primary { display: inline-flex; align-items: center; padding: 10px 24px; background-color: oklch(63% 0.22 42); color: white; font-family: 'Public Sans', system-ui, -apple-system, sans-serif; font-size: 0.875rem; font-weight: 600; letter-spacing: 0.02em; border: none; border-radius: 4px; cursor: pointer; text-decoration: none; transition: background-color 150ms cubic-bezier(0.0, 0.0, 0.2, 1), transform 150ms cubic-bezier(0.0, 0.0, 0.2, 1); } .ds-btn-primary:hover { background-color: oklch(53% 0.22 42); } .ds-btn-primary:focus-visible { outline: 2px solid oklch(77% 0.17 80); outline-offset: 2px; } .ds-btn-primary:active { transform: translateY(1px); }"
     }
   ],
   "narrative": {
@@ -103,7 +109,7 @@
     ],
     "rules": [
       { "name": "The One Orange Rule", "body": "Construction Orange appears on one primary action per screen. Its rarity is the point. When everything is orange, nothing is urgent.", "section": "colors" },
-      { "name": "The Blue-Not-Indigo Correction", "body": "The Material theme defaults --md-primary-fg-color--light (#ECB7B7) and --md-primary-fg-color--dark (#90030C) are off-brand. Replace both with tints and shades derived from Blueprint Steel.", "section": "colors" },
+      { "name": "The Blue-Not-Indigo Correction", "body": "The Zensical/Material theme defaults --md-primary-fg-color--light and --md-primary-fg-color--dark are off-brand. Replace both with tints and shades derived from Blueprint Steel, mapped in colors.css.", "section": "colors" },
       { "name": "The Single-Family Rule", "body": "One typeface. Different weights and sizes, not different families. Mixing a display serif into developer docs reads as a design decision made by someone who doesn't use the docs.", "section": "typography" },
       { "name": "The Flat-First Rule", "body": "If you're reaching for box-shadow, try a border or background-color shift first. Shadows communicate that an element is physically lifted — which implies interactivity or importance. Use that signal only when it's true.", "section": "elevation" },
       { "name": "The No-Stripe Rule", "body": "No border-left accent stripe on sidebar items, list items, or callouts. Ever. Use background tint or text color for active state.", "section": "components" }
@@ -127,7 +133,7 @@
       "Don't use #000000 or #ffffff as literal color values. Tint every neutral toward the brand hue.",
       "Don't add Material's three-layer box-shadow to new components.",
       "Don't write hero copy that makes promises about productivity (10x, streamline, supercharge).",
-      "Don't use the off-brand Material defaults #ECB7B7 and #90030C."
+      "Don't use the off-brand Zensical/Material defaults for primary-fg-color--light and --dark."
     ]
   }
 }
