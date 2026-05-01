@@ -1,0 +1,288 @@
+{% extends "main.html" %}
+
+{% block content %}
+<div class="home-page">
+
+  {# ─── Hero ─────────────────────────────────────────── #}
+  <section class="home-hero">
+    <div class="home-container">
+      <h1 class="home-hero__headline">Set it up once.<br>Let it handle the backlog.</h1>
+      <p class="home-hero__descriptor">A Python harness that acts as a dedicated AI co-maintainer — always on,
+        credentials never exposed, no babysitting required.</p>
+      <a href="{{ 'tutorials/quickstart/' | url }}" class="home-cta">Get started in 30 minutes</a>
+    </div>
+    <div class="home-hero__illustration" aria-hidden="true">
+      <svg viewBox="0 0 460 300" xmlns="http://www.w3.org/2000/svg" fill="none">
+        <defs>
+          <marker id="hero-arr" markerWidth="5" markerHeight="5" refX="4" refY="2.5" orient="auto">
+            <path d="M0,0.5 L4,2.5 L0,4.5" stroke="white" stroke-width="0.8" fill="none" stroke-linejoin="round"/>
+          </marker>
+        </defs>
+
+        <!-- outer annotation frame -->
+        <rect x="2" y="2" width="456" height="296" stroke="white" stroke-width="0.4" stroke-dasharray="1.5 4"
+              fill="none"/>
+
+        <!-- GITHUB API zone -->
+        <rect x="18" y="12" width="200" height="50" stroke="white" stroke-width="0.75" stroke-dasharray="4 3"
+              fill="none"/>
+        <text x="26" y="24" font-size="6" font-family="ui-monospace,monospace" fill="white" letter-spacing="1.2">GITHUB
+          API
+        </text>
+        <rect x="28" y="29" width="55" height="25" stroke="white" stroke-width="0.6" fill="none"/>
+        <text x="55" y="46" font-size="5.5" font-family="ui-monospace,monospace" fill="white" text-anchor="middle">
+          EVENTS
+        </text>
+        <rect x="96" y="29" width="62" height="25" stroke="white" stroke-width="0.6" fill="none"/>
+        <text x="127" y="46" font-size="5.5" font-family="ui-monospace,monospace" fill="white" text-anchor="middle">
+          ISSUES API
+        </text>
+
+        <!-- FOREMAN HARNESS boundary -->
+        <rect x="10" y="76" width="330" height="185" stroke="white" stroke-width="1" fill="none"/>
+        <text x="20" y="89" font-size="6" font-family="ui-monospace,monospace" fill="white" letter-spacing="1.2">FOREMAN
+          HARNESS
+        </text>
+
+        <!-- POLLER -->
+        <rect x="26" y="97" width="72" height="40" stroke="white" stroke-width="0.75" fill="none"/>
+        <circle cx="62" cy="109" r="4" stroke="white" stroke-width="0.6" fill="none"/>
+        <line x1="62" y1="105.2" x2="62" y2="107.2" stroke="white" stroke-width="0.5"/>
+        <line x1="65.8" y1="109" x2="63.8" y2="109" stroke="white" stroke-width="0.5"/>
+        <text x="62" y="129" font-size="6.5" font-family="ui-monospace,monospace" fill="white" text-anchor="middle">
+          POLLER
+        </text>
+
+        <!-- ROUTER -->
+        <rect x="120" y="97" width="72" height="40" stroke="white" stroke-width="0.75" fill="none"/>
+        <line x1="130" y1="111" x2="142" y2="117" stroke="white" stroke-width="0.5"/>
+        <line x1="130" y1="123" x2="142" y2="117" stroke="white" stroke-width="0.5"/>
+        <line x1="142" y1="117" x2="158" y2="117" stroke="white" stroke-width="0.5"/>
+        <text x="156" y="129" font-size="6.5" font-family="ui-monospace,monospace" fill="white" text-anchor="middle">
+          ROUTER
+        </text>
+
+        <!-- DISPATCH SERVER -->
+        <rect x="215" y="97" width="95" height="40" stroke="white" stroke-width="0.75" fill="none"/>
+        <text x="262" y="114" font-size="6.5" font-family="ui-monospace,monospace" fill="white" text-anchor="middle">
+          DISPATCH
+        </text>
+        <text x="262" y="127" font-size="6.5" font-family="ui-monospace,monospace" fill="white" text-anchor="middle">
+          SERVER
+        </text>
+
+        <!-- MEMORY -->
+        <rect x="26" y="168" width="82" height="40" stroke="white" stroke-width="0.75" fill="none"/>
+        <text x="67" y="185" font-size="6.5" font-family="ui-monospace,monospace" fill="white" text-anchor="middle">
+          MEMORY
+        </text>
+        <text x="67" y="199" font-size="5.5" font-family="ui-monospace,monospace" fill="white" text-anchor="middle">
+          SQLite
+        </text>
+
+        <!-- EXECUTOR -->
+        <rect x="175" y="168" width="85" height="40" stroke="white" stroke-width="0.75" fill="none"/>
+        <text x="217" y="191" font-size="6.5" font-family="ui-monospace,monospace" fill="white" text-anchor="middle">
+          EXECUTOR
+        </text>
+
+        <!-- AGENT CONTAINER (outside harness) -->
+        <rect x="356" y="82" width="90" height="115" stroke="white" stroke-width="0.75" stroke-dasharray="5 3"
+              fill="none"/>
+        <text x="401" y="96" font-size="5.5" font-family="ui-monospace,monospace" fill="white" text-anchor="middle"
+              letter-spacing="1">AGENT
+        </text>
+        <text x="401" y="107" font-size="5.5" font-family="ui-monospace,monospace" fill="white" text-anchor="middle">
+          CONTAINER
+        </text>
+        <rect x="368" y="112" width="60" height="30" stroke="white" stroke-width="0.6" fill="none"/>
+        <text x="398" y="126" font-size="5.5" font-family="ui-monospace,monospace" fill="white" text-anchor="middle">
+          LLM
+        </text>
+        <text x="398" y="137" font-size="5" font-family="ui-monospace,monospace" fill="white" text-anchor="middle">
+          BACKEND
+        </text>
+        <rect x="368" y="150" width="60" height="38" stroke="white" stroke-width="0.5" stroke-dasharray="2 2"
+              fill="none"/>
+        <text x="398" y="165" font-size="4.5" font-family="ui-monospace,monospace" fill="white" text-anchor="middle">NO
+          GITHUB
+        </text>
+        <text x="398" y="176" font-size="4.5" font-family="ui-monospace,monospace" fill="white" text-anchor="middle">
+          CREDENTIALS
+        </text>
+        <text x="398" y="185" font-size="4.5" font-family="ui-monospace,monospace" fill="white" text-anchor="middle">IN
+          THIS ZONE
+        </text>
+
+        <!-- GitHub Events → Poller -->
+        <line x1="55" y1="54" x2="55" y2="95" stroke="white" stroke-width="0.75" marker-end="url(#hero-arr)"/>
+
+        <!-- Poller → Router -->
+        <line x1="98" y1="117" x2="118" y2="117" stroke="white" stroke-width="0.75" marker-end="url(#hero-arr)"/>
+
+        <!-- Router → Server -->
+        <line x1="192" y1="117" x2="213" y2="117" stroke="white" stroke-width="0.75" marker-end="url(#hero-arr)"/>
+
+        <!-- Server → Agent (task) -->
+        <line x1="310" y1="112" x2="354" y2="127" stroke="white" stroke-width="0.75" marker-end="url(#hero-arr)"/>
+        <text x="320" y="115" font-size="4.5" font-family="ui-monospace,monospace" fill="white">TASK</text>
+
+        <!-- Agent → Server (decision) -->
+        <line x1="356" y1="144" x2="312" y2="130" stroke="white" stroke-width="0.75" marker-end="url(#hero-arr)"/>
+        <text x="318" y="149" font-size="4.5" font-family="ui-monospace,monospace" fill="white">DECISION</text>
+
+        <!-- Server → Executor -->
+        <line x1="262" y1="137" x2="223" y2="166" stroke="white" stroke-width="0.75" marker-end="url(#hero-arr)"/>
+
+        <!-- Server → Memory (dashed write) -->
+        <line x1="238" y1="137" x2="108" y2="172" stroke="white" stroke-width="0.6" stroke-dasharray="3 2"
+              marker-end="url(#hero-arr)"/>
+
+        <!-- Executor → GitHub Issues API -->
+        <path d="M218,168 L218,66 L158,66 L158,54" stroke="white" stroke-width="0.75" fill="none"
+              marker-end="url(#hero-arr)"/>
+        <text x="165" y="63" font-size="4.5" font-family="ui-monospace,monospace" fill="white">ACTIONS</text>
+
+        <!-- Dimension annotation bracket -->
+        <line x1="342" y1="76" x2="350" y2="76" stroke="white" stroke-width="0.5"/>
+        <line x1="342" y1="261" x2="350" y2="261" stroke="white" stroke-width="0.5"/>
+        <line x1="346" y1="76" x2="346" y2="261" stroke="white" stroke-width="0.5"/>
+
+        <!-- Title block -->
+        <rect x="10" y="272" width="330" height="22" stroke="white" stroke-width="0.5" fill="none"/>
+        <line x1="10" y1="280" x2="340" y2="280" stroke="white" stroke-width="0.3"/>
+        <text x="16" y="277" font-size="5" font-family="ui-monospace,monospace" fill="white" letter-spacing="0.5">
+          FOREMAN — SYSTEM ARCHITECTURE — HARNESS BOUNDARY
+        </text>
+        <text x="16" y="290" font-size="5" font-family="ui-monospace,monospace" fill="white">REV A · COMPONENT DIAGRAM ·
+          NOT TO SCALE
+        </text>
+      </svg>
+    </div>
+  </section>
+
+  {# ─── Capabilities ──────────────────────────────────── #}
+  <section class="home-capabilities">
+    <div class="home-container home-container--narrow">
+      <h2 class="home-section-heading">What Foreman handles</h2>
+      <dl class="home-capabilities__list">
+
+        <div class="home-capabilities__item">
+          <dt>
+            <div class="home-capabilities__glyph">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                   stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                   class="lucide lucide-tags-icon lucide-tags">
+                <path
+                  d="M13.172 2a2 2 0 0 1 1.414.586l6.71 6.71a2.4 2.4 0 0 1 0 3.408l-4.592 4.592a2.4 2.4 0 0 1-3.408 0l-6.71-6.71A2 2 0 0 1 6 9.172V3a1 1 0 0 1 1-1z"/>
+                <path d="M2 7v6.172a2 2 0 0 0 .586 1.414l6.71 6.71a2.4 2.4 0 0 0 3.191.193"/>
+                <circle cx="10.5" cy="6.5" r=".5" fill="currentColor"/>
+              </svg>
+            </div>
+            Issue triage and labeling
+          </dt>
+          <dd>Reads new issues, applies labels, and responds or escalates based on your configured rules.</dd>
+        </div>
+
+        <div class="home-capabilities__item">
+          <dt>
+            <div class="home-capabilities__glyph">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                   stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                   class="lucide lucide-refresh-cw-icon lucide-refresh-cw">
+                <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/>
+                <path d="M21 3v5h-5"/>
+                <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/>
+                <path d="M8 16H3v5"/>
+              </svg>
+            </div>
+            Always-on GitHub polling
+          </dt>
+          <dd>Monitors every configured repository on a set interval. No webhooks, no infrastructure to maintain.</dd>
+        </div>
+
+        <div class="home-capabilities__item">
+          <dt>
+            <div class="home-capabilities__glyph">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                   stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                   class="lucide lucide-message-circle-reply-icon lucide-message-circle-reply">
+                <path
+                  d="M2.992 16.342a2 2 0 0 1 .094 1.167l-1.065 3.29a1 1 0 0 0 1.236 1.168l3.413-.998a2 2 0 0 1 1.099.092 10 10 0 1 0-4.777-4.719"/>
+                <path d="m10 15-3-3 3-3"/>
+                <path d="M7 12h8a2 2 0 0 1 2 2v1"/>
+              </svg>
+            </div>
+            Automated responses
+          </dt>
+          <dd>Posts replies and closes stale issues under your bot's GitHub identity, on your schedule.</dd>
+        </div>
+
+        <div class="home-capabilities__item">
+          <dt>
+            <div class="home-capabilities__glyph">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                   stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                   class="lucide lucide-shield-check-icon lucide-shield-check">
+                <path
+                  d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/>
+                <path d="m9 12 2 2 4-4"/>
+              </svg>
+            </div>
+            Credential-safe agent isolation
+          </dt>
+          <dd>Agents produce decisions; the harness owns every GitHub API call. Your token never enters an agent
+            container.
+          </dd>
+        </div>
+
+      </dl>
+    </div>
+  </section>
+
+  {# ─── Quick Start ───────────────────────────────────── #}
+  <section class="home-quickstart">
+    <div class="home-container home-container--narrow">
+      <h2 class="home-section-heading">Running in under 30 minutes</h2>
+      <div class="home-quickstart__code">
+        <pre><code>pip install foreman
+foreman init config.yaml
+foreman start</code></pre>
+      </div>
+      <p class="home-quickstart__link">
+        <a href="{{ 'tutorials/quickstart/' | url }}">Full walkthrough with a real repository →</a>
+      </p>
+    </div>
+  </section>
+
+  {# ─── Docs Nav ──────────────────────────────────────── #}
+  <section class="home-docsnav">
+    <div class="home-container">
+      <h2 class="home-section-heading">Documentation</h2>
+      <nav class="home-docsnav__grid" aria-label="Documentation sections">
+        <a href="{{ 'installation/' | url }}" class="home-docsnav__item">
+          <h3>Get Started</h3>
+          <p>Install Foreman and configure your first repository in under 30 minutes.</p>
+        </a>
+        <a href="{{ 'explanation/' | url }}" class="home-docsnav__item">
+          <h3>How It Works</h3>
+          <p>The security model, ownership boundaries, and design decisions behind Foreman.</p>
+        </a>
+        <a href="{{ 'howtos/' | url }}" class="home-docsnav__item">
+          <h3>How-To Guides</h3>
+          <p>Recipes for common configurations and tasks.</p>
+        </a>
+        <a href="{{ 'reference/' | url }}" class="home-docsnav__item">
+          <h3>Reference</h3>
+          <p>Configuration, CLI, agent protocol, and API documentation.</p>
+        </a>
+        <a href="{{ 'development/' | url }}" class="home-docsnav__item">
+          <h3>Developer Guide</h3>
+          <p>Extending Foreman and contributing to the project.</p>
+        </a>
+      </nav>
+    </div>
+  </section>
+
+</div>
+{% endblock %}

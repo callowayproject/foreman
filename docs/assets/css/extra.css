@@ -1,9 +1,3 @@
-/* Indentation. */
-div.doc-contents:not(.first) {
-  padding-left: 25px;
-  border-left: .05rem solid var(--md-typeset-table-color);
-}
-
 /* Normal size fonts on parameter tables */
 .md-typeset div.doc-contents table {
   font-size: 1em;
@@ -47,8 +41,8 @@ span.doc-param-default {
   float: unset;
 }
 .doc-label { border-radius: 15px; padding: 0 5px; }
-.doc-label code { background-color: transparent; color: white;}
-.doc-label-special { background-color: blue; color: white; }
-.doc-label-private { background-color: red; color: white; }
-.doc-label-property { background-color: green; color: white; }
-.doc-label-read-only { background-color: yellow; color: black; }
+.doc-label code { background-color: transparent; color: white; }
+.doc-label-special { background-color: var(--blueprint-steel); color: var(--doc-label-private-color); }
+.doc-label-private { background-color: var(--doc-label-private-bg); color: var(--doc-label-private-color); }
+.doc-label-property { background-color: var(--doc-label-property-bg); color: var(--doc-label-property-color); }
+.doc-label-read-only { background-color: var(--doc-label-read-only-bg); color: var(--doc-label-read-only-color); }

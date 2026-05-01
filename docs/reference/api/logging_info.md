@@ -1,0 +1,1 @@
+::: foreman.logging_info

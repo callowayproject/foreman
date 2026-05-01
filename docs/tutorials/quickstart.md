@@ -103,5 +103,5 @@ Within the next polling interval (up to 60 seconds), Foreman will:
 
 - Adjust labels, keywords, and stale_days in config.yaml to match your project.
 - Add more repositories under `repos`.
-- Read the [Configuration Reference](reference/configuration.md) for all available options.
-- Read the [Agent Protocol Reference](reference/agent-protocol.md) to understand how to build your own agents.
+- Read the [Configuration Reference](../reference/configuration.md) for all available options.
+- Read the [Agent Protocol Reference](../reference/agent-protocol.md) to understand how to build your own agents.

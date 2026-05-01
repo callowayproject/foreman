@@ -44,10 +44,23 @@ Copyright &copy; 2026 Corey Oordt
 # can be defined using TOML syntax.
 #
 # Read more: https://zensical.org/docs/setup/navigation/
-# nav = [
-#   { "Get started" = "index.md" },
-#   { "Markdown in 5min" = "markdown.md" },
-# ]
+#nav = [
+#    { "Home" = "index.md" },
+#    { "Get Started" = [
+#        { "Installation" = "tutorials/installation.md" },
+#        { "Quick Start" = "tutorials/quickstart.md" },
+#    ]},
+#    { "How It Works" = "explanation.md" },
+#    { "How-To Guides" = "howtos/index.md" },
+#    { "Reference" = [
+#        { "Overview" = "reference/index.md" },
+#        { "Configuration" = "reference/configuration.md" },
+#        { "CLI" = "reference/cli.md" },
+#        { "Agent Protocol" = "reference/agent-protocol.md" },
+#        { "API" = "reference/api/index.md" },
+#    ]},
+#    { "Developer Guide" = "development.md" },
+#]
 
 # With the "extra_css" option you can add your own CSS styling to customize
 # your Zensical project according to your needs. You can add any number of
@@ -58,10 +71,12 @@ Copyright &copy; 2026 Corey Oordt
 # Read more: https://zensical.org/docs/customization/#additional-css
 #
 extra_css = [
+    "assets/css/colors.css",
     "assets/css/extra.css",
     "assets/css/mkdocstrings.css",
     "assets/css/cards.css",
     "assets/css/field-list.css",
+    "assets/css/home.css",
 ]
 
 # With the `extra_javascript` option you can add your own JavaScript to your
@@ -71,6 +86,8 @@ extra_css = [
 #
 # Read more: https://zensical.org/docs/customization/#additional-javascript
 #extra_javascript = ["javascripts/extra.js"]
+
+repo_url = "https://github.com/callowayproject/foreman"
 
 # ----------------------------------------------------------------------------
 # Section for configuring theme options
@@ -88,7 +105,7 @@ extra_css = [
 # Read more:
 # - https://zensical.org/docs/customization/#extending-the-theme
 #
-#custom_dir = "overrides"
+custom_dir = "overrides"
 
 # With the "favicon" option you can set your own image to use as the icon
 # browsers will use in the browser title bar or tab bar. The path provided
@@ -179,7 +196,7 @@ features = [
     # This feature turns on navigation elements in the footer that allow the
     # user to navigate to a next or previous page.
     # https://zensical.org/docs/setup/footer/#navigation
-#    "navigation.footer",
+    # "navigation.footer",
 
     # When section index pages are enabled, documents can be directly attached
     # to sections, which is particularly useful for providing overview pages.
@@ -189,7 +206,7 @@ features = [
     # When instant navigation is enabled, clicks on all internal links will be
     # intercepted and dispatched via XHR without fully reloading the page.
     # https://zensical.org/docs/setup/navigation/#instant-navigation
-#    "navigation.instant",
+    # "navigation.instant",
 
     # With instant prefetching, your site will start to fetch a page once the
     # user hovers over a link. This will reduce the perceived loading time
@@ -210,7 +227,7 @@ features = [
     # When pruning is enabled, only the visible navigation items are included
     # in the rendered HTML, reducing the size of the built site by 33% or more.
     # https://zensical.org/docs/setup/navigation/#navigation-pruning
-    #"navigation.prune",
+    # "navigation.prune",
 
     # When sections are enabled, top-level sections are rendered as groups in
     # the sidebar for viewports above 1220px, but remain as-is on mobile.
@@ -220,7 +237,7 @@ features = [
     # When tabs are enabled, top-level sections are rendered in a menu layer
     # below the header for viewports above 1220px, but remain as-is on mobile.
     # https://zensical.org/docs/setup/navigation/#navigation-tabs
-    #"navigation.tabs",
+    "navigation.tabs",
 
     # When sticky tabs are enabled, navigation tabs will lock below the header
     # and always remain visible when scrolling down.
@@ -251,7 +268,7 @@ features = [
     # When navigation integration for the table of contents is enabled, it is
     # always rendered as part of the navigation sidebar on the left.
     # https://zensical.org/docs/setup/navigation/#navigation-integration
-    "toc.integrate",
+    # "toc.integrate",
 ]
 
 # ----------------------------------------------------------------------------
@@ -259,7 +276,7 @@ features = [
 # option in the "theme" subsection. The logo must be a relative path to a file
 # in your "docs_dir", e.g., to use `docs/assets/logo.png` you would set:
 # ----------------------------------------------------------------------------
-logo = "assets/logo.png"
+logo = "assets/images/Foreman-logo.svg"
 
 # ----------------------------------------------------------------------------
 # If you don't have a dedicated project logo, you can use a built-in icon from
@@ -279,8 +296,8 @@ logo = "assets/logo.png"
 # of suitably licensed fonts. There are options for a normal text font and for
 # a monospaced font used in code blocks.
 # ----------------------------------------------------------------------------
-#[project.theme.font]
-#text = "Inter"
+[project.theme.font]
+text = "Public Sans"
 #code = "Jetbrains Mono"
 
 # ----------------------------------------------------------------------------
@@ -294,6 +311,8 @@ logo = "assets/logo.png"
 # ----------------------------------------------------------------------------
 [[project.theme.palette]]
 scheme = "default"
+primary = "custom"
+accent = "custom"
 media = "(prefers-color-scheme: light)"
 toggle.icon = "lucide/sun"
 toggle.name = "Switch to dark mode"
@@ -346,7 +365,7 @@ pygments_lang_class = true
 [project.markdown_extensions.pymdownx.smartsymbols]
 [project.markdown_extensions.pymdownx.superfences]
 custom_fences = [
-  { name = "mermaid", class = "mermaid", format = "pymdownx.superfences.fence_code_format" }
+    { name = "mermaid", class = "mermaid", format = "pymdownx.superfences.fence_code_format" }
 ]
 [project.markdown_extensions.pymdownx.tabbed]
 alternate_style = true
@@ -364,10 +383,10 @@ allow_inspection = true
 backlinks = "tree"
 enable_inventory = true
 extensions = [
-  "dataclasses",
-  "unpack_typeddict",
-  { griffe_pydantic = { schema = true } },
-  { griffe_fieldz = { include_inherited = true } },
+    "dataclasses",
+    "unpack_typeddict",
+    { griffe_pydantic = { schema = true } },
+    { griffe_fieldz = { include_inherited = true } },
 ]
 show_source = false
 
@@ -389,6 +408,8 @@ docstring_style = "google"
 docstring_options.ignore_init_summary = true
 docstring_section_style = "spacy"
 merge_init_into_class = true
+relative_crossrefs = true
+scoped_crossrefs = true
 show_docstring_parameters = true
 
 # Signatures
