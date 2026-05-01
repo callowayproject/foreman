@@ -20,6 +20,7 @@ from foreman.config import ConfigError, load_config
 from foreman.containers import ContainerError, ContainerManager
 from foreman.memory import MemoryStore
 from foreman.poller import GitHubPoller
+from foreman.queue import TaskQueue
 from foreman.routers import Router, RoutingError
 from foreman.server import Dispatcher, app
 
@@ -30,6 +31,8 @@ logger = structlog.get_logger(__name__)
 
 #: Default memory DB path.
 _DEFAULT_DB_PATH = Path.home() / ".agent-harness" / "memory.db"
+#: Default queue DB path.
+_DEFAULT_QUEUE_DB_PATH = Path.home() / ".agent-harness" / "queue.db"
 
 
 def _build_parser() -> argparse.ArgumentParser:
@@ -144,8 +147,12 @@ def _run_start(args: Any) -> None:
     memory = MemoryStore(db_path)
 
     # 3. Create core components.
+    queue_db_path = config.queue.db_path if config.queue.db_path is not None else _DEFAULT_QUEUE_DB_PATH
+    task_queue = TaskQueue(queue_db_path, claim_timeout_seconds=config.queue.claim_timeout_seconds)
+    app.state.task_queue = task_queue
+
     poller = GitHubPoller(token=config.identity.github_token, memory=memory)
-    dispatcher = Dispatcher(config=config, memory=memory)
+    dispatcher = Dispatcher(config=config, memory=memory, task_queue=task_queue)
 
     # 4. Start agent containers (if any are configured with image + port).
     container_manager: ContainerManager | None = None
