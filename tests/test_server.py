@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import asyncio
+from contextlib import suppress
 from pathlib import Path
 from typing import Any
 from unittest.mock import AsyncMock, MagicMock, patch
@@ -14,7 +16,7 @@ from foreman.memory import MemoryStore
 from foreman.protocol import ActionItem, DecisionMessage, DecisionType
 from foreman.queue import TaskQueue
 from foreman.routers.agent import RouteTarget
-from foreman.server import Dispatcher
+from foreman.server import Dispatcher, _drain_loop, _requeue_loop
 
 # ---------------------------------------------------------------------------
 # Fixtures
@@ -266,3 +268,157 @@ class TestDispatchNudgeErrors:
 
         claimed = task_queue.claim_next("http://localhost:8001")
         assert claimed is not None
+
+
+# ---------------------------------------------------------------------------
+# Background loops: drain
+# ---------------------------------------------------------------------------
+
+
+def _make_task_in_queue(task_queue: TaskQueue, agent_url: str = "http://agent") -> tuple:
+    """Enqueue, claim, and complete a task; return (task_msg, decision_msg)."""
+    from foreman.protocol import LLMBackendRef, TaskContext, TaskMessage
+
+    task_msg = TaskMessage(
+        task_id="drain-task-001",
+        type="issue.triage",
+        repo="owner/repo",
+        payload={"number": 42, "title": "Crash", "body": ""},
+        context=TaskContext(
+            llm_backend=LLMBackendRef(provider="anthropic", model="claude-sonnet-4-6"),
+        ),
+    )
+    decision_msg = DecisionMessage(
+        task_id="drain-task-001",
+        decision=DecisionType.label_and_respond,
+        rationale="Bug confirmed.",
+        actions=[ActionItem(type="add_label", label="bug")],
+    )
+    task_queue.enqueue(task_msg, agent_url=agent_url)
+    task_queue.claim_next(agent_url)
+    task_queue.complete(task_msg.task_id, decision_msg)
+    return task_msg, decision_msg
+
+
+class TestDrainLoop:
+    """_drain_loop() drains completed tasks and calls executor + memory."""
+
+    @pytest.mark.asyncio
+    async def test_drain_loop_calls_executor_for_completed_task(
+        self, config: ForemanConfig, memory: MemoryStore, task_queue: TaskQueue, mocker
+    ) -> None:
+        """drain_loop calls executor.execute() for each completed task."""
+        mock_executor = MagicMock()
+        _make_task_in_queue(task_queue)
+
+        drain_event = asyncio.Event()
+        drain_event.set()
+
+        loop_task = asyncio.create_task(_drain_loop(task_queue, mock_executor, memory, config, drain_event))
+        await asyncio.sleep(0.01)
+        loop_task.cancel()
+        with suppress(asyncio.CancelledError):
+            await loop_task
+
+        mock_executor.execute.assert_called_once()
+        call_kwargs = mock_executor.execute.call_args[1]
+        assert call_kwargs["repo"] == "owner/repo"
+        assert call_kwargs["issue_number"] == 42
+
+    @pytest.mark.asyncio
+    async def test_drain_loop_updates_memory_for_completed_task(
+        self, config: ForemanConfig, memory: MemoryStore, task_queue: TaskQueue, mocker
+    ) -> None:
+        """drain_loop calls memory.upsert_memory_summary() for each completed task."""
+        mock_executor = MagicMock()
+        _make_task_in_queue(task_queue)
+
+        drain_event = asyncio.Event()
+        drain_event.set()
+
+        loop_task = asyncio.create_task(_drain_loop(task_queue, mock_executor, memory, config, drain_event))
+        await asyncio.sleep(0.01)
+        loop_task.cancel()
+        with suppress(asyncio.CancelledError):
+            await loop_task
+
+        summary = memory.get_memory_summary("owner/repo", 42)
+        assert summary is not None
+        assert "label_and_respond" in summary
+
+    @pytest.mark.asyncio
+    async def test_drain_loop_wakes_on_drain_event(self, config: ForemanConfig, memory: MemoryStore, mocker) -> None:
+        """drain_loop wakes immediately when drain_event is set."""
+        mock_task_queue = MagicMock()
+        mock_task_queue.drain_completed.return_value = []
+        mock_executor = MagicMock()
+
+        drain_event = asyncio.Event()
+
+        loop_task = asyncio.create_task(_drain_loop(mock_task_queue, mock_executor, memory, config, drain_event))
+        drain_event.set()
+        await asyncio.sleep(0.01)
+        loop_task.cancel()
+        with suppress(asyncio.CancelledError):
+            await loop_task
+
+        mock_task_queue.drain_completed.assert_called()
+
+    @pytest.mark.asyncio
+    async def test_drain_loop_cancelled_cleanly(self, config: ForemanConfig, memory: MemoryStore, mocker) -> None:
+        """drain_loop raises no unhandled error when cancelled."""
+        mock_task_queue = MagicMock()
+        mock_task_queue.drain_completed.return_value = []
+        mock_executor = MagicMock()
+        drain_event = asyncio.Event()
+
+        loop_task = asyncio.create_task(_drain_loop(mock_task_queue, mock_executor, memory, config, drain_event))
+        await asyncio.sleep(0)
+        loop_task.cancel()
+        with suppress(asyncio.CancelledError):
+            await loop_task
+
+
+# ---------------------------------------------------------------------------
+# Background loops: requeue
+# ---------------------------------------------------------------------------
+
+
+class TestRequeueLoop:
+    """_requeue_loop() calls requeue_stale() and fail_exhausted() on each cycle."""
+
+    @pytest.mark.asyncio
+    async def test_requeue_loop_calls_requeue_and_fail_exhausted(self) -> None:
+        """requeue_loop calls both requeue_stale() and fail_exhausted() on each cycle."""
+        from foreman.config import QueueConfig
+
+        # Use requeue_interval_seconds=0 so asyncio.sleep(0) yields properly without mocking.
+        config = ForemanConfig(
+            identity=IdentityConfig(github_token="t", github_user="b"),
+            llm=LLMConfig(provider="anthropic", model="claude-sonnet-4-6"),
+            repos=[],
+            queue=QueueConfig(requeue_interval_seconds=0, max_retries=3),
+        )
+        mock_task_queue = MagicMock()
+        mock_task_queue.requeue_stale.return_value = 0
+        mock_task_queue.fail_exhausted.return_value = 0
+
+        loop_task = asyncio.create_task(_requeue_loop(mock_task_queue, config))
+        await asyncio.sleep(0.01)
+        loop_task.cancel()
+        with suppress(asyncio.CancelledError):
+            await loop_task
+
+        mock_task_queue.requeue_stale.assert_called()
+        mock_task_queue.fail_exhausted.assert_called_with(max_retries=3)
+
+    @pytest.mark.asyncio
+    async def test_requeue_loop_cancelled_cleanly(self, config: ForemanConfig) -> None:
+        """requeue_loop raises no unhandled error when cancelled."""
+        mock_task_queue = MagicMock()
+
+        loop_task = asyncio.create_task(_requeue_loop(mock_task_queue, config))
+        await asyncio.sleep(0)
+        loop_task.cancel()
+        with suppress(asyncio.CancelledError):
+            await loop_task

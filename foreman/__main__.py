@@ -149,10 +149,15 @@ def _run_start(args: Any) -> None:
     # 3. Create core components.
     queue_db_path = config.queue.db_path if config.queue.db_path is not None else _DEFAULT_QUEUE_DB_PATH
     task_queue = TaskQueue(queue_db_path, claim_timeout_seconds=config.queue.claim_timeout_seconds)
+    dispatcher = Dispatcher(config=config, memory=memory, task_queue=task_queue)
+
+    # Expose shared state for the lifespan background loops.
     app.state.task_queue = task_queue
+    app.state.executor = dispatcher._executor
+    app.state.memory = memory
+    app.state.config = config
 
     poller = GitHubPoller(token=config.identity.github_token, memory=memory)
-    dispatcher = Dispatcher(config=config, memory=memory, task_queue=task_queue)
 
     # 4. Start agent containers (if any are configured with image + port).
     container_manager: ContainerManager | None = None

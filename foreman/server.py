@@ -2,6 +2,9 @@
 
 from __future__ import annotations
 
+import asyncio
+import contextlib
+from contextlib import asynccontextmanager
 from typing import TYPE_CHECKING, Any
 
 import httpx
@@ -21,6 +24,8 @@ from foreman.routers import result as result_router
 from foreman.settings import settings
 
 if TYPE_CHECKING:
+    from collections.abc import AsyncGenerator
+
     from foreman.config import ForemanConfig
     from foreman.memory import MemoryStore
     from foreman.queue import TaskQueue
@@ -101,6 +106,106 @@ class Dispatcher:
             )
 
 
+async def _drain_loop(
+    task_queue: TaskQueue,
+    executor: GitHubExecutor,
+    memory: MemoryStore,
+    config: ForemanConfig,
+    drain_event: asyncio.Event,
+) -> None:
+    """Drain completed tasks from the queue and execute their decisions.
+
+    Wakes on *drain_event* or after ``config.queue.drain_interval_seconds``.
+    Each ``(TaskMessage, DecisionMessage)`` pair returned by
+    :meth:`~foreman.queue.TaskQueue.drain_completed` is passed to
+    :meth:`~foreman.executor.GitHubExecutor.execute` and
+    :meth:`~foreman.memory.MemoryStore.upsert_memory_summary`.
+
+    Args:
+        task_queue: The durable task queue.
+        executor: GitHub action executor.
+        memory: Memory store for summary updates.
+        config: Runtime configuration (provides drain interval).
+        drain_event: Asyncio event that wakes the loop early.
+    """
+    while True:
+        with contextlib.suppress(asyncio.TimeoutError):
+            await asyncio.wait_for(drain_event.wait(), timeout=config.queue.drain_interval_seconds)
+        drain_event.clear()
+
+        pairs = task_queue.drain_completed()
+        for task, decision in pairs:
+            issue_number: int = task.payload.get("number", 0)
+            executor.execute(
+                decision,
+                repo=task.repo,
+                issue_number=issue_number,
+                task_type=task.type,
+            )
+            summary = f"decision={decision.decision.value}; rationale={decision.rationale}"
+            memory.upsert_memory_summary(task.repo, issue_number, summary)
+
+        if pairs:
+            logger.info("Drain loop processed tasks", count=len(pairs))
+
+
+async def _requeue_loop(
+    task_queue: TaskQueue,
+    config: ForemanConfig,
+) -> None:
+    """Re-enqueue stale claimed tasks and fail exhausted ones.
+
+    Runs on ``config.queue.requeue_interval_seconds`` interval.
+
+    Args:
+        task_queue: The durable task queue.
+        config: Runtime configuration (provides requeue interval and max retries).
+    """
+    while True:
+        await asyncio.sleep(config.queue.requeue_interval_seconds)
+        requeued = task_queue.requeue_stale()
+        failed = task_queue.fail_exhausted(max_retries=config.queue.max_retries)
+        logger.info("Requeue cycle", requeued=requeued, failed=failed)
+
+
+@asynccontextmanager
+async def _lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
+    """FastAPI lifespan: start background drain and requeue loops.
+
+    Reads ``app.state.task_queue``, ``app.state.executor``,
+    ``app.state.memory``, and ``app.state.config`` which must be set
+    by the caller (``__main__.py``) before the server starts.
+
+    Args:
+        app: The FastAPI application instance.
+
+    Yields:
+        None: Control passes to FastAPI while background loops are running.
+    """
+    task_queue: TaskQueue = app.state.task_queue
+    executor: GitHubExecutor = app.state.executor
+    memory: MemoryStore = app.state.memory
+    config: ForemanConfig = app.state.config
+
+    drain_event = asyncio.Event()
+    app.state.drain_event = drain_event
+
+    drain_task = asyncio.create_task(_drain_loop(task_queue, executor, memory, config, drain_event))
+    requeue_task = asyncio.create_task(_requeue_loop(task_queue, config))
+
+    logger.info("Background loops started")
+    try:
+        yield
+    finally:
+        drain_task.cancel()
+        requeue_task.cancel()
+        with contextlib.suppress(asyncio.CancelledError):
+            await drain_task
+        with contextlib.suppress(asyncio.CancelledError):
+            await requeue_task
+        logger.info("Background loops stopped")
+
+
 app: FastAPI = FastAPI(
     title=settings.name,
     description=settings.name,
@@ -109,6 +214,7 @@ app: FastAPI = FastAPI(
     swagger_ui_parameters={
         "persistAuthorization": True,
     },
+    lifespan=_lifespan,
 )
 
 app.add_middleware(
