@@ -1,0 +1,33 @@
+:root {
+  /* Brand palette — OKLCH */
+  --blueprint-steel: oklch(42% 0.065 258);
+  --pre-dawn-navy: oklch(23% 0.085 263);
+  --safety-tape-pale: oklch(95% 0.14 103);
+  --safety-tape-pale--lightest: oklch(95% 0.14 103 / 7%);
+  --site-signal-amber: oklch(77% 0.17 80);
+  --construction-orange: oklch(63% 0.22 42);
+  --near-black: oklch(15% 0.015 258);
+
+  /* Elevation */
+  --card-border: 1px solid oklch(42% 0.065 258 / 20%);
+
+  /* API label tokens */
+  --doc-label-private-bg: oklch(35% 0.12 15);
+  --doc-label-private-color: oklch(98% 0.005 258);
+  --doc-label-property-bg: oklch(33% 0.10 155);
+  --doc-label-property-color: oklch(98% 0.005 258);
+  --doc-label-read-only-bg: oklch(82% 0.16 95);
+  --doc-label-read-only-color: oklch(15% 0.015 258);
+}
+
+:root > * {
+  --md-primary-fg-color: var(--blueprint-steel);
+  --md-primary-fg-color--light: oklch(90% 0.02 258);
+  --md-primary-fg-color--dark: oklch(25% 0.07 258);
+  --md-accent-fg-color: var(--site-signal-amber);
+  --md-default-fg-color: var(--near-black);
+}
+
+.md-sidebar__inner {
+  background-color: var(--safety-tape-pale--lightest);
+}
