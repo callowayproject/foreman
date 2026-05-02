@@ -159,46 +159,46 @@ def _run_start(args: Any) -> None:
         queue_db_path = config.queue.db_path
     else:
         queue_db_path = _DEFAULT_QUEUE_DB_PATH
-    task_queue = TaskQueue(queue_db_path, claim_timeout_seconds=config.queue.claim_timeout_seconds)
-    dispatcher = Dispatcher(config=config, memory=memory, task_queue=task_queue)
+    with TaskQueue(queue_db_path, claim_timeout_seconds=config.queue.claim_timeout_seconds) as task_queue:
+        dispatcher = Dispatcher(config=config, memory=memory, task_queue=task_queue)
 
-    # Expose shared state for the lifespan background loops.
-    app.state.task_queue = task_queue
-    app.state.executor = dispatcher._executor
-    app.state.memory = memory
-    app.state.config = config
+        # Expose shared state for the lifespan background loops.
+        app.state.task_queue = task_queue
+        app.state.executor = dispatcher._executor
+        app.state.memory = memory
+        app.state.config = config
 
-    poller = GitHubPoller(token=config.identity.github_token, memory=memory)
+        poller = GitHubPoller(token=config.identity.github_token, memory=memory)
 
-    # 4. Start agent containers (if any are configured with image + port).
-    container_manager: ContainerManager | None = None
-    agent_urls: dict[str, str] = {}
-    agent_specs = _collect_agent_images(config)
+        # 4. Start agent containers (if any are configured with image + port).
+        container_manager: ContainerManager | None = None
+        agent_urls: dict[str, str] = {}
+        agent_specs = _collect_agent_images(config)
 
-    if agent_specs:
-        try:
-            container_manager = ContainerManager()
-        except ContainerError as exc:
-            print(f"Error: {exc}", file=sys.stderr)
-            sys.exit(1)
-        for agent_type, image, port in agent_specs:
+        if agent_specs:
             try:
-                url = container_manager.start_agent(agent_type, image=image, port=port)
-                agent_urls[agent_type] = url
+                container_manager = ContainerManager()
             except ContainerError as exc:
-                print(f"Error starting agent '{agent_type}': {exc}", file=sys.stderr)
+                print(f"Error: {exc}", file=sys.stderr)
                 sys.exit(1)
+            for agent_type, image, port in agent_specs:
+                try:
+                    url = container_manager.start_agent(agent_type, image=image, port=port)
+                    agent_urls[agent_type] = url
+                except ContainerError as exc:
+                    print(f"Error starting agent '{agent_type}': {exc}", file=sys.stderr)
+                    sys.exit(1)
 
-    logger.info(
-        "Foreman initialised",
-        config=args.config,
-        db=str(db_path),
-        repos=[f"{r.owner}/{r.name}" for r in config.repos],
-        poll_interval_seconds=config.polling.interval_seconds,
-    )
+        logger.info(
+            "Foreman initialised",
+            config=args.config,
+            db=str(db_path),
+            repos=[f"{r.owner}/{r.name}" for r in config.repos],
+            poll_interval_seconds=config.polling.interval_seconds,
+        )
 
-    # 5. Run the poller and HTTP server concurrently.
-    asyncio.run(_run_loop(config, memory, poller, dispatcher, args.host, args.port, container_manager, agent_urls))
+        # 5. Run the poller and HTTP server concurrently.
+        asyncio.run(_run_loop(config, memory, poller, dispatcher, args.host, args.port, container_manager, agent_urls))
 
 
 async def _run_loop(

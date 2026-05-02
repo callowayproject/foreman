@@ -188,8 +188,9 @@ class TestActionLogging:
         decision = _make_decision([ActionItem(type="add_label", label="bug")])
         executor.execute(decision, repo="owner/repo", issue_number=10)
 
-        with sqlite3.connect(memory.db_path) as conn:
-            row = conn.execute("SELECT repo, issue_id, decision FROM action_log").fetchone()
+        conn = sqlite3.connect(memory.db_path)
+        row = conn.execute("SELECT repo, issue_id, decision FROM action_log").fetchone()
+        conn.close()
         assert row is not None
         assert row[0] == "owner/repo"
         assert row[1] == 10
@@ -208,8 +209,9 @@ class TestActionLogging:
         with pytest.raises(RuntimeError, match="network error"):
             executor.execute(decision, repo="owner/repo", issue_number=7)
 
-        with sqlite3.connect(memory.db_path) as conn:
-            count = conn.execute("SELECT COUNT(*) FROM action_log").fetchone()[0]
+        conn = sqlite3.connect(memory.db_path)
+        count = conn.execute("SELECT COUNT(*) FROM action_log").fetchone()[0]
+        conn.close()
         assert count == 1, "log entry must exist even after GitHub failure"
 
     def test_task_type_stored_in_action_log(self, executor_and_issue, memory: MemoryStore) -> None:
@@ -218,8 +220,9 @@ class TestActionLogging:
         decision = _make_decision([])
         executor.execute(decision, repo="owner/repo", issue_number=1, task_type="issue.triage")
 
-        with sqlite3.connect(memory.db_path) as conn:
-            row = conn.execute("SELECT task_type FROM action_log").fetchone()
+        conn = sqlite3.connect(memory.db_path)
+        row = conn.execute("SELECT task_type FROM action_log").fetchone()
+        conn.close()
         assert row[0] == "issue.triage"
 
     def test_rationale_stored_in_action_log(self, executor_and_issue, memory: MemoryStore) -> None:
@@ -228,8 +231,9 @@ class TestActionLogging:
         decision = _make_decision([], rationale="Confirmed bug in stack trace.")
         executor.execute(decision, repo="owner/repo", issue_number=2)
 
-        with sqlite3.connect(memory.db_path) as conn:
-            row = conn.execute("SELECT rationale FROM action_log").fetchone()
+        conn = sqlite3.connect(memory.db_path)
+        row = conn.execute("SELECT rationale FROM action_log").fetchone()
+        conn.close()
         assert row[0] == "Confirmed bug in stack trace."
 
 
@@ -263,8 +267,9 @@ class TestMixedActions:
         issue.create_comment.assert_not_called()
         issue.edit.assert_not_called()
 
-        with sqlite3.connect(memory.db_path) as conn:
-            count = conn.execute("SELECT COUNT(*) FROM action_log").fetchone()[0]
+        conn = sqlite3.connect(memory.db_path)
+        count = conn.execute("SELECT COUNT(*) FROM action_log").fetchone()[0]
+        conn.close()
         assert count == 1, "decision must still be logged even with no actions"
 
     def test_get_issue_called_with_correct_number(self, memory: MemoryStore, mocker) -> None:
