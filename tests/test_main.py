@@ -143,6 +143,70 @@ class TestMainStartupSequence:
 
         mock_dispatcher_cls.assert_called_once()
 
+    def test_start_creates_task_queue(self, tmp_path: Path, mocker) -> None:
+        """main() instantiates a TaskQueue and passes it to Dispatcher."""
+        config_path = tmp_path / "config.yaml"
+        _write_minimal_config(config_path)
+
+        mocker.patch("foreman.__main__.MemoryStore")
+        mocker.patch("foreman.__main__.GitHubPoller")
+        mocker.patch("foreman.__main__.Dispatcher")
+        mock_queue_cls = mocker.patch("foreman.__main__.TaskQueue")
+        mocker.patch("foreman.__main__.asyncio.run", side_effect=lambda c: c.close())
+
+        main(["start", "--config", str(config_path)])
+
+        mock_queue_cls.assert_called_once()
+
+
+# ---------------------------------------------------------------------------
+# --queue-db CLI argument
+# ---------------------------------------------------------------------------
+
+
+class TestQueueDbArg:
+    """--queue-db overrides config.queue.db_path for TaskQueue construction."""
+
+    def test_queue_db_arg_overrides_config_path(self, tmp_path: Path, mocker) -> None:
+        """--queue-db path is passed to TaskQueue when provided."""
+        config_path = tmp_path / "config.yaml"
+        _write_minimal_config(config_path)
+        custom_db = tmp_path / "custom_queue.db"
+
+        mocker.patch("foreman.__main__.MemoryStore")
+        mocker.patch("foreman.__main__.GitHubPoller")
+        mocker.patch("foreman.__main__.Dispatcher")
+        mock_queue_cls = mocker.patch("foreman.__main__.TaskQueue")
+        mocker.patch("foreman.__main__.asyncio.run", side_effect=lambda c: c.close())
+
+        main(["start", "--config", str(config_path), "--queue-db", str(custom_db)])
+
+        call_args = mock_queue_cls.call_args
+        assert (
+            call_args[0][0] == custom_db
+            or call_args.args[0] == custom_db
+            or call_args.kwargs.get("db_path") == custom_db
+        )
+
+    def test_queue_db_defaults_to_default_path_when_config_has_none(self, tmp_path: Path, mocker) -> None:
+        """TaskQueue uses _DEFAULT_QUEUE_DB_PATH when --queue-db is absent and config has no db_path."""
+        from foreman.__main__ import _DEFAULT_QUEUE_DB_PATH
+
+        config_path = tmp_path / "config.yaml"
+        _write_minimal_config(config_path)
+
+        mocker.patch("foreman.__main__.MemoryStore")
+        mocker.patch("foreman.__main__.GitHubPoller")
+        mocker.patch("foreman.__main__.Dispatcher")
+        mock_queue_cls = mocker.patch("foreman.__main__.TaskQueue")
+        mocker.patch("foreman.__main__.asyncio.run", side_effect=lambda c: c.close())
+
+        main(["start", "--config", str(config_path)])
+
+        call_args = mock_queue_cls.call_args
+        actual_path = call_args[0][0] if call_args[0] else call_args.kwargs.get("db_path")
+        assert actual_path == _DEFAULT_QUEUE_DB_PATH
+
 
 # ---------------------------------------------------------------------------
 # Helpers for container-related tests

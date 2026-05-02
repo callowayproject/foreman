@@ -362,17 +362,17 @@ The `Dispatcher` constructor gains a `task_queue: TaskQueue` parameter.
 
 **Acceptance criteria:**
 
-- [ ] `dispatch()` calls `task_queue.enqueue()` with correct `TaskMessage` and `agent_url`
-- [ ] `dispatch()` sends `POST <agent_url>/task` with body `{"task_id": ...}` and returns 202
-- [ ] `dispatch()` does not await agent response or parse `DecisionMessage`
-- [ ] Nudge HTTP errors are logged and swallowed (fire-and-forget)
-- [ ] All synchronous response-parsing code is deleted
-- [ ] `Dispatcher.__init__` accepts `task_queue: TaskQueue`
+- [x] `dispatch()` calls `task_queue.enqueue()` with correct `TaskMessage` and `agent_url`
+- [x] `dispatch()` sends `POST <agent_url>/task` with body `{"task_id": ...}` and returns 202
+- [x] `dispatch()` does not await agent response or parse `DecisionMessage`
+- [x] Nudge HTTP errors are logged and swallowed (fire-and-forget)
+- [x] All synchronous response-parsing code is deleted
+- [x] `Dispatcher.__init__` accepts `task_queue: TaskQueue`
 
 **Verification:**
 
-- [ ] `uv run pytest --agent-digest=term tests/test_server.py`
-- [ ] `pre-commit run --all-files`
+- [x] `uv run pytest --agent-digest=term tests/test_server.py`
+- [x] `pre-commit run --all-files`
 
 **Dependencies:** Tasks 2, 6
 
@@ -399,17 +399,17 @@ Both tasks are cancelled cleanly on shutdown.
 
 **Acceptance criteria:**
 
-- [ ] `drain_loop` calls `drain_completed()` and passes each `(TaskMessage, DecisionMessage)` to
+- [x] `drain_loop` calls `drain_completed()` and passes each `(TaskMessage, DecisionMessage)` to
   `executor.execute()` and `memory.upsert_memory_summary()`
-- [ ] `drain_loop` wakes immediately when `drain_event` is set
-- [ ] `requeue_loop` calls `requeue_stale()` and `fail_exhausted(max_retries=config.queue.max_retries)`
-- [ ] Both tasks log structured events on each cycle
-- [ ] Both tasks are cancelled without error on SIGINT/shutdown
+- [x] `drain_loop` wakes immediately when `drain_event` is set
+- [x] `requeue_loop` calls `requeue_stale()` and `fail_exhausted(max_retries=config.queue.max_retries)`
+- [x] Both tasks log structured events on each cycle
+- [x] Both tasks are cancelled without error on SIGINT/shutdown
 
 **Verification:**
 
-- [ ] `uv run pytest --agent-digest=term tests/test_server.py`
-- [ ] `pre-commit run --all-files`
+- [x] `uv run pytest --agent-digest=term tests/test_server.py`
+- [x] `pre-commit run --all-files`
 
 **Dependencies:** Task 10
 
@@ -429,16 +429,16 @@ Add `--queue-db` CLI argument (overrides `config.queue.db_path`).
 
 **Acceptance criteria:**
 
-- [ ] `TaskQueue` is constructed with the resolved `db_path` and `claim_timeout_seconds`
-- [ ] `Dispatcher` receives the `task_queue` instance
-- [ ] `app.state.task_queue` and `app.state.drain_event` are set before the server starts
-- [ ] Default `db_path` is `~/.agent-harness/queue.db` when not set in config
-- [ ] Existing `--db` arg for `memory.db` is unchanged
+- [x] `TaskQueue` is constructed with the resolved `db_path` and `claim_timeout_seconds`
+- [x] `Dispatcher` receives the `task_queue` instance
+- [x] `app.state.task_queue` and `app.state.drain_event` are set before the server starts
+- [x] Default `db_path` is `~/.agent-harness/queue.db` when not set in config
+- [x] Existing `--db` arg for `memory.db` is unchanged
 
 **Verification:**
 
-- [ ] `uv run pytest --agent-digest=term tests/test_main.py`
-- [ ] `pre-commit run --all-files`
+- [x] `uv run pytest --agent-digest=term tests/test_main.py`
+- [x] `pre-commit run --all-files`
 
 **Dependencies:** Tasks 10, 11
 
@@ -457,17 +457,17 @@ Test the drain loop by injecting a mocked `drain_completed()` return and verifyi
 
 **Acceptance criteria:**
 
-- [ ] `dispatch()` test: `enqueue()` called with correct task + agent_url; nudge POST is fire-and-forget
-- [ ] `dispatch()` test: nudge HTTP error is swallowed and logged; no exception propagated
-- [ ] Drain loop test: `drain_completed()` returning one task → `executor.execute()` called once
-- [ ] Drain loop test: `drain_event` set → drain loop wakes immediately
-- [ ] Requeue loop test: `requeue_stale()` and `fail_exhausted()` called on schedule
-- [ ] No test directly touches `queue.db`
+- [x] `dispatch()` test: `enqueue()` called with correct task + agent_url; nudge POST is fire-and-forget
+- [x] `dispatch()` test: nudge HTTP error is swallowed and logged; no exception propagated
+- [x] Drain loop test: `drain_completed()` returning one task → `executor.execute()` called once
+- [x] Drain loop test: `drain_event` set → drain loop wakes immediately
+- [x] Requeue loop test: `requeue_stale()` and `fail_exhausted()` called on schedule
+- [x] No test directly touches `queue.db`
 
 **Verification:**
 
-- [ ] `uv run pytest --agent-digest=term tests/test_server.py`
-- [ ] `pre-commit run --all-files`
+- [x] `uv run pytest --agent-digest=term tests/test_server.py`
+- [x] `pre-commit run --all-files`
 
 **Dependencies:** Tasks 10, 11, 12
 
@@ -479,9 +479,9 @@ Test the drain loop by injecting a mocked `drain_completed()` return and verifyi
 
 ### Checkpoint: Phase 4
 
-- [ ] `uv run pytest --agent-digest=term` — all tests pass
-- [ ] Synchronous dispatch path is fully deleted from `server.py`
-- [ ] `pre-commit run --all-files` — clean
+- [x] `uv run pytest --agent-digest=term` — all tests pass
+- [x] Synchronous dispatch path is fully deleted from `server.py`
+- [x] `pre-commit run --all-files` — clean
 - [ ] Human review before proceeding
 
 ### Phase 5: Agent Update

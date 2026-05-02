@@ -61,6 +61,12 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Path to the SQLite memory database (default: ~/.agent-harness/memory.db)",
     )
     start.add_argument(
+        "--queue-db",
+        default=None,
+        metavar="QUEUE_DB_PATH",
+        help="Path to the SQLite task queue database (default: ~/.agent-harness/queue.db)",
+    )
+    start.add_argument(
         "--host",
         default="0.0.0.0",
         metavar="HOST",
@@ -147,7 +153,12 @@ def _run_start(args: Any) -> None:
     memory = MemoryStore(db_path)
 
     # 3. Create core components.
-    queue_db_path = config.queue.db_path if config.queue.db_path is not None else _DEFAULT_QUEUE_DB_PATH
+    if args.queue_db is not None:
+        queue_db_path = Path(args.queue_db)
+    elif config.queue.db_path is not None:
+        queue_db_path = config.queue.db_path
+    else:
+        queue_db_path = _DEFAULT_QUEUE_DB_PATH
     task_queue = TaskQueue(queue_db_path, claim_timeout_seconds=config.queue.claim_timeout_seconds)
     dispatcher = Dispatcher(config=config, memory=memory, task_queue=task_queue)
 
