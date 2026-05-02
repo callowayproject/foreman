@@ -69,7 +69,8 @@ class TestSchema:
     def test_db_file_created(self, tmp_path: Path) -> None:
         """DB file and parent directories are auto-created."""
         db_path = tmp_path / "nested" / "dir" / "queue.db"
-        TaskQueue(db_path=db_path)
+        with TaskQueue(db_path=db_path):
+            pass
         assert db_path.exists()
 
 
@@ -216,24 +217,24 @@ class TestRequeueStale:
 
     def test_requeue_stale_re_enqueues_timed_out_task(self, tmp_path: Path) -> None:
         """A claimed task past the timeout is re-enqueued and retry_count incremented."""
-        q = TaskQueue(db_path=tmp_path / "queue.db", claim_timeout_seconds=1)
-        task = _make_task("t1")
-        q.enqueue(task, agent_url="http://agent:9001")
-        q.claim_next(agent_url="http://agent:9001")
+        with TaskQueue(db_path=tmp_path / "queue.db", claim_timeout_seconds=1) as q:
+            task = _make_task("t1")
+            q.enqueue(task, agent_url="http://agent:9001")
+            q.claim_next(agent_url="http://agent:9001")
 
-        # Force both claimed_at and last_heartbeat into the past to simulate timeout
-        past = time.time() - 10
-        q._conn.execute(
-            "UPDATE task_queue SET claimed_at = ?, last_heartbeat = ? WHERE task_id = 't1'",
-            (past, past),
-        )
+            # Force both claimed_at and last_heartbeat into the past to simulate timeout
+            past = time.time() - 10
+            q._conn.execute(
+                "UPDATE task_queue SET claimed_at = ?, last_heartbeat = ? WHERE task_id = 't1'",
+                (past, past),
+            )
 
-        count = q.requeue_stale()
-        assert count == 1
+            count = q.requeue_stale()
+            assert count == 1
 
-        row = q._conn.execute("SELECT status, retry_count FROM task_queue WHERE task_id = 't1'").fetchone()
-        assert row[0] == "pending"
-        assert row[1] == 1
+            row = q._conn.execute("SELECT status, retry_count FROM task_queue WHERE task_id = 't1'").fetchone()
+            assert row[0] == "pending"
+            assert row[1] == 1
 
     def test_requeue_stale_ignores_fresh_claims(self, queue: TaskQueue) -> None:
         """A recently claimed task is not re-enqueued."""
@@ -245,21 +246,21 @@ class TestRequeueStale:
 
     def test_requeue_stale_ignores_heartbeated_task(self, tmp_path: Path) -> None:
         """A task with a recent heartbeat is not re-enqueued even if claimed_at is old."""
-        q = TaskQueue(db_path=tmp_path / "queue.db", claim_timeout_seconds=1)
-        task = _make_task("t1")
-        q.enqueue(task, agent_url="http://agent:9001")
-        q.claim_next(agent_url="http://agent:9001")
+        with TaskQueue(db_path=tmp_path / "queue.db", claim_timeout_seconds=1) as q:
+            task = _make_task("t1")
+            q.enqueue(task, agent_url="http://agent:9001")
+            q.claim_next(agent_url="http://agent:9001")
 
-        # Age the claimed_at but keep last_heartbeat fresh
-        now = time.time()
-        q._conn.execute(
-            "UPDATE task_queue SET claimed_at = ?, last_heartbeat = ? WHERE task_id = 't1'",
-            (now - 10, now),
-        )
-        q._conn.commit()
+            # Age the claimed_at but keep last_heartbeat fresh
+            now = time.time()
+            q._conn.execute(
+                "UPDATE task_queue SET claimed_at = ?, last_heartbeat = ? WHERE task_id = 't1'",
+                (now - 10, now),
+            )
+            q._conn.commit()
 
-        count = q.requeue_stale()
-        assert count == 0
+            count = q.requeue_stale()
+            assert count == 0
 
 
 # ---------------------------------------------------------------------------

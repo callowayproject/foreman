@@ -132,10 +132,10 @@ Use `freezegun` or manual timestamp manipulation to test timeout-based behaviour
 
 ### Checkpoint: Phase 1
 
-- [ ] `uv run pytest --agent-digest=term` — all tests pass
-- [ ] `pre-commit run --all-files` — clean
-- [ ] `TaskQueue` is fully exercised; concurrent-claim test passes
-- [ ] Human review before proceeding
+- [x] `uv run pytest --agent-digest=term` — all tests pass
+- [x] `pre-commit run --all-files` — clean
+- [x] `TaskQueue` is fully exercised; concurrent-claim test passes
+- [x] Human review before proceeding
 
 ### Phase 2: Harness Queue API Endpoints
 
@@ -156,17 +156,17 @@ The router receives a `TaskQueue` instance via FastAPI dependency injection (use
 
 **Acceptance criteria:**
 
-- [ ] `POST /queue/next` returns 200 + `TaskMessage` JSON when a task is available
-- [ ] `POST /queue/next` returns 204 when the queue is empty
-- [ ] `POST /queue/complete` stores the decision and returns 202
-- [ ] `POST /queue/heartbeat` updates `last_heartbeat` and returns 202
-- [ ] All endpoints return 202 immediately (no blocking on downstream work)
-- [ ] Router is included in `app` (registered in `server.py`)
+- [x] `POST /queue/next` returns 200 + `TaskMessage` JSON when a task is available
+- [x] `POST /queue/next` returns 204 when the queue is empty
+- [x] `POST /queue/complete` stores the decision and returns 202
+- [x] `POST /queue/heartbeat` updates `last_heartbeat` and returns 202
+- [x] All endpoints return 202 immediately (no blocking on downstream work)
+- [x] Router is included in `app` (registered in `server.py`)
 
 **Verification:**
 
-- [ ] `uv run pytest --agent-digest=term tests/test_queue_router.py` (written in Task 6)
-- [ ] `pre-commit run --all-files`
+- [x] `uv run pytest --agent-digest=term tests/test_queue_router.py` (written in Task 6)
+- [x] `pre-commit run --all-files`
 
 **Dependencies:** Tasks 2, 3
 
@@ -186,14 +186,14 @@ The trigger mechanism is an `asyncio.Event` set in the background loop and reset
 
 **Acceptance criteria:**
 
-- [ ] `POST /harness/result` accepts `{"task_id": "<uuid>"}` and returns 202 Accepted
-- [ ] Receiving the nudge triggers the drain loop event (verified by inspecting `app.state`)
-- [ ] Router is included in `app`
+- [x] `POST /harness/result` accepts `{"task_id": "<uuid>"}` and returns 202 Accepted
+- [x] Receiving the nudge triggers the drain loop event (verified by inspecting `app.state`)
+- [x] Router is included in `app`
 
 **Verification:**
 
-- [ ] `uv run pytest --agent-digest=term tests/test_result_router.py` (written in Task 6)
-- [ ] `pre-commit run --all-files`
+- [x] `uv run pytest --agent-digest=term tests/test_result_router.py` (written in Task 6)
+- [x] `pre-commit run --all-files`
 
 **Dependencies:** Task 4
 
@@ -212,16 +212,16 @@ Verify HTTP contracts only.
 
 **Acceptance criteria:**
 
-- [ ] `POST /queue/next` — 200 with task body when queue has a task
-- [ ] `POST /queue/next` — 204 when `claim_next()` returns `None`
-- [ ] `POST /queue/complete` — 202; `TaskQueue.complete()` called with correct args
-- [ ] `POST /queue/heartbeat` — 202; `TaskQueue.heartbeat()` called with correct `task_id`
-- [ ] `POST /harness/result` — 202; drain event is set
+- [x] `POST /queue/next` — 200 with task body when queue has a task
+- [x] `POST /queue/next` — 204 when `claim_next()` returns `None`
+- [x] `POST /queue/complete` — 202; `TaskQueue.complete()` called with correct args
+- [x] `POST /queue/heartbeat` — 202; `TaskQueue.heartbeat()` called with correct `task_id`
+- [x] `POST /harness/result` — 202; drain event is set
 
 **Verification:**
 
-- [ ] `uv run pytest --agent-digest=term tests/test_queue_router.py tests/test_result_router.py`
-- [ ] `pre-commit run --all-files`
+- [x] `uv run pytest --agent-digest=term tests/test_queue_router.py tests/test_result_router.py`
+- [x] `pre-commit run --all-files`
 
 **Dependencies:** Tasks 4, 5
 
@@ -234,9 +234,9 @@ Verify HTTP contracts only.
 
 ### Checkpoint: Phase 2
 
-- [ ] `uv run pytest --agent-digest=term` — all tests pass
-- [ ] All three queue endpoints + `/harness/result` exist and return correct status codes
-- [ ] Human review before proceeding
+- [x] `uv run pytest --agent-digest=term` — all tests pass
+- [x] All three queue endpoints + `/harness/result` exist and return correct status codes
+- [x] Human review before proceeding
 
 ### Phase 3: `foreman-client` Package
 
