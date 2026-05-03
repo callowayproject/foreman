@@ -500,17 +500,17 @@ Add a startup poll: on `@app.on_event("startup")`
 
 **Acceptance criteria:**
 
-- [ ] `POST /task` returns 202 Accepted immediately (not 200 + body)
-- [ ] Background task calls `client.next_task()` and `client.complete_task()`
-- [ ] Startup poll calls `client.next_task()` once on boot
-- [ ] Agent no longer defines its own `TaskMessage` / `DecisionMessage` models
-- [ ] `foreman-client` appears in `agents/issue-triage/pyproject.toml` dependencies
-- [ ] `GET /health` is unchanged
+- [x] `POST /task` returns 202 Accepted immediately (not 200 + body)
+- [x] Background task calls `client.next_task()` and `client.complete_task()`
+- [x] Startup poll calls `client.next_task()` once on boot
+- [x] Agent no longer defines its own `TaskMessage` / `DecisionMessage` models
+- [x] `foreman-client` appears in `agents/issue-triage/pyproject.toml` dependencies
+- [x] `GET /health` is unchanged
 
 **Verification:**
 
-- [ ] `uv run pytest --agent-digest=term tests/test_agent_server.py`
-- [ ] `pre-commit run --all-files`
+- [x] `uv run pytest --agent-digest=term tests/test_agent_server.py`
+- [x] `pre-commit run --all-files`
 
 **Dependencies:** Tasks 8, 9
 
@@ -529,15 +529,15 @@ Test startup poll behaviour.
 
 **Acceptance criteria:**
 
-- [ ] `POST /task` returns 202 (not 200)
-- [ ] Background task is triggered; `client.next_task()` and `client.complete_task()` called
-- [ ] `client.next_task()` returning `None` does not crash the background task
-- [ ] Startup poll fires `client.next_task()` once on lifespan start
+- [x] `POST /task` returns 202 (not 200)
+- [x] Background task is triggered; `client.next_task()` and `client.complete_task()` called
+- [x] `client.next_task()` returning `None` does not crash the background task
+- [x] Startup poll fires `client.next_task()` once on lifespan start
 
 **Verification:**
 
-- [ ] `uv run pytest --agent-digest=term tests/test_agent_server.py`
-- [ ] `pre-commit run --all-files`
+- [x] `uv run pytest --agent-digest=term tests/test_agent_server.py`
+- [x] `pre-commit run --all-files`
 
 **Dependencies:** Task 14
 
@@ -549,8 +549,8 @@ Test startup poll behaviour.
 
 ### Checkpoint: Phase 5
 
-- [ ] `uv run pytest --agent-digest=term` — full suite passes
-- [ ] Reference agent uses `ForemanClient`; no inline protocol models remain
+- [x] `uv run pytest --agent-digest=term` — full suite passes (261 tests)
+- [x] Reference agent uses `ForemanClient`; no inline protocol models remain
 - [ ] Human review before proceeding
 
 ### Phase 6: Documentation and Integration
