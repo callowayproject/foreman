@@ -2,86 +2,96 @@
 
 from __future__ import annotations
 
-import uuid
-from typing import Any, Optional
+import asyncio
+import os
+from contextlib import asynccontextmanager
+from typing import TYPE_CHECKING, AsyncIterator
 
-from fastapi import FastAPI
-from pydantic import BaseModel, Field
+import structlog
+from fastapi import BackgroundTasks, FastAPI
+from foremanclient import ForemanClient
+from pydantic import BaseModel
 
-app = FastAPI(title="foreman-issue-triage", version="0.1.0")
+if TYPE_CHECKING:
+    from foremanclient.models import DecisionMessage, TaskMessage
 
-
-# ---------------------------------------------------------------------------
-# Protocol models (self-contained; mirrors foreman.protocol)
-# ---------------------------------------------------------------------------
-
-
-class LLMBackendRef(BaseModel):
-    """Reference to the LLM backend the agent should use."""
-
-    provider: str
-    model: str
+logger = structlog.get_logger(__name__)
 
 
-class TaskContext(BaseModel):
-    """Context injected by the harness into each task."""
+def _get_client(application: FastAPI) -> ForemanClient:
+    """Return the ForemanClient for *application*, creating it from env vars if needed.
 
-    llm_backend: LLMBackendRef
-    memory_summary: Optional[str] = None
+    Args:
+        application: The FastAPI application whose state holds the client.
 
-
-class TaskMessage(BaseModel):
-    """Task message received from the harness."""
-
-    task_id: str = Field(default_factory=lambda: str(uuid.uuid4()))
-    type: str
-    repo: str
-    payload: dict[str, Any]
-    context: TaskContext
-
-
-class ActionItem(BaseModel):
-    """A single action the harness should execute."""
-
-    model_config = {"extra": "allow"}
-
-    type: str
-
-
-class DecisionMessage(BaseModel):
-    """Decision returned to the harness."""
-
-    task_id: str
-    decision: str
-    rationale: str
-    actions: list[ActionItem] = []
-
-
-# ---------------------------------------------------------------------------
-# Triage logic (implemented in Task 15; placeholder here)
-# ---------------------------------------------------------------------------
+    Returns:
+        The :class:`~foremanclient.ForemanClient` instance for this agent.
+    """
+    if not hasattr(application.state, "client"):
+        application.state.client = ForemanClient(
+            harness_url=os.environ["FOREMAN_HARNESS_URL"],
+            agent_url=os.environ["AGENT_URL"],
+        )
+    return application.state.client
 
 
 def triage(task: TaskMessage) -> DecisionMessage:
     """Run triage logic on *task* and return a decision.
 
-    This placeholder is replaced by the full implementation in
-    ``prompts/triage.py`` (Task 15).
-
     Args:
         task: The incoming triage task from the harness.
 
     Returns:
-        A :class:`DecisionMessage` with decision, rationale, and actions.
+        A :class:`~foremanclient.models.DecisionMessage` with decision, rationale, and actions.
     """
     from prompts.triage import run_triage
 
     return run_triage(task)
 
 
-# ---------------------------------------------------------------------------
-# Endpoints
-# ---------------------------------------------------------------------------
+async def _process_task(client: ForemanClient, task: TaskMessage) -> None:
+    """Call triage on *task* and report the completed decision to the harness.
+
+    Args:
+        client: The :class:`~foremanclient.ForemanClient` to use for completing the task.
+        task: The :class:`~foremanclient.models.TaskMessage` to process.
+    """
+    decision = await asyncio.to_thread(triage, task)
+    await asyncio.to_thread(client.complete_task, task.task_id, decision)
+
+
+async def _poll_and_process(client: ForemanClient) -> None:
+    """Claim the next pending task from the harness and process it if one exists.
+
+    Args:
+        client: The :class:`~foremanclient.ForemanClient` used to claim tasks.
+    """
+    task = await asyncio.to_thread(client.next_task)
+    if task is not None:
+        await _process_task(client, task)
+
+
+@asynccontextmanager
+async def _lifespan(application: FastAPI) -> AsyncIterator[None]:
+    """FastAPI lifespan: startup poll for tasks queued while the agent was down.
+
+    Args:
+        application: The FastAPI application instance.
+    """
+    client = _get_client(application)
+    await _poll_and_process(client)
+    yield
+    client.close()
+
+
+app = FastAPI(title="foreman-issue-triage", version="0.1.0", lifespan=_lifespan)
+
+
+class TaskNudge(BaseModel):
+    """Nudge payload sent by the harness when a new task is enqueued."""
+
+    task_id: str
+    """Identifier of the newly enqueued task."""
 
 
 @app.get("/health")
@@ -94,14 +104,17 @@ async def health() -> dict[str, str]:
     return {"status": "ok"}
 
 
-@app.post("/task", response_model=DecisionMessage)
-async def handle_task(task: TaskMessage) -> DecisionMessage:
-    """Receive a triage task, run triage logic, and return a decision.
+@app.post("/task", status_code=202)
+async def handle_task(nudge: TaskNudge, background_tasks: BackgroundTasks) -> dict[str, str]:
+    """Accept a task nudge and process the task in the background.
 
     Args:
-        task: The incoming :class:`TaskMessage` from the harness.
+        nudge: The nudge payload containing the task_id from the harness.
+        background_tasks: FastAPI background task queue.
 
     Returns:
-        A :class:`DecisionMessage` with the triage decision and actions.
+        JSON body with ``{"status": "accepted"}``.
     """
-    return triage(task)
+    client = _get_client(app)
+    background_tasks.add_task(_poll_and_process, client)
+    return {"status": "accepted"}

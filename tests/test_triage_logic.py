@@ -8,12 +8,14 @@ from pathlib import Path
 
 import pytest
 
-# Make the agent importable.
+# Make the agent and foreman-client importable without installation.
+_CLIENT_DIR = Path(__file__).parent.parent / "foreman-client"
 _AGENT_DIR = Path(__file__).parent.parent / "agents" / "issue-triage" / "issue_triage"
-if str(_AGENT_DIR) not in sys.path:
-    sys.path.insert(0, str(_AGENT_DIR))
+for _dir in (_CLIENT_DIR, _AGENT_DIR):
+    if str(_dir) not in sys.path:
+        sys.path.insert(0, str(_dir))
 
-from agent import ActionItem, DecisionMessage, TaskContext, TaskMessage, LLMBackendRef  # noqa: E402
+from foremanclient.models import ActionItem, DecisionMessage, LLMBackendRef, TaskContext, TaskMessage  # noqa: E402
 from prompts.triage import build_prompt, parse_llm_response, run_triage  # noqa: E402
 
 

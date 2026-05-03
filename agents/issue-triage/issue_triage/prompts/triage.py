@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING, Any
 import litellm
 
 if TYPE_CHECKING:
-    from agent import DecisionMessage, TaskMessage
+    from foremanclient.models import DecisionMessage, TaskMessage
 
 _VALID_DECISIONS = {"label_and_respond", "close", "escalate", "skip"}
 
@@ -78,7 +78,7 @@ def parse_llm_response(
     Returns:
         A validated :class:`~agent.DecisionMessage`.
     """
-    from agent import ActionItem, DecisionMessage
+    from foremanclient.models import ActionItem, DecisionMessage
 
     def _skip(rationale: str = "Could not parse LLM response") -> DecisionMessage:
         return DecisionMessage(task_id=task_id, decision="skip", rationale=rationale, actions=[])
@@ -160,7 +160,7 @@ def run_triage(task: TaskMessage) -> DecisionMessage:
         A :class:`~agent.DecisionMessage` with decision, rationale, and actions.
     """
     if _recent_comment_in_memory(task.context.memory_summary):
-        from agent import DecisionMessage
+        from foremanclient.models import DecisionMessage
 
         return DecisionMessage(
             task_id=task.task_id,
