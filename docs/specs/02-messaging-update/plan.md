@@ -572,7 +572,7 @@ heartbeat requirements (every 30 s during long LLM calls), idempotency contract
 
 **Verification:**
 
-- [ ] Human reads and approves the draft
+- [x] Human reads and approves the draft
 
 **Dependencies:** Tasks 8, 14
 
@@ -604,7 +604,7 @@ restart it, assert the task reaches `status=done` in `queue.db`.
 **Verification:**
 
 - [x] `uv run pytest --agent-digest=term -m integration --run-integration tests/test_integration.py`
-- [ ] Human observes the test pass end-to-end
+- [x] Human observes the test pass end-to-end
 
 **Dependencies:** Tasks 12, 14
 
@@ -621,9 +621,9 @@ restart it, assert the task reaches `status=done` in `queue.db`.
 - [x] Integration test passes manually
     (`uv run pytest --run-integration tests/test_integration.py::TestAgentRestartResilience`)
 - [x] `pre-commit run --all-files` — clean
-- [ ] `docs/how-to/write-an-agent.md` approved
+- [x] `docs/how-to/write-an-agent.md` approved
 - [x] No synchronous dispatch path exists anywhere in the codebase
-- [ ] Human sign-off before merge
+- [x] Human sign-off before merge
 
 ## Risks and Mitigations
 
