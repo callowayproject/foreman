@@ -10,15 +10,20 @@ SQLite DBs.
 
 from __future__ import annotations
 
+import sqlite3
+import sys
 from pathlib import Path
 from typing import Any
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
+from fastapi import FastAPI
+from fastapi.testclient import TestClient
 
 from foreman.config import AgentAssignment, ForemanConfig, IdentityConfig, LLMConfig, RepoConfig
 from foreman.memory import MemoryStore
 from foreman.poller import GitHubPoller
+from foreman.protocol import LLMBackendRef, TaskContext, TaskMessage
 from foreman.queue import TaskQueue
 from foreman.routers.agent import Router
 from foreman.server import Dispatcher
@@ -257,3 +262,171 @@ class TestPollerFeedsDispatcher:
         claimed = task_queue.claim_next("http://localhost:9001")
         assert claimed is not None
         assert claimed.repo == _REPO
+
+
+# ---------------------------------------------------------------------------
+# Helpers for restart-resilience test
+# ---------------------------------------------------------------------------
+
+
+def _sqlite_status(db_path: Path, task_id: str) -> str:
+    """Return the ``status`` column of a task_queue row, or ``'missing'``."""
+    conn = sqlite3.connect(str(db_path))
+    try:
+        row = conn.execute("SELECT status FROM task_queue WHERE task_id = ?", (task_id,)).fetchone()
+        return row[0] if row else "missing"
+    finally:
+        conn.close()
+
+
+def _sqlite_action_log(db_path: Path, repo: str, issue_id: int) -> list[tuple[str, str]]:
+    """Return ``(decision, rationale)`` rows from ``action_log`` for *repo* / *issue_id*."""
+    conn = sqlite3.connect(str(db_path))
+    try:
+        return conn.execute(
+            "SELECT decision, rationale FROM action_log WHERE repo = ? AND issue_id = ?",
+            (repo, issue_id),
+        ).fetchall()
+    finally:
+        conn.close()
+
+
+# ---------------------------------------------------------------------------
+# Integration: agent restart resilience (zero task loss)
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.integration
+class TestAgentRestartResilience:
+    """MVP acceptance criterion: zero task loss under a simulated agent restart.
+
+    The test wires the harness queue endpoints (via a minimal in-process FastAPI
+    app) to a real SQLite TaskQueue.  It uses the actual ForemanClient and agent
+    startup-poll code, exercising the full claim → process → complete → drain
+    path without any live network sockets.
+    """
+
+    def test_pending_task_claimed_on_restart(
+        self,
+        tmp_path: Path,
+        config: ForemanConfig,
+        mocker,
+    ) -> None:
+        """Task queued while the agent is down is picked up by the startup poll on restart.
+
+        Flow:
+
+        1. Enqueue a task while the agent is "down" (nudge never reaches it).
+        2. Assert the task is ``pending`` in the queue.
+        3. "Restart" the agent — lifespan startup poll fires ``next_task()``.
+        4. Agent processes the task and calls ``complete_task()``.
+        5. Assert the task is ``completed`` (or already ``done``).
+        6. Drain manually and execute (simulates the drain loop).
+        7. Assert task is ``done`` and ``action_log`` has an entry.
+        """
+        # Make foreman-client and agent importable without installation.
+        _CLIENT_DIR = Path(__file__).parent.parent / "foreman-client"
+        _AGENT_DIR = Path(__file__).parent.parent / "agents" / "issue-triage" / "issue_triage"
+        for _d in (_CLIENT_DIR, _AGENT_DIR):
+            if str(_d) not in sys.path:
+                sys.path.insert(0, str(_d))
+
+        from agent import app as agent_app  # noqa: PLC0415
+        from foremanclient import ForemanClient  # noqa: PLC0415
+        from foremanclient.models import DecisionMessage as ForemanDM  # noqa: PLC0415
+        from foremanclient.models import DecisionType as ForemanDT  # noqa: PLC0415
+
+        queue_db = tmp_path / "queue.db"
+        memory_db = tmp_path / "memory.db"
+        mocker.patch("foreman.executor.Github")
+
+        with TaskQueue(queue_db) as task_queue, MemoryStore(memory_db) as memory:
+            from foreman.executor import GitHubExecutor  # noqa: PLC0415
+            from foreman.routers import queue as _qr  # noqa: PLC0415
+            from foreman.routers import result as _rr  # noqa: PLC0415
+            from foreman.routers.queue import get_drain_event as _qde  # noqa: PLC0415
+            from foreman.routers.queue import get_task_queue as _gtq  # noqa: PLC0415
+            from foreman.routers.result import get_drain_event as _rde  # noqa: PLC0415
+
+            executor = GitHubExecutor(token="test-token", memory=memory)
+
+            # Minimal in-process harness: queue endpoints only, no background loops.
+            mini_harness = FastAPI(title="test-harness")
+            mini_harness.include_router(_qr.router)
+            mini_harness.include_router(_rr.router)
+            mini_harness.dependency_overrides[_gtq] = lambda: task_queue
+            mini_harness.dependency_overrides[_qde] = lambda: None
+            mini_harness.dependency_overrides[_rde] = lambda: None
+
+            with TestClient(mini_harness, raise_server_exceptions=True) as harness_tc:
+                # -- Step 1: enqueue while agent is "down" (no nudge sent) --
+                task = TaskMessage(
+                    type="issue.triage",
+                    repo="owner/repo",
+                    payload={
+                        "number": 42,
+                        "title": "App crashes on startup",
+                        "body": "Steps: run `app start`",
+                        "state": "open",
+                        "user": {"login": "reporter"},
+                        "labels": [],
+                    },
+                    context=TaskContext(llm_backend=LLMBackendRef(provider="anthropic", model="claude-sonnet-4-6")),
+                )
+                task_queue.enqueue(task, agent_url="http://localhost:9001")
+
+                # -- Step 2: task must be durable and pending --
+                assert _sqlite_status(queue_db, task.task_id) == "pending"
+
+                # Prepare a stub decision so triage requires no LLM call.
+                stub_decision = ForemanDM(
+                    task_id=task.task_id,
+                    decision=ForemanDT.skip,
+                    rationale="Integration test — skipping via stub",
+                    actions=[],
+                )
+                mocker.patch("agent.triage", return_value=stub_decision)
+
+                # Wire ForemanClient to use harness_tc as its HTTP transport.
+                # Bypassing __init__ lets us inject the TestClient directly without env vars.
+                foreman_client = ForemanClient.__new__(ForemanClient)
+                foreman_client._agent_url = "http://localhost:9001"
+                foreman_client._http = harness_tc
+                # Prevent agent lifespan teardown from closing our shared harness_tc.
+                foreman_client.close = lambda: None  # type: ignore[method-assign]
+
+                # -- Step 3 & 4: "restart" agent — lifespan startup poll claims + processes --
+                agent_app.state.client = foreman_client
+                try:
+                    with TestClient(agent_app, raise_server_exceptions=True):
+                        pass  # startup poll completes inside lifespan __enter__
+                finally:
+                    del agent_app.state.client
+
+                # -- Step 5: startup poll must have completed the task --
+                status = _sqlite_status(queue_db, task.task_id)
+                assert status in ("completed", "done"), (
+                    f"Expected 'completed' or 'done' after agent restart, got {status!r}"
+                )
+
+                # -- Step 6: drain manually (simulates the drain loop) --
+                pairs = task_queue.drain_completed()
+                for drained_task, decision in pairs:
+                    issue_number = drained_task.payload.get("number", 0)
+                    executor.execute(
+                        decision,
+                        repo=drained_task.repo,
+                        issue_number=issue_number,
+                        task_type=drained_task.type,
+                    )
+                    memory.upsert_memory_summary(
+                        drained_task.repo,
+                        issue_number,
+                        f"decision={decision.decision.value}",
+                    )
+
+                # -- Step 7: task is done and action_log is populated --
+                assert _sqlite_status(queue_db, task.task_id) == "done"
+                entries = _sqlite_action_log(memory_db, "owner/repo", 42)
+                assert len(entries) >= 1, "action_log must have at least one entry"
+                assert entries[0][0] == "skip"

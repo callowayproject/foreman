@@ -151,6 +151,9 @@ python_files = [
     "*_test.py",
     "tests.py",
 ]
+markers = [
+    "integration: marks tests as integration tests requiring real HTTP/SQLite (run with --run-integration)",
+]
 
 [tool.interrogate]
 ignore-init-method = true
