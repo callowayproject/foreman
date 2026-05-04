@@ -13,7 +13,7 @@ and report a decision back — all via `ForemanClient`.
 ## Prerequisites
 
 - Python 3.12+
-- A running Foreman harness (see [Installation](../installation.md))
+- A running Foreman harness (see [Installation](../tutorials/installation.md))
 - `uv` or `pip` for package management
 
 ## Install `foreman-client`
