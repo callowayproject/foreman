@@ -551,7 +551,7 @@ Test startup poll behaviour.
 
 - [x] `uv run pytest --agent-digest=term` — full suite passes (261 tests)
 - [x] Reference agent uses `ForemanClient`; no inline protocol models remain
-- [ ] Human review before proceeding
+- [x] Human review before proceeding
 
 ### Phase 6: Documentation and Integration
 
@@ -564,11 +564,11 @@ heartbeat requirements (every 30 s during long LLM calls), idempotency contract
 
 **Acceptance criteria:**
 
-- [ ] Covers: install, `ForemanClient.__init__` args, `next_task()`, `complete_task()`, `heartbeat()`
-- [ ] Explains claim timeout and heartbeat cadence requirement
-- [ ] Explains idempotency: what to do if `next_task()` returns an already-processed task
-- [ ] Includes a ≤30-line end-to-end example agent using `ForemanClient`
-- [ ] Doc is in `docs/how-to/write-an-agent.md`
+- [x] Covers: install, `ForemanClient.__init__` args, `next_task()`, `complete_task()`, `heartbeat()`
+- [x] Explains claim timeout and heartbeat cadence requirement
+- [x] Explains idempotency: what to do if `next_task()` returns an already-processed task
+- [x] Includes a ≤30-line end-to-end example agent using `ForemanClient`
+- [x] Doc is in `docs/howtos/write-an-agent.md` (project uses `howtos/` convention)
 
 **Verification:**
 
