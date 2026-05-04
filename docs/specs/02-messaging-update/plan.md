@@ -593,17 +593,17 @@ restart it, assert the task reaches `status=done` in `queue.db`.
 
 **Acceptance criteria:**
 
-- [ ] Test spins up harness (subprocess or `TestClient` + real `TaskQueue`)
-- [ ] GitHub poller event is injected (mock the poller, call `dispatcher.dispatch()` directly)
-- [ ] Agent is stopped immediately after task is enqueued (before it can claim)
-- [ ] Agent is restarted; startup poll picks up the pending task
-- [ ] `task_queue` row reaches `status=done`
-- [ ] `action_log` has an entry for the decision
-- [ ] Test is marked `@pytest.mark.integration` and skipped in CI unless `--run-integration` flag is set
+- [x] Test spins up harness (subprocess or `TestClient` + real `TaskQueue`)
+- [x] GitHub poller event is injected (mock the poller, call `dispatcher.dispatch()` directly)
+- [x] Agent is stopped immediately after task is enqueued (before it can claim)
+- [x] Agent is restarted; startup poll picks up the pending task
+- [x] `task_queue` row reaches `status=done`
+- [x] `action_log` has an entry for the decision
+- [x] Test is marked `@pytest.mark.integration` and skipped in CI unless `--run-integration` flag is set
 
 **Verification:**
 
-- [ ] `uv run pytest --agent-digest=term -m integration --run-integration tests/test_integration.py`
+- [x] `uv run pytest --agent-digest=term -m integration --run-integration tests/test_integration.py`
 - [ ] Human observes the test pass end-to-end
 
 **Dependencies:** Tasks 12, 14
@@ -617,11 +617,12 @@ restart it, assert the task reaches `status=done` in `queue.db`.
 
 ### Checkpoint: Phase 6 (Final)
 
-- [ ] `uv run pytest --agent-digest=term` — full unit suite passes
-- [ ] Integration test passes manually
-- [ ] `pre-commit run --all-files` — clean
+- [x] `uv run pytest --agent-digest=term` — full unit suite passes (261 + 1 skipped)
+- [x] Integration test passes manually
+    (`uv run pytest --run-integration tests/test_integration.py::TestAgentRestartResilience`)
+- [x] `pre-commit run --all-files` — clean
 - [ ] `docs/how-to/write-an-agent.md` approved
-- [ ] No synchronous dispatch path exists anywhere in the codebase
+- [x] No synchronous dispatch path exists anywhere in the codebase
 - [ ] Human sign-off before merge
 
 ## Risks and Mitigations
