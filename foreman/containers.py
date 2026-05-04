@@ -20,9 +20,9 @@ class ContainerError(Exception):
 class ContainerManager:
     """Manages Docker container start/stop for configured agent types.
 
-    On startup, pull (if needed) and start agent containers.  On shutdown,
-    call :meth:`stop_all` to stop them.  The container lifecycle manager
-    registers URLs with the router after each successful start.
+    On startup, pull (if needed) and start agent containers.
+    On shutdown, call [`stop_all`][.] to stop them.
+    The container lifecycle manager registers URLs with the router after each successful start.
 
     Raises:
         ContainerError: If the Docker socket is unavailable at construction time.

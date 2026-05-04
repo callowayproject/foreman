@@ -63,4 +63,4 @@ You will need to set the following before running:
 | `ANTHROPIC_API_KEY` | Anthropic API key (only if using `provider: anthropic`)               |
 
 These are referenced from your `config.yaml` using `${VAR}` syntax.
-See [Configuration Reference](reference/configuration.md#environment-variable-references).
+See [Configuration Reference](../reference/configuration.md#environment-variable-references).

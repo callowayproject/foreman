@@ -12,7 +12,7 @@ if TYPE_CHECKING:
 class LLMBackend(ABC):
     """Abstract base class for LLM provider backends.
 
-    All concrete backends must implement :meth:`complete`.
+    All concrete backends must implement [`complete`][.].
     """
 
     @abstractmethod
@@ -29,13 +29,13 @@ class LLMBackend(ABC):
 
 
 def from_config(config: LLMConfig) -> LLMBackend:
-    """Instantiate the correct :class:`LLMBackend` from an :class:`~foreman.config.LLMConfig`.
+    """Instantiate the correct [`LLMBackend`][LLMBackend] from an [`LLMConfig`][LLMConfig].
 
     Args:
         config: The LLM section of the Foreman runtime config.
 
     Returns:
-        A concrete :class:`LLMBackend` instance.
+        A concrete [`LLMBackend`][LLMBackend] instance.
 
     Raises:
         ValueError: If ``config.provider`` is not a supported backend.

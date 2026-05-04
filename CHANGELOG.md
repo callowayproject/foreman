@@ -1,5 +1,23 @@
 # Changelog
 
+## 0.3.0 (2026-05-01)
+
+[Compare the full difference.](https://github.com/callowayproject/foreman/compare/0.2.5...0.3.0)
+
+### New
+
+- Add design system assets, CSS variables, and comprehensive API reference structure. [38cfce0](https://github.com/callowayproject/foreman/commit/38cfce051fb7fa7eef63f835f527ab38e2eac90e)
+
+- Add CHANGELOG.md to excluded files in linter configuration. [a3fa809](https://github.com/callowayproject/foreman/commit/a3fa8090225da475f8d608ca40489a34cb8e69e4)
+
+### Other
+
+- Restructure and update design specs; add messaging update proposal and index file. [f8027a5](https://github.com/callowayproject/foreman/commit/f8027a55de5ce29acd283eb325d477dfb69a1d6c)
+
+### Updates
+
+- Remove outdated tutorials and API docs; add home page layout, visual assets, and updated CSS. [8b2a2fc](https://github.com/callowayproject/foreman/commit/8b2a2fc59f4f82b63dab31f65a9d1b3bf2bccbd8)
+
 ## 0.2.5 (2026-04-22)
 
 [Compare the full difference.](https://github.com/callowayproject/foreman/compare/0.2.4...0.2.5)

@@ -65,10 +65,10 @@ test = [
     "pytest-agent-digest",
 ]
 docs = [
-    "zensical>=0.0.33",
-    "griffe-pydantic",
     "griffe-fieldz",
+    "griffe-pydantic",
     "mkdocstrings[python]",
+    "zensical>=0.0.33",
 ]
 
 
@@ -306,7 +306,7 @@ skip-checking-raises = true
 quiet = true
 
 [tool.bumpversion]
-current_version = "0.2.5"
+current_version = "0.3.0"
 commit = true
 commit_args = "--no-verify"
 tag = true
