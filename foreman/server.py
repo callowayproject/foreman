@@ -172,9 +172,12 @@ async def _requeue_loop(
     """
     while True:
         await asyncio.sleep(config.queue.requeue_interval_seconds)
-        requeued = task_queue.requeue_stale()
-        failed = task_queue.fail_exhausted(max_retries=config.queue.max_retries)
-        logger.info("Requeue cycle", requeued=requeued, failed=failed)
+        try:
+            requeued = task_queue.requeue_stale()
+            failed = task_queue.fail_exhausted(max_retries=config.queue.max_retries)
+            logger.info("Requeue cycle", requeued=requeued, failed=failed)
+        except Exception:
+            logger.exception("Requeue cycle failed; retrying on next interval")
 
 
 @asynccontextmanager
@@ -210,7 +213,7 @@ async def _lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
         requeue_task.cancel()
         with contextlib.suppress(asyncio.CancelledError, Exception):
             await drain_task
-        with contextlib.suppress(asyncio.CancelledError):
+        with contextlib.suppress(asyncio.CancelledError, Exception):
             await requeue_task
         logger.info("Background loops stopped")
 

@@ -497,3 +497,27 @@ class TestRequeueLoop:
         loop_task.cancel()
         with suppress(asyncio.CancelledError):
             await loop_task
+
+    @pytest.mark.asyncio
+    async def test_requeue_loop_survives_requeue_stale_exception(self) -> None:
+        """A requeue-loop iteration that raises does not kill the loop."""
+        from foreman.config import IdentityConfig, LLMConfig, QueueConfig
+
+        fast_config = ForemanConfig(
+            identity=IdentityConfig(github_token="t", github_user="b"),
+            llm=LLMConfig(provider="anthropic", model="claude-sonnet-4-6"),
+            repos=[],
+            queue=QueueConfig(requeue_interval_seconds=0, max_retries=3),
+        )
+        mock_task_queue = MagicMock()
+        mock_task_queue.requeue_stale.side_effect = RuntimeError("db error")
+        mock_task_queue.fail_exhausted.return_value = 0
+
+        loop_task = asyncio.create_task(_requeue_loop(mock_task_queue, fast_config))
+        await asyncio.sleep(0.02)
+        loop_task.cancel()
+        with suppress(asyncio.CancelledError):
+            await loop_task
+
+        # Loop ran multiple iterations without dying
+        assert mock_task_queue.requeue_stale.call_count >= 2
