@@ -158,13 +158,15 @@ class TaskQueue:
         self._conn.commit()
 
     def drain_completed(self) -> list[tuple[TaskMessage, DecisionMessage]]:
-        """Return all completed tasks and transition them to done.
+        """Return all completed tasks without transitioning their status.
 
-        Called by the harness drain loop after processing.
+        Called by the harness drain loop.  The caller must call
+        :meth:`mark_done` for each task after it has been successfully
+        processed, giving at-least-once delivery semantics.
 
         Returns:
             A list of ``(TaskMessage, DecisionMessage)`` tuples for each
-            completed task.  The rows are set to ``status=done`` atomically.
+            completed task.  Rows remain ``status=completed`` after this call.
         """
         from foreman.protocol import DecisionMessage as _DecisionMessage
         from foreman.protocol import TaskMessage as _TaskMessage
@@ -174,17 +176,22 @@ class TaskQueue:
         ).fetchall()
         if not rows:
             return []
-        task_ids = [r[0] for r in rows]
-        placeholders = ",".join("?" * len(task_ids))
-        self._conn.execute(
-            f"UPDATE task_queue SET status = 'done' WHERE task_id IN ({placeholders})",  # noqa: S608
-            task_ids,
-        )
-        self._conn.commit()
         return [
             (_TaskMessage.model_validate_json(payload), _DecisionMessage.model_validate_json(result))
             for _, payload, result in rows
         ]
+
+    def mark_done(self, task_id: str) -> None:
+        """Transition a completed task to done after successful processing.
+
+        Args:
+            task_id: ID of the completed task to mark done.
+        """
+        self._conn.execute(
+            "UPDATE task_queue SET status = 'done' WHERE task_id = ? AND status = 'completed'",
+            (task_id,),
+        )
+        self._conn.commit()
 
     def requeue_stale(self) -> int:
         """Re-enqueue claimed tasks that have exceeded the claim timeout.

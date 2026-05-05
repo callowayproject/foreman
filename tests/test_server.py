@@ -378,6 +378,81 @@ class TestDrainLoop:
         with suppress(asyncio.CancelledError):
             await loop_task
 
+    @pytest.mark.asyncio
+    async def test_drain_loop_survives_executor_exception(
+        self, config: ForemanConfig, memory: MemoryStore, task_queue: TaskQueue
+    ) -> None:
+        """An executor exception is caught; the loop keeps running and task stays completed."""
+        mock_executor = MagicMock()
+        mock_executor.execute.side_effect = RuntimeError("GitHub API error")
+        _make_task_in_queue(task_queue)
+
+        drain_event = asyncio.Event()
+        drain_event.set()
+
+        loop_task = asyncio.create_task(_drain_loop(task_queue, mock_executor, memory, config, drain_event))
+        await asyncio.sleep(0.02)
+        loop_task.cancel()
+        with suppress(asyncio.CancelledError):
+            await loop_task
+
+        # Task stays 'completed' — mark_done was not called because executor failed
+        row = task_queue._conn.execute("SELECT status FROM task_queue WHERE task_id = 'drain-task-001'").fetchone()
+        assert row[0] == "completed"
+
+    @pytest.mark.asyncio
+    async def test_drain_loop_processes_remaining_tasks_after_exception(
+        self, config: ForemanConfig, memory: MemoryStore, task_queue: TaskQueue
+    ) -> None:
+        """An executor exception on one task does not skip other tasks in the same drain batch."""
+        from foreman.protocol import DecisionType, LLMBackendRef, TaskContext, TaskMessage
+
+        for suffix in ("-A", "-B"):
+            task = TaskMessage(
+                task_id=f"drain-task{suffix}",
+                type="issue.triage",
+                repo="owner/repo",
+                payload={"number": 1},
+                context=TaskContext(llm_backend=LLMBackendRef(provider="anthropic", model="claude-sonnet-4-6")),
+            )
+            decision = DecisionMessage(
+                task_id=f"drain-task{suffix}",
+                decision=DecisionType.skip,
+                rationale="r",
+                actions=[],
+            )
+            task_queue.enqueue(task, agent_url="http://agent")
+            task_queue.claim_next(agent_url="http://agent")
+            task_queue.complete(task.task_id, decision)
+
+        # Fail on first call, succeed on second
+        call_count = 0
+
+        def side_effect(*args, **kwargs) -> None:
+            nonlocal call_count
+            call_count += 1
+            if call_count == 1:
+                raise RuntimeError("first task fails")
+
+        mock_executor = MagicMock()
+        mock_executor.execute.side_effect = side_effect
+
+        drain_event = asyncio.Event()
+        drain_event.set()
+
+        loop_task = asyncio.create_task(_drain_loop(task_queue, mock_executor, memory, config, drain_event))
+        await asyncio.sleep(0.02)
+        loop_task.cancel()
+        with suppress(asyncio.CancelledError):
+            await loop_task
+
+        # One task failed (still 'completed'), one succeeded ('done')
+        statuses = dict(task_queue._conn.execute("SELECT task_id, status FROM task_queue").fetchall())
+        completed_count = sum(1 for s in statuses.values() if s == "completed")
+        done_count = sum(1 for s in statuses.values() if s == "done")
+        assert completed_count == 1
+        assert done_count == 1
+
 
 # ---------------------------------------------------------------------------
 # Background loops: requeue

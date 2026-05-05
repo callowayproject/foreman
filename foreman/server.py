@@ -133,17 +133,26 @@ async def _drain_loop(
             await asyncio.wait_for(drain_event.wait(), timeout=config.queue.drain_interval_seconds)
         drain_event.clear()
 
-        pairs = task_queue.drain_completed()
+        try:
+            pairs = task_queue.drain_completed()
+        except Exception:
+            logger.exception("drain_completed failed; skipping cycle")
+            continue
+
         for task, decision in pairs:
-            issue_number: int = task.payload.get("number", 0)
-            executor.execute(
-                decision,
-                repo=task.repo,
-                issue_number=issue_number,
-                task_type=task.type,
-            )
-            summary = f"decision={decision.decision.value}; rationale={decision.rationale}"
-            memory.upsert_memory_summary(task.repo, issue_number, summary)
+            try:
+                issue_number: int = task.payload.get("number", 0)
+                executor.execute(
+                    decision,
+                    repo=task.repo,
+                    issue_number=issue_number,
+                    task_type=task.type,
+                )
+                summary = f"decision={decision.decision.value}; rationale={decision.rationale}"
+                memory.upsert_memory_summary(task.repo, issue_number, summary)
+                task_queue.mark_done(task.task_id)
+            except Exception:
+                logger.exception("Failed to process drain task", task_id=task.task_id)
 
         if pairs:
             logger.info("Drain loop processed tasks", count=len(pairs))
@@ -199,7 +208,7 @@ async def _lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     finally:
         drain_task.cancel()
         requeue_task.cancel()
-        with contextlib.suppress(asyncio.CancelledError):
+        with contextlib.suppress(asyncio.CancelledError, Exception):
             await drain_task
         with contextlib.suppress(asyncio.CancelledError):
             await requeue_task

@@ -160,30 +160,60 @@ class TestCompleteAndDrain:
         assert returned_decision.task_id == "t1"
         assert returned_decision.decision == DecisionType.label_and_respond
 
-    def test_drain_completed_marks_rows_done(self, queue: TaskQueue) -> None:
-        """drain_completed transitions completed rows to done."""
+    def test_drain_completed_leaves_rows_in_completed_state(self, queue: TaskQueue) -> None:
+        """drain_completed does not transition rows — they remain completed after the call."""
         task = _make_task("t1")
         queue.enqueue(task, agent_url="http://agent:9001")
         queue.claim_next(agent_url="http://agent:9001")
         queue.complete("t1", _make_decision("t1"))
         queue.drain_completed()
         row = queue._conn.execute("SELECT status FROM task_queue WHERE task_id = 't1'").fetchone()
-        assert row[0] == "done"
+        assert row[0] == "completed"
 
     def test_drain_completed_empty_returns_empty_list(self, queue: TaskQueue) -> None:
         """drain_completed returns [] when no completed tasks exist."""
         assert queue.drain_completed() == []
 
-    def test_drain_completed_does_not_return_same_task_twice(self, queue: TaskQueue) -> None:
-        """Calling drain_completed twice returns each task only once."""
+    def test_drain_completed_does_not_return_done_tasks(self, queue: TaskQueue) -> None:
+        """drain_completed does not return tasks that have been marked done."""
         task = _make_task("t1")
         queue.enqueue(task, agent_url="http://agent:9001")
         queue.claim_next(agent_url="http://agent:9001")
         queue.complete("t1", _make_decision("t1"))
-        first = queue.drain_completed()
+        queue.drain_completed()
+        queue.mark_done("t1")
         second = queue.drain_completed()
-        assert len(first) == 1
         assert len(second) == 0
+
+
+# ---------------------------------------------------------------------------
+# mark_done
+# ---------------------------------------------------------------------------
+
+
+class TestMarkDone:
+    """mark_done transitions a completed row to done."""
+
+    def test_mark_done_transitions_row_to_done(self, queue: TaskQueue) -> None:
+        """mark_done sets status=done for the target task."""
+        task = _make_task("t1")
+        queue.enqueue(task, agent_url="http://agent:9001")
+        queue.claim_next(agent_url="http://agent:9001")
+        queue.complete("t1", _make_decision("t1"))
+        queue.mark_done("t1")
+        row = queue._conn.execute("SELECT status FROM task_queue WHERE task_id = 't1'").fetchone()
+        assert row[0] == "done"
+
+    def test_mark_done_leaves_other_rows_untouched(self, queue: TaskQueue) -> None:
+        """mark_done only transitions the specified task_id."""
+        for tid in ("t1", "t2"):
+            task = _make_task(tid)
+            queue.enqueue(task, agent_url="http://agent:9001")
+            queue.claim_next(agent_url="http://agent:9001")
+            queue.complete(tid, _make_decision(tid))
+        queue.mark_done("t1")
+        row = queue._conn.execute("SELECT status FROM task_queue WHERE task_id = 't2'").fetchone()
+        assert row[0] == "completed"
 
 
 # ---------------------------------------------------------------------------
