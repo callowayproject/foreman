@@ -1,5 +1,277 @@
 # Changelog
 
+## 0.4.0 (2026-05-05)
+
+[Compare the full difference.](https://github.com/callowayproject/foreman/compare/0.3.0...0.4.0)
+
+### Fixes
+
+- Fix ResourceWarning: close TaskQueue and sqlite3 connections properly. [02ae42f](https://github.com/callowayproject/foreman/commit/02ae42f160c7041730a73cf6a63fa885a325af56)
+
+  Wrap TaskQueue in a with-block in \_run_start so the connection is closed
+  on all exit paths, including sys.exit() from container startup errors.
+
+  Replace five `with sqlite3.connect(...) as conn:` patterns in
+  test_executor.py with explicit open/close — the with-form only manages
+  transactions, leaving connections open until GC.
+
+  **co-authored-by:** Claude Sonnet 4.6 <noreply@anthropic.com>
+
+### New
+
+- Add heartbeat thread to \_process_task in reference agent. [9499c19](https://github.com/callowayproject/foreman/commit/9499c1955721d0bcf26070c8b8ff140167194039)
+
+  Task 6 from pr-21-fixes.md:
+
+  - \_process_task now starts a daemon threading.Thread that calls
+    client.heartbeat(task.task_id) every \_HEARTBEAT_INTERVAL (25 s) while
+    triage runs so the harness does not re-queue the task mid-flight
+  - threading.Event stops the heartbeat thread in a finally block after
+    triage returns or raises
+  - import threading added; \_HEARTBEAT_INTERVAL module constant added
+
+  **co-authored-by:** Claude Sonnet 4.6 <noreply@anthropic.com>
+
+- Add task_id identity callout to complete_task docs. [596e38d](https://github.com/callowayproject/foreman/commit/596e38d8d0ab2a397d91d7f5c3582d0dc1a0a1e5)
+
+  Warns readers that task_id and decision.task_id must match;
+  a silent mismatch causes the drain loop to miss the result.
+
+  **co-authored-by:** Claude Sonnet 4.6 <noreply@anthropic.com>
+
+- Add configurable timeout parameter to ForemanClient. [05d81cc](https://github.com/callowayproject/foreman/commit/05d81ccc1cca1134d1bd0aa64fefd4dc42937bc8)
+
+  Exposes `timeout: float = 5.0` on `ForemanClient.__init__` and
+  forwards it to `httpx.Client`, so callers can tune per-deployment
+  latency requirements without monkey-patching the transport.
+
+  **co-authored-by:** Claude Sonnet 4.6 <noreply@anthropic.com>
+
+- Add integration test for agent restart resilience (Task 17, Phase 6). [1549117](https://github.com/callowayproject/foreman/commit/154911739235011863eb1a7abf7831d12ce500f6)
+
+  Implements the MVP acceptance criterion: zero task loss under a simulated
+  agent restart. The test uses a minimal in-process harness (real TaskQueue,
+  real MemoryStore) and exercises the actual ForemanClient + agent startup-
+  poll code path without live network sockets.
+
+  Also adds --run-integration pytest flag and integration marker so the test
+  is skipped in CI by default.
+
+  **co-authored-by:** Claude Sonnet 4.6 <noreply@anthropic.com>
+
+- Add write-an-agent how-to guide (Task 16, Phase 6). [789dbc2](https://github.com/callowayproject/foreman/commit/789dbc259aa24e7015b270a4015cbe860cc7da28)
+
+  Documents the foreman-client SDK for agent authors: install, ForemanClient
+  constructor args, next_task/complete_task/heartbeat methods, claim timeout,
+  heartbeat cadence, idempotency contract, and a ≤30-line minimal example.
+
+  **co-authored-by:** Claude Sonnet 4.6 <noreply@anthropic.com>
+
+- Add initial `.superset/config.json` and `.memsearch/memory/` tooling artifacts. [e59100e](https://github.com/callowayproject/foreman/commit/e59100e2218accb0fac2e84eb599d6144bc8e09b)
+
+  - Introduce `.superset/config.json` with an empty setup, teardown, and run configuration.
+  - Add `.memsearch/memory/2026-04-26.md` for session logging and transcript retention.
+
+- Address Phase 3 code review: fix resource leak, export types, clean up tests. [38c72c0](https://github.com/callowayproject/foreman/commit/38c72c08b308acaff0a3b23bf6e46d4921e638d7)
+
+  - Add close(), __enter__, __exit__ to ForemanClient to prevent httpx connection pool leak
+  - Export LLMBackendRef and TaskContext from foremanclient package __init__
+  - Move import json to module level in test_client.py; remove misleading call-ordering comment
+  - Add TestForemanClientLifecycle tests for close() and context manager behaviour
+  - Mark Phase 3 plan tasks and checkpoint complete; add phase-3-review.md
+
+  **co-authored-by:** Claude Sonnet 4.6 <noreply@anthropic.com>
+
+- Add threading lock to TaskQueue for improved concurrency safety. [a3633be](https://github.com/callowayproject/foreman/commit/a3633be0618db65118f8434315557695d20754e5)
+
+  Refactored claim_next to use threading lock in conjunction with `BEGIN IMMEDIATE` for same-process thread serialization. Updated related tests and improved cleanup with explicit resource management using close().
+
+- Add QueueConfig to config.py (Task 1). [f3a548d](https://github.com/callowayproject/foreman/commit/f3a548dd536b9256ba3605dce225b2fe585b02eb)
+
+  Extends ForemanConfig with a new QueueConfig model matching the
+  queue-mediated agent protocol spec. Adds corresponding tests and
+  documents the new section in config.example.yaml.
+
+  **co-authored-by:** Claude Sonnet 4.6 <noreply@anthropic.com>
+
+### Other
+
+- Resolve high-priority issues from phase-3 review:. [f01758a](https://github.com/callowayproject/foreman/commit/f01758abe6aee97551366468b909c3ce5204f1fb)
+
+  - Wrap `_drain_loop` and `_requeue_loop` bodies in exception handlers to ensure background loops do not terminate on errors.
+  - Split `drain_completed` into a new `mark_done` method for per-task completion after successful execution.
+  - Update startup poll to drain all queued tasks on agent boot.
+  - Add heartbeat thread to `_process_task` to prevent requeue during long-running LLM calls.
+  - Publicize `Dispatcher.executor` to remove private attribute access between modules.
+
+- Mark all pr-21-fixes.md acceptance criteria complete. [0a36267](https://github.com/callowayproject/foreman/commit/0a36267f2e3ca683991a9aef69b635fde373071e)
+
+  **co-authored-by:** Claude Sonnet 4.6 <noreply@anthropic.com>
+
+- Publicize Dispatcher.executor (remove private-attribute cross-module access). [74cf0e0](https://github.com/callowayproject/foreman/commit/74cf0e0c0ee694196e2e668612a06710c13ce98c)
+
+  Task 5 from pr-21-fixes.md:
+
+  - Rename Dispatcher.\_executor → Dispatcher.executor (public attribute)
+  - __main__.py updated to use dispatcher.executor instead of dispatcher.\_executor
+
+  **co-authored-by:** Claude Sonnet 4.6 <noreply@anthropic.com>
+
+- Drain all queued tasks on agent startup (loop until empty). [1a9bf71](https://github.com/callowayproject/foreman/commit/1a9bf71f129deb6e3867f2f27cbb17bfb939cc21)
+
+  Task 3 from pr-21-fixes.md:
+
+  - \_lifespan startup poll now loops calling next_task() until it returns None,
+    processing each task before moving to the next; previously only one task
+    was claimed, leaving N-1 accumulated tasks permanently stuck
+  - New test: startup poll with 3 queued tasks drains all 3 before yield
+
+  **co-authored-by:** Claude Sonnet 4.6 <noreply@anthropic.com>
+
+- Wrap \_requeue_loop body in exception handler. [0712ad8](https://github.com/callowayproject/foreman/commit/0712ad826f75c5a6639ae2b64588da9cc28a4549)
+
+  Task 4 from pr-21-fixes.md:
+
+  - requeue_stale() + fail_exhausted() wrapped in try/except Exception so
+    one bad cycle does not kill the requeue loop permanently
+  - \_lifespan finally uses suppress(CancelledError, Exception) for requeue_task
+
+  **co-authored-by:** Claude Sonnet 4.6 <noreply@anthropic.com>
+
+- Split drain_completed/add mark_done; wrap \_drain_loop in exception handlers. [4cf9097](https://github.com/callowayproject/foreman/commit/4cf9097b7037090faebed9e669b442fb3a9c9cd9)
+
+  Tasks 2+1 from pr-21-fixes.md:
+
+  - drain_completed() no longer marks rows done; rows stay 'completed'
+  - New mark_done(task_id) transitions completed→done after successful execute
+  - \_drain_loop wraps drain_completed() in outer try/except (loop never dies)
+  - \_drain_loop wraps per-task execute+memory+mark_done in inner try/except
+    (one bad task does not abort others in the same batch)
+  - \_lifespan finally uses suppress(CancelledError, Exception) for drain_task
+
+  **co-authored-by:** Claude Sonnet 4.6 <noreply@anthropic.com>
+
+- [pre-commit.ci] pre-commit autoupdate. [16cc083](https://github.com/callowayproject/foreman/commit/16cc0830a02bf59e24bfe91782c70d4d020d1e95)
+
+  **updates:** - [github.com/astral-sh/ruff-pre-commit: v0.15.11 → v0.15.12](https://github.com/astral-sh/ruff-pre-commit/compare/v0.15.11...v0.15.12)
+
+- Mark verification steps complete for Phase 6 tasks in plan. [f10729f](https://github.com/callowayproject/foreman/commit/f10729f830893a69d11e4798f0e7a40b104b3abb)
+
+- Mark Phase 6 Task 17 complete in plan. [525e797](https://github.com/callowayproject/foreman/commit/525e797ded74c408abc811850a1a86fafe8868b9)
+
+  **co-authored-by:** Claude Sonnet 4.6 <noreply@anthropic.com>
+
+- Mark Phase 5 tasks complete in plan. [1156699](https://github.com/callowayproject/foreman/commit/115669979d2b88c0096e77d236bdd5ad913086d9)
+
+  **co-authored-by:** Claude Sonnet 4.6 <noreply@anthropic.com>
+
+- Implement Phase 5: update issue-triage agent to use ForemanClient. [4ce2bec](https://github.com/callowayproject/foreman/commit/4ce2bec7d58e8a19d76214e34b91be001439f492)
+
+  POST /task now returns 202 immediately and fires a background task that
+  claims the pending task via ForemanClient.next_task(), runs triage, and
+  reports back via complete_task(). Lifespan startup poll picks up any
+  tasks queued while the agent was down.
+
+  Inline protocol models removed; foremanclient.models is the single
+  source of truth for TaskMessage / DecisionMessage across agent and tests.
+
+  **co-authored-by:** Claude Sonnet 4.6 <noreply@anthropic.com>
+
+- Convert TaskQueue tests to use context manager and update installed packages. [a0ba8dd](https://github.com/callowayproject/foreman/commit/a0ba8ddb88474d9fba9629fef5e2f4aa7333899e)
+
+- Implement Phase 4 Task 12: add --queue-db CLI arg and wire TaskQueue. [170d707](https://github.com/callowayproject/foreman/commit/170d7076e4efc2048b16efd942aba4883ead2ec3)
+
+  Add --queue-db argument to the start subcommand so users can override the
+  queue database path without changing config. Priority: --queue-db > config
+  db_path > ~/.agent-harness/queue.db default. Update plan.md to mark Tasks
+  11, 12, 13 and Phase 4 checkpoint complete.
+
+  **co-authored-by:** Claude Sonnet 4.6 <noreply@anthropic.com>
+
+- Implement Phase 4 Task 11: drain and requeue background loops in lifespan. [3ba1ceb](https://github.com/callowayproject/foreman/commit/3ba1ceb09c739cf549d585b247b6ee95c85eba51)
+
+  Add two background asyncio tasks started in a FastAPI lifespan context manager:
+
+  - \_drain_loop: wakes on drain_event or drain_interval_seconds; calls
+    TaskQueue.drain_completed(), executor.execute(), and
+    memory.upsert_memory_summary() for each completed task.
+  - \_requeue_loop: runs every requeue_interval_seconds; calls
+    requeue_stale() and fail_exhausted(max_retries=config.queue.max_retries).
+
+  Both tasks cancel cleanly on shutdown. The lifespan also initialises
+  app.state.drain_event so /harness/result and /queue/complete can signal it.
+  __main__.py wires app.state.executor, .memory, and .config for the lifespan.
+
+  **co-authored-by:** Claude Sonnet 4.6 <noreply@anthropic.com>
+
+- Implement Phase 4 Task 10: refactor Dispatcher to enqueue + nudge. [1e2283e](https://github.com/callowayproject/foreman/commit/1e2283e5277d7384c1923122df7d457693d554bd)
+
+  Replace synchronous POST→parse dispatch with durable enqueue:
+
+  - Dispatcher.dispatch() now enqueues the TaskMessage in TaskQueue and
+    sends a fire-and-forget nudge ({"task_id": ...}) to the agent endpoint.
+  - DecisionMessage parsing and executor.execute() are removed from dispatch();
+    those belong to the drain loop (Task 11).
+  - Dispatcher.__init__ gains a required task_queue: TaskQueue parameter.
+  - __main__.py creates TaskQueue from config.queue and passes it to Dispatcher.
+  - Integration and server tests updated to reflect new enqueue-based protocol.
+
+  **co-authored-by:** Claude Sonnet 4.6 <noreply@anthropic.com>
+
+- Implement Phase 3: foreman-client package with ForemanClient. [adffcef](https://github.com/callowayproject/foreman/commit/adffcefd35bef75c0931cbe60f5770dd1a2800da)
+
+  Creates the standalone `foreman-client/` package that agent authors install
+  to communicate with the harness queue. Exposes `next_task()`, `complete_task()`,
+  and `heartbeat()` over synchronous httpx, with structlog events and
+  `ForemanClientError` on non-2xx responses. 100% line and branch coverage
+  via respx HTTP mocks.
+
+  Also excludes `foreman-client/` and `agents/` from root pytest collection,
+  and excludes `foreman-client/` from the root mypy pre-commit hook to prevent
+  duplicate module name conflicts.
+
+  **co-authored-by:** Claude Sonnet 4.6 <noreply@anthropic.com>
+
+- Implement Phase 2: queue HTTP endpoints and harness result nudge. [89316f3](https://github.com/callowayproject/foreman/commit/89316f3efbbfe166f3ef83e18ddecebec4678df4)
+
+  - foreman/routers/queue.py: POST /queue/next (claim task or 204),
+    POST /queue/complete (store decision + signal drain), POST /queue/heartbeat
+  - foreman/routers/result.py: POST /harness/result (drain-loop nudge)
+  - server.py: register both new routers on the FastAPI app
+  - tests/test_queue_router.py, tests/test_result_router.py: HTTP contract tests
+    using FastAPI TestClient with dependency_overrides (no SQLite in router tests)
+  - pyproject.toml: per-file-ignores for FastAPI router B008/TC001/TC003 patterns
+
+  **co-authored-by:** Claude Sonnet 4.6 <noreply@anthropic.com>
+
+- Implement TaskQueue and tests (Tasks 2 & 3). [73cf3cb](https://github.com/callowayproject/foreman/commit/73cf3cb7e1f7046558d02eb13dc38edcbf18bf7e)
+
+  SQLite-backed task queue with enqueue, claim_next (concurrency-safe via
+  BEGIN IMMEDIATE), complete, heartbeat, drain_completed, requeue_stale,
+  and fail_exhausted. 21 tests cover all methods including concurrent claim.
+
+  **co-authored-by:** Claude Sonnet 4.6 <noreply@anthropic.com>
+
+### Updates
+
+- Update minimal example and Startup Poll docs to use drain loop lifespan. [a7f2905](https://github.com/callowayproject/foreman/commit/a7f29056e66708b9780c30a906ec3a3ffe0aaffb)
+
+  Task 7 from pr-21-fixes.md:
+
+  - Minimal example now uses @asynccontextmanager lifespan: creates
+    ForemanClient, drains queued tasks via while-loop, yields, closes client
+  - FastAPI(lifespan=lifespan) used instead of bare FastAPI()
+  - Startup Poll section updated from single next_task() call to the correct
+    loop-until-None pattern with an explanation of why a single call is wrong
+
+  **co-authored-by:** Claude Sonnet 4.6 <noreply@anthropic.com>
+
+- Remove obsolete "How Tos" index and fix installation link in write-an-agent guide. [23a836e](https://github.com/callowayproject/foreman/commit/23a836ec772876ae79fe0ab21b2491748c343fc3)
+
+- Update messaging protocol design spec to propose queue-mediated agent architecture. [99b02c8](https://github.com/callowayproject/foreman/commit/99b02c86b00af9f50630c4ab23fa181c12e82f4e)
+
+  Adds detailed problem statement, design rationale, MVP scope, key assumptions, and open questions for implementing a robust task queue backed by SQLite. Documents at-least-once delivery, claim/requeue logic, and API adjustments. Addresses gaps in current synchronous dispatch handling.
+
 ## 0.3.0 (2026-05-01)
 
 [Compare the full difference.](https://github.com/callowayproject/foreman/compare/0.2.5...0.3.0)
