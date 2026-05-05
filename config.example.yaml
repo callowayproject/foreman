@@ -14,6 +14,13 @@ llm:
 polling:
   interval_seconds: 60               # how often to poll GitHub (seconds)
 
+# queue:
+#   db_path: null                    # defaults to ~/.agent-harness/queue.db
+#   claim_timeout_seconds: 300       # seconds before a stale claimed task is re-enqueued
+#   max_retries: 3                   # max re-enqueue attempts before marking a task failed
+#   drain_interval_seconds: 10       # how often (seconds) the harness drains completed tasks
+#   requeue_interval_seconds: 60     # how often (seconds) the harness checks for stale tasks
+
 repos:
   - owner: callowayproject
     name: bump-my-version

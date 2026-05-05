@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pytest
 
-from foreman.config import ConfigError, ForemanConfig, load_config
+from foreman.config import ConfigError, ForemanConfig, QueueConfig, load_config
 
 VALID_YAML = textwrap.dedent("""\
     identity:
@@ -149,6 +149,69 @@ class TestEnvVarResolution:
         monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
         with pytest.raises(ConfigError, match="GITHUB_TOKEN"):
             load_config(env_ref_config_file)
+
+
+class TestQueueConfig:
+    """Tests for QueueConfig and ForemanConfig.queue integration."""
+
+    def test_queue_config_defaults(self) -> None:
+        """QueueConfig has expected default values."""
+        q = QueueConfig()
+        assert q.db_path is None
+        assert q.claim_timeout_seconds == 300
+        assert q.max_retries == 3
+        assert q.drain_interval_seconds == 10
+        assert q.requeue_interval_seconds == 60
+
+    def test_foreman_config_queue_defaults_when_absent(self, valid_config_file: Path) -> None:
+        """ForemanConfig.queue defaults to QueueConfig() when the section is absent."""
+        config = load_config(valid_config_file)
+        assert isinstance(config.queue, QueueConfig)
+        assert config.queue.db_path is None
+        assert config.queue.claim_timeout_seconds == 300
+
+    def test_foreman_config_queue_section_parsed(self, tmp_path: Path) -> None:
+        """ForemanConfig.queue is populated from the YAML queue section."""
+        yaml_text = textwrap.dedent("""\
+            identity:
+              github_token: "ghp_test_token"
+              github_user: "test-bot"
+            llm:
+              provider: anthropic
+              model: claude-sonnet-4-6
+            queue:
+              db_path: "/tmp/test_queue.db"
+              claim_timeout_seconds: 120
+              max_retries: 5
+              drain_interval_seconds: 20
+              requeue_interval_seconds: 90
+        """)
+        p = tmp_path / "config.yaml"
+        p.write_text(yaml_text)
+        config = load_config(p)
+        assert config.queue.db_path == Path("/tmp/test_queue.db")
+        assert config.queue.claim_timeout_seconds == 120
+        assert config.queue.max_retries == 5
+        assert config.queue.drain_interval_seconds == 20
+        assert config.queue.requeue_interval_seconds == 90
+
+    def test_queue_db_path_env_ref_resolved(self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+        """${VAR} references in db_path are resolved from environment variables."""
+        monkeypatch.setenv("QUEUE_DB_PATH", "/var/run/foreman/queue.db")
+        yaml_text = textwrap.dedent("""\
+            identity:
+              github_token: "ghp_test_token"
+              github_user: "test-bot"
+            llm:
+              provider: anthropic
+              model: claude-sonnet-4-6
+            queue:
+              db_path: "${QUEUE_DB_PATH}"
+        """)
+        p = tmp_path / "config.yaml"
+        p.write_text(yaml_text)
+        config = load_config(p)
+        assert config.queue.db_path == Path("/var/run/foreman/queue.db")
 
 
 class TestConfigRepr:

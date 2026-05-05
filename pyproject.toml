@@ -90,7 +90,7 @@ disable = [
     "MD070",  # frontmatter-key-sort
 ]
 line-length = 120
-exclude = ["node_modules", "build", "dist", "CHANGELOG.md"]
+exclude = ["node_modules", "build", "dist", "CHANGELOG.md", ".memsearch"]
 include = ["docs/*.md", "README.md"]
 respect-gitignore = true
 flavor = "mkdocs"
@@ -143,11 +143,16 @@ norecursedirs = [
     "venv",
     "requirements*",
     "lib",
+    "foreman-client",
+    "agents",
 ]
 python_files = [
     "test_*.py",
     "*_test.py",
     "tests.py",
+]
+markers = [
+    "integration: marks tests as integration tests requiring real HTTP/SQLite (run with --run-integration)",
 ]
 
 [tool.interrogate]
@@ -257,6 +262,11 @@ dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
 typing-modules = ["typing", "types", "typing_extensions", "mypy", "mypy_extensions"]
 
 [tool.ruff.lint.per-file-ignores]
+"foreman/routers/*.py" = [
+    "B008",   # FastAPI Depends() in argument defaults is idiomatic
+    "TC001",  # Application imports needed at runtime for FastAPI dependency resolution
+    "TC003",  # Stdlib imports needed at runtime for FastAPI dependency resolution
+]
 "tests/*" = [
     "ANN001", # missing-type-function-argument
     "ANN002", # missing-type-args

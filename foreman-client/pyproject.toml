@@ -1,0 +1,145 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "foreman-client"
+version = "0.1.0"
+description = "HTTP client for the Foreman agent harness."
+requires-python = ">=3.12"
+dependencies = [
+    "httpx>=0.28.1",
+    "pydantic>=2.0",
+    "structlog>=25.5.0",
+]
+authors = [
+    { name = "Corey Oordt", email = "coreyoordt@gmail.com" },
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["foremanclient"]
+
+[dependency-groups]
+test = [
+    "pytest",
+    "pytest-cov",
+    "pytest-mock",
+    "pytest-agent-digest",
+    "respx",
+    "coverage",
+]
+
+[tool.uv]
+default-groups = ["test"]
+
+[tool.coverage.run]
+branch = true
+omit = ["**/test_*.py"]
+source = ["foremanclient"]
+
+[tool.coverage.report]
+show_missing = true
+exclude_lines = [
+    "pragma: no cover",
+    "pragma: no-coverage",
+    "^\\s*raise AssertionError\\b",
+    "^\\s*raise NotImplementedError\\b",
+    "^\\s*return NotImplemented\\b",
+    "^\\s*raise$",
+    "^if (False|TYPE_CHECKING):",
+    ": \\.\\.\\.(\\s*#.*)?$",
+    "^ +\\.\\.\\.$",
+    "-> ['\"]?NoReturn['\"]?:",
+]
+
+[tool.pytest.ini_options]
+addopts = [
+    "--cov=foremanclient",
+    "--cov-branch",
+    "--cov-report=term",
+]
+norecursedirs = [
+    ".*",
+    "build",
+    "dist",
+    "{arch}",
+    "*.egg",
+    "venv",
+    "requirements*",
+    "lib",
+]
+python_files = [
+    "test_*.py",
+    "*_test.py",
+    "tests.py",
+]
+
+[tool.interrogate]
+ignore-init-method = true
+ignore-init-module = false
+ignore-magic = true
+ignore-semiprivate = false
+ignore-private = false
+ignore-property-decorators = false
+ignore-module = false
+ignore-nested-functions = true
+ignore-nested-classes = true
+ignore-setters = false
+fail-under = 90
+exclude = ["setup.py", "docs", "build"]
+ignore-regex = ["^get$", "^mock_.*", ".*BaseClass.*"]
+verbose = 0
+quiet = false
+whitelist-regex = []
+color = true
+
+[tool.ruff]
+exclude = [
+    ".bzr", ".direnv", ".eggs", ".git", ".hg", ".mypy_cache", ".nox",
+    ".pants.d", ".pytype", ".ruff_cache", ".svn", ".tox", ".venv",
+    "__pypackages__", "_build", "buck-out", "build", "dist",
+    "node_modules", "venv",
+]
+line-length = 119
+
+[tool.ruff.lint]
+preview = true
+select = [
+    "A", "ANN", "B", "BLE", "C4", "C90", "D", "E", "EXE", "F", "I", "N",
+    "NPY", "PD", "PERF", "PGH", "PLC", "PLE", "PLW", "Q", "RUF", "S",
+    "SIM", "TCH", "W",
+]
+ignore = [
+    "ANN002", "ANN003", "ANN204", "ANN401", "D105", "D106", "D107",
+    "D200", "D212", "PD011", "PLC0415", "PLW0108", "PLW1641", "S101",
+    "S104", "S404", "S602",
+]
+fixable = ["ALL"]
+unfixable = []
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+typing-modules = ["typing", "types", "typing_extensions", "mypy", "mypy_extensions"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = [
+    "ANN001", "ANN002", "ANN003", "ANN201", "ANN202", "PGH003", "PLR0912",
+    "PLR0913", "PLR0915", "PLR2004", "PLW0603", "S101", "S105", "S106",
+    "TRY003", "TRY201", "TRY301",
+]
+
+[tool.ruff.lint.mccabe]
+max-complexity = 10
+
+[tool.ruff.lint.isort]
+order-by-type = true
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.pydoclint]
+style = "google"
+exclude = '\.git|tests'
+require-return-section-when-returning-nothing = false
+arg-type-hints-in-docstring = false
+check-return-types = false
+skip-checking-raises = true
+quiet = true

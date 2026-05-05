@@ -20,6 +20,7 @@ from foreman.config import ConfigError, load_config
 from foreman.containers import ContainerError, ContainerManager
 from foreman.memory import MemoryStore
 from foreman.poller import GitHubPoller
+from foreman.queue import TaskQueue
 from foreman.routers import Router, RoutingError
 from foreman.server import Dispatcher, app
 
@@ -30,6 +31,8 @@ logger = structlog.get_logger(__name__)
 
 #: Default memory DB path.
 _DEFAULT_DB_PATH = Path.home() / ".agent-harness" / "memory.db"
+#: Default queue DB path.
+_DEFAULT_QUEUE_DB_PATH = Path.home() / ".agent-harness" / "queue.db"
 
 
 def _build_parser() -> argparse.ArgumentParser:
@@ -56,6 +59,12 @@ def _build_parser() -> argparse.ArgumentParser:
         default=str(_DEFAULT_DB_PATH),
         metavar="DB_PATH",
         help="Path to the SQLite memory database (default: ~/.agent-harness/memory.db)",
+    )
+    start.add_argument(
+        "--queue-db",
+        default=None,
+        metavar="QUEUE_DB_PATH",
+        help="Path to the SQLite task queue database (default: ~/.agent-harness/queue.db)",
     )
     start.add_argument(
         "--host",
@@ -144,38 +153,52 @@ def _run_start(args: Any) -> None:
     memory = MemoryStore(db_path)
 
     # 3. Create core components.
-    poller = GitHubPoller(token=config.identity.github_token, memory=memory)
-    dispatcher = Dispatcher(config=config, memory=memory)
+    if args.queue_db is not None:
+        queue_db_path = Path(args.queue_db)
+    elif config.queue.db_path is not None:
+        queue_db_path = config.queue.db_path
+    else:
+        queue_db_path = _DEFAULT_QUEUE_DB_PATH
+    with TaskQueue(queue_db_path, claim_timeout_seconds=config.queue.claim_timeout_seconds) as task_queue:
+        dispatcher = Dispatcher(config=config, memory=memory, task_queue=task_queue)
 
-    # 4. Start agent containers (if any are configured with image + port).
-    container_manager: ContainerManager | None = None
-    agent_urls: dict[str, str] = {}
-    agent_specs = _collect_agent_images(config)
+        # Expose shared state for the lifespan background loops.
+        app.state.task_queue = task_queue
+        app.state.executor = dispatcher.executor
+        app.state.memory = memory
+        app.state.config = config
 
-    if agent_specs:
-        try:
-            container_manager = ContainerManager()
-        except ContainerError as exc:
-            print(f"Error: {exc}", file=sys.stderr)
-            sys.exit(1)
-        for agent_type, image, port in agent_specs:
+        poller = GitHubPoller(token=config.identity.github_token, memory=memory)
+
+        # 4. Start agent containers (if any are configured with image + port).
+        container_manager: ContainerManager | None = None
+        agent_urls: dict[str, str] = {}
+        agent_specs = _collect_agent_images(config)
+
+        if agent_specs:
             try:
-                url = container_manager.start_agent(agent_type, image=image, port=port)
-                agent_urls[agent_type] = url
+                container_manager = ContainerManager()
             except ContainerError as exc:
-                print(f"Error starting agent '{agent_type}': {exc}", file=sys.stderr)
+                print(f"Error: {exc}", file=sys.stderr)
                 sys.exit(1)
+            for agent_type, image, port in agent_specs:
+                try:
+                    url = container_manager.start_agent(agent_type, image=image, port=port)
+                    agent_urls[agent_type] = url
+                except ContainerError as exc:
+                    print(f"Error starting agent '{agent_type}': {exc}", file=sys.stderr)
+                    sys.exit(1)
 
-    logger.info(
-        "Foreman initialised",
-        config=args.config,
-        db=str(db_path),
-        repos=[f"{r.owner}/{r.name}" for r in config.repos],
-        poll_interval_seconds=config.polling.interval_seconds,
-    )
+        logger.info(
+            "Foreman initialised",
+            config=args.config,
+            db=str(db_path),
+            repos=[f"{r.owner}/{r.name}" for r in config.repos],
+            poll_interval_seconds=config.polling.interval_seconds,
+        )
 
-    # 5. Run the poller and HTTP server concurrently.
-    asyncio.run(_run_loop(config, memory, poller, dispatcher, args.host, args.port, container_manager, agent_urls))
+        # 5. Run the poller and HTTP server concurrently.
+        asyncio.run(_run_loop(config, memory, poller, dispatcher, args.host, args.port, container_manager, agent_urls))
 
 
 async def _run_loop(

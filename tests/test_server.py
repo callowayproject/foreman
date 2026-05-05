@@ -2,19 +2,21 @@
 
 from __future__ import annotations
 
+import asyncio
+from contextlib import suppress
 from pathlib import Path
 from typing import Any
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import httpx
 import pytest
-import pytest_asyncio
 
 from foreman.config import AgentAssignment, ForemanConfig, IdentityConfig, LLMConfig, RepoConfig
 from foreman.memory import MemoryStore
 from foreman.protocol import ActionItem, DecisionMessage, DecisionType
+from foreman.queue import TaskQueue
 from foreman.routers.agent import RouteTarget
-from foreman.server import Dispatcher
+from foreman.server import Dispatcher, _drain_loop, _requeue_loop
 
 # ---------------------------------------------------------------------------
 # Fixtures
@@ -26,6 +28,13 @@ def memory(tmp_path: Path):
     """Provide a fresh MemoryStore backed by a temp-file DB."""
     with MemoryStore(tmp_path / "memory.db") as store:
         yield store
+
+
+@pytest.fixture()
+def task_queue(tmp_path: Path):
+    """Provide a fresh TaskQueue backed by a temp-file DB."""
+    with TaskQueue(tmp_path / "queue.db") as queue:
+        yield queue
 
 
 @pytest.fixture()
@@ -80,47 +89,94 @@ def _make_event(repo: str = "owner/repo", issue_number: int = 42) -> dict[str, A
     }
 
 
+def _make_dispatcher(config, memory, task_queue, mocker) -> Dispatcher:
+    """Construct a Dispatcher with Github patched out."""
+    mocker.patch("foreman.executor.Github")
+    return Dispatcher(config=config, memory=memory, task_queue=task_queue)
+
+
+def _mock_async_client(*, post_return=None, post_side_effect=None):
+    """Return a context-manager-compatible AsyncClient mock."""
+    mock_client = AsyncMock()
+    mock_client.__aenter__ = AsyncMock(return_value=mock_client)
+    mock_client.__aexit__ = AsyncMock(return_value=None)
+    if post_side_effect is not None:
+        mock_client.post = AsyncMock(side_effect=post_side_effect)
+    else:
+        resp = MagicMock()
+        resp.status_code = 202
+        mock_client.post = AsyncMock(return_value=post_return or resp)
+    return mock_client
+
+
 # ---------------------------------------------------------------------------
 # Dispatcher initialisation
 # ---------------------------------------------------------------------------
 
 
 class TestDispatcherInit:
-    """Dispatcher can be constructed from config and memory."""
+    """Dispatcher can be constructed from config, memory, and task_queue."""
 
-    def test_instantiates(self, config: ForemanConfig, memory: MemoryStore, mocker) -> None:
+    def test_instantiates(self, config: ForemanConfig, memory: MemoryStore, task_queue: TaskQueue, mocker) -> None:
         """Dispatcher is created without errors."""
         mocker.patch("foreman.executor.Github")
-        dispatcher = Dispatcher(config=config, memory=memory)
+        dispatcher = Dispatcher(config=config, memory=memory, task_queue=task_queue)
         assert isinstance(dispatcher, Dispatcher)
 
 
 # ---------------------------------------------------------------------------
-# Dispatch: happy path
+# Dispatch: enqueue + nudge
 # ---------------------------------------------------------------------------
 
 
-class TestDispatchHappyPath:
-    """dispatch() sends a task and executes the returned decision."""
+class TestDispatchEnqueues:
+    """dispatch() enqueues the task and sends a fire-and-forget nudge."""
 
     @pytest.mark.asyncio
-    async def test_dispatch_posts_to_agent_url(self, config, memory, route_target, skip_decision, mocker) -> None:
-        """dispatch() POSTs a TaskMessage to route_target.url + '/task'."""
-        mocker.patch("foreman.executor.Github")
-        dispatcher = Dispatcher(config=config, memory=memory)
+    async def test_dispatch_enqueues_task_for_agent_url(
+        self, config, memory, task_queue, route_target, mocker
+    ) -> None:
+        """dispatch() inserts the task into the queue for route_target.url."""
+        dispatcher = _make_dispatcher(config, memory, task_queue, mocker)
 
-        mock_response = MagicMock()
-        mock_response.status_code = 200
-        mock_response.json.return_value = skip_decision.model_dump()
-        mock_post = AsyncMock(return_value=mock_response)
+        with patch("foreman.server.httpx.AsyncClient") as mock_cls:
+            mock_cls.return_value = _mock_async_client()
+            await dispatcher.dispatch(_make_event(), route_target)
 
-        with patch("foreman.server.httpx.AsyncClient") as mock_client_cls:
+        claimed = task_queue.claim_next("http://localhost:8001")
+        assert claimed is not None
+        assert claimed.repo == "owner/repo"
+
+    @pytest.mark.asyncio
+    async def test_dispatch_injects_memory_summary_into_enqueued_task(
+        self, config, memory, task_queue, route_target, mocker
+    ) -> None:
+        """dispatch() fetches and injects the memory summary into the enqueued TaskMessage."""
+        memory.upsert_memory_summary("owner/repo", 42, "Prior: labeled as bug.")
+        dispatcher = _make_dispatcher(config, memory, task_queue, mocker)
+
+        with patch("foreman.server.httpx.AsyncClient") as mock_cls:
+            mock_cls.return_value = _mock_async_client()
+            await dispatcher.dispatch(_make_event(issue_number=42), route_target)
+
+        claimed = task_queue.claim_next("http://localhost:8001")
+        assert claimed is not None
+        assert claimed.context.memory_summary == "Prior: labeled as bug."
+
+    @pytest.mark.asyncio
+    async def test_dispatch_sends_nudge_to_agent_task_endpoint(
+        self, config, memory, task_queue, route_target, mocker
+    ) -> None:
+        """dispatch() sends POST <agent_url>/task as a nudge."""
+        dispatcher = _make_dispatcher(config, memory, task_queue, mocker)
+        mock_post = AsyncMock(return_value=MagicMock(status_code=202))
+
+        with patch("foreman.server.httpx.AsyncClient") as mock_cls:
             mock_client = AsyncMock()
             mock_client.__aenter__ = AsyncMock(return_value=mock_client)
             mock_client.__aexit__ = AsyncMock(return_value=None)
             mock_client.post = mock_post
-            mock_client_cls.return_value = mock_client
-
+            mock_cls.return_value = mock_client
             await dispatcher.dispatch(_make_event(), route_target)
 
         mock_post.assert_called_once()
@@ -128,169 +184,340 @@ class TestDispatchHappyPath:
         assert call_url == "http://localhost:8001/task"
 
     @pytest.mark.asyncio
-    async def test_dispatch_injects_memory_summary_into_task(
-        self, config, memory, route_target, skip_decision, mocker
+    async def test_dispatch_nudge_body_contains_task_id(
+        self, config, memory, task_queue, route_target, mocker
     ) -> None:
-        """dispatch() fetches and injects the memory summary before sending the task."""
-        mocker.patch("foreman.executor.Github")
-        memory.upsert_memory_summary("owner/repo", 42, "Prior: labeled as bug.")
-        dispatcher = Dispatcher(config=config, memory=memory)
+        """dispatch() nudge body is {"task_id": <uuid>} — not the full TaskMessage."""
+        dispatcher = _make_dispatcher(config, memory, task_queue, mocker)
+        mock_post = AsyncMock(return_value=MagicMock(status_code=202))
 
-        posted_body: dict = {}
-
-        async def capture_post(url, **kwargs):
-            posted_body.update(kwargs.get("json", {}))
-            resp = MagicMock()
-            resp.status_code = 200
-            resp.json.return_value = skip_decision.model_dump()
-            return resp
-
-        with patch("foreman.server.httpx.AsyncClient") as mock_client_cls:
+        with patch("foreman.server.httpx.AsyncClient") as mock_cls:
             mock_client = AsyncMock()
             mock_client.__aenter__ = AsyncMock(return_value=mock_client)
             mock_client.__aexit__ = AsyncMock(return_value=None)
-            mock_client.post = capture_post
-            mock_client_cls.return_value = mock_client
-
-            await dispatcher.dispatch(_make_event(issue_number=42), route_target)
-
-        assert posted_body["context"]["memory_summary"] == "Prior: labeled as bug."
-
-    @pytest.mark.asyncio
-    async def test_dispatch_executes_actions_from_decision(
-        self, config, memory, route_target, label_decision, mocker
-    ) -> None:
-        """dispatch() calls the executor with the returned DecisionMessage."""
-        mock_gh_cls = mocker.patch("foreman.executor.Github")
-        mock_issue = MagicMock()
-        mock_gh_cls.return_value.get_repo.return_value.get_issue.return_value = mock_issue
-        dispatcher = Dispatcher(config=config, memory=memory)
-
-        mock_response = MagicMock()
-        mock_response.status_code = 200
-        mock_response.json.return_value = label_decision.model_dump()
-
-        with patch("foreman.server.httpx.AsyncClient") as mock_client_cls:
-            mock_client = AsyncMock()
-            mock_client.__aenter__ = AsyncMock(return_value=mock_client)
-            mock_client.__aexit__ = AsyncMock(return_value=None)
-            mock_client.post = AsyncMock(return_value=mock_response)
-            mock_client_cls.return_value = mock_client
-
+            mock_client.post = mock_post
+            mock_cls.return_value = mock_client
             await dispatcher.dispatch(_make_event(), route_target)
 
-        mock_issue.add_to_labels.assert_called_once_with("bug")
+        nudge_json = mock_post.call_args[1]["json"]
+        assert set(nudge_json.keys()) == {"task_id"}
+        assert nudge_json["task_id"]  # non-empty
 
     @pytest.mark.asyncio
-    async def test_dispatch_updates_memory_summary_after_decision(
-        self, config, memory, route_target, label_decision, mocker
+    async def test_dispatch_does_not_parse_decision_from_agent(
+        self, config, memory, task_queue, route_target, mocker
     ) -> None:
-        """dispatch() writes a summary to memory after executing a decision."""
-        mocker.patch("foreman.executor.Github")
-        dispatcher = Dispatcher(config=config, memory=memory)
+        """dispatch() does not parse a DecisionMessage from the agent response."""
+        dispatcher = _make_dispatcher(config, memory, task_queue, mocker)
 
+        # Agent returns a full DecisionMessage body — dispatch() must ignore it
+        decision_body = DecisionMessage(
+            task_id="task-001",
+            decision=DecisionType.skip,
+            rationale="Ignore me.",
+            actions=[],
+        ).model_dump()
         mock_response = MagicMock()
         mock_response.status_code = 200
-        mock_response.json.return_value = label_decision.model_dump()
+        mock_response.json.return_value = decision_body
 
-        with patch("foreman.server.httpx.AsyncClient") as mock_client_cls:
+        with patch("foreman.server.httpx.AsyncClient") as mock_cls:
             mock_client = AsyncMock()
             mock_client.__aenter__ = AsyncMock(return_value=mock_client)
             mock_client.__aexit__ = AsyncMock(return_value=None)
             mock_client.post = AsyncMock(return_value=mock_response)
-            mock_client_cls.return_value = mock_client
+            mock_cls.return_value = mock_client
+            # Must not raise even though we're not parsing the response
+            await dispatcher.dispatch(_make_event(), route_target)
 
-            await dispatcher.dispatch(_make_event(issue_number=42), route_target)
+        # Task is in queue — executor was NOT called from dispatch
+        claimed = task_queue.claim_next("http://localhost:8001")
+        assert claimed is not None
+
+
+# ---------------------------------------------------------------------------
+# Dispatch: nudge errors are swallowed
+# ---------------------------------------------------------------------------
+
+
+class TestDispatchNudgeErrors:
+    """dispatch() swallows nudge errors; the enqueue still happens."""
+
+    @pytest.mark.asyncio
+    async def test_nudge_connection_error_is_logged_and_swallowed(
+        self, config, memory, task_queue, route_target, mocker
+    ) -> None:
+        """A network error on the nudge POST does not raise from dispatch()."""
+        dispatcher = _make_dispatcher(config, memory, task_queue, mocker)
+
+        with patch("foreman.server.httpx.AsyncClient") as mock_cls:
+            mock_cls.return_value = _mock_async_client(post_side_effect=httpx.ConnectError("refused"))
+            # Must not raise
+            await dispatcher.dispatch(_make_event(), route_target)
+
+    @pytest.mark.asyncio
+    async def test_task_is_enqueued_even_when_nudge_fails(
+        self, config, memory, task_queue, route_target, mocker
+    ) -> None:
+        """Task is in the queue even if the nudge POST throws."""
+        dispatcher = _make_dispatcher(config, memory, task_queue, mocker)
+
+        with patch("foreman.server.httpx.AsyncClient") as mock_cls:
+            mock_cls.return_value = _mock_async_client(post_side_effect=httpx.ConnectError("refused"))
+            await dispatcher.dispatch(_make_event(), route_target)
+
+        claimed = task_queue.claim_next("http://localhost:8001")
+        assert claimed is not None
+
+
+# ---------------------------------------------------------------------------
+# Background loops: drain
+# ---------------------------------------------------------------------------
+
+
+def _make_task_in_queue(task_queue: TaskQueue, agent_url: str = "http://agent") -> tuple:
+    """Enqueue, claim, and complete a task; return (task_msg, decision_msg)."""
+    from foreman.protocol import LLMBackendRef, TaskContext, TaskMessage
+
+    task_msg = TaskMessage(
+        task_id="drain-task-001",
+        type="issue.triage",
+        repo="owner/repo",
+        payload={"number": 42, "title": "Crash", "body": ""},
+        context=TaskContext(
+            llm_backend=LLMBackendRef(provider="anthropic", model="claude-sonnet-4-6"),
+        ),
+    )
+    decision_msg = DecisionMessage(
+        task_id="drain-task-001",
+        decision=DecisionType.label_and_respond,
+        rationale="Bug confirmed.",
+        actions=[ActionItem(type="add_label", label="bug")],
+    )
+    task_queue.enqueue(task_msg, agent_url=agent_url)
+    task_queue.claim_next(agent_url)
+    task_queue.complete(task_msg.task_id, decision_msg)
+    return task_msg, decision_msg
+
+
+class TestDrainLoop:
+    """_drain_loop() drains completed tasks and calls executor + memory."""
+
+    @pytest.mark.asyncio
+    async def test_drain_loop_calls_executor_for_completed_task(
+        self, config: ForemanConfig, memory: MemoryStore, task_queue: TaskQueue, mocker
+    ) -> None:
+        """drain_loop calls executor.execute() for each completed task."""
+        mock_executor = MagicMock()
+        _make_task_in_queue(task_queue)
+
+        drain_event = asyncio.Event()
+        drain_event.set()
+
+        loop_task = asyncio.create_task(_drain_loop(task_queue, mock_executor, memory, config, drain_event))
+        await asyncio.sleep(0.01)
+        loop_task.cancel()
+        with suppress(asyncio.CancelledError):
+            await loop_task
+
+        mock_executor.execute.assert_called_once()
+        call_kwargs = mock_executor.execute.call_args[1]
+        assert call_kwargs["repo"] == "owner/repo"
+        assert call_kwargs["issue_number"] == 42
+
+    @pytest.mark.asyncio
+    async def test_drain_loop_updates_memory_for_completed_task(
+        self, config: ForemanConfig, memory: MemoryStore, task_queue: TaskQueue, mocker
+    ) -> None:
+        """drain_loop calls memory.upsert_memory_summary() for each completed task."""
+        mock_executor = MagicMock()
+        _make_task_in_queue(task_queue)
+
+        drain_event = asyncio.Event()
+        drain_event.set()
+
+        loop_task = asyncio.create_task(_drain_loop(task_queue, mock_executor, memory, config, drain_event))
+        await asyncio.sleep(0.01)
+        loop_task.cancel()
+        with suppress(asyncio.CancelledError):
+            await loop_task
 
         summary = memory.get_memory_summary("owner/repo", 42)
         assert summary is not None
-
-
-# ---------------------------------------------------------------------------
-# Dispatch: agent HTTP errors
-# ---------------------------------------------------------------------------
-
-
-class TestDispatchAgentErrors:
-    """dispatch() handles non-200 agent responses gracefully."""
+        assert "label_and_respond" in summary
 
     @pytest.mark.asyncio
-    async def test_non_200_response_is_logged_and_skipped(self, config, memory, route_target, mocker) -> None:
-        """A non-200 response from the agent logs and does not raise."""
-        mocker.patch("foreman.executor.Github")
-        dispatcher = Dispatcher(config=config, memory=memory)
+    async def test_drain_loop_wakes_on_drain_event(self, config: ForemanConfig, memory: MemoryStore, mocker) -> None:
+        """drain_loop wakes immediately when drain_event is set."""
+        mock_task_queue = MagicMock()
+        mock_task_queue.drain_completed.return_value = []
+        mock_executor = MagicMock()
 
-        mock_response = MagicMock()
-        mock_response.status_code = 500
-        mock_response.text = "Internal Server Error"
+        drain_event = asyncio.Event()
 
-        with patch("foreman.server.httpx.AsyncClient") as mock_client_cls:
-            mock_client = AsyncMock()
-            mock_client.__aenter__ = AsyncMock(return_value=mock_client)
-            mock_client.__aexit__ = AsyncMock(return_value=None)
-            mock_client.post = AsyncMock(return_value=mock_response)
-            mock_client_cls.return_value = mock_client
+        loop_task = asyncio.create_task(_drain_loop(mock_task_queue, mock_executor, memory, config, drain_event))
+        drain_event.set()
+        await asyncio.sleep(0.01)
+        loop_task.cancel()
+        with suppress(asyncio.CancelledError):
+            await loop_task
 
-            # Should not raise
-            await dispatcher.dispatch(_make_event(), route_target)
+        mock_task_queue.drain_completed.assert_called()
 
     @pytest.mark.asyncio
-    async def test_connection_error_is_logged_and_skipped(self, config, memory, route_target, mocker) -> None:
-        """A network error posting to the agent logs and does not raise."""
-        mocker.patch("foreman.executor.Github")
-        dispatcher = Dispatcher(config=config, memory=memory)
+    async def test_drain_loop_cancelled_cleanly(self, config: ForemanConfig, memory: MemoryStore, mocker) -> None:
+        """drain_loop raises no unhandled error when cancelled."""
+        mock_task_queue = MagicMock()
+        mock_task_queue.drain_completed.return_value = []
+        mock_executor = MagicMock()
+        drain_event = asyncio.Event()
 
-        with patch("foreman.server.httpx.AsyncClient") as mock_client_cls:
-            mock_client = AsyncMock()
-            mock_client.__aenter__ = AsyncMock(return_value=mock_client)
-            mock_client.__aexit__ = AsyncMock(return_value=None)
-            mock_client.post = AsyncMock(side_effect=httpx.ConnectError("refused"))
-            mock_client_cls.return_value = mock_client
-
-            # Should not raise
-            await dispatcher.dispatch(_make_event(), route_target)
-
-
-# ---------------------------------------------------------------------------
-# Dispatch: concurrency lock
-# ---------------------------------------------------------------------------
-
-
-class TestDispatchConcurrencyLock:
-    """dispatch() does not run concurrent tasks to the same agent URL."""
+        loop_task = asyncio.create_task(_drain_loop(mock_task_queue, mock_executor, memory, config, drain_event))
+        await asyncio.sleep(0)
+        loop_task.cancel()
+        with suppress(asyncio.CancelledError):
+            await loop_task
 
     @pytest.mark.asyncio
-    async def test_second_dispatch_to_same_url_waits(
-        self, config, memory, route_target, skip_decision, mocker
+    async def test_drain_loop_survives_executor_exception(
+        self, config: ForemanConfig, memory: MemoryStore, task_queue: TaskQueue
     ) -> None:
-        """A second concurrent dispatch to the same URL is serialised."""
-        import asyncio
+        """An executor exception is caught; the loop keeps running and task stays completed."""
+        mock_executor = MagicMock()
+        mock_executor.execute.side_effect = RuntimeError("GitHub API error")
+        _make_task_in_queue(task_queue)
 
-        mocker.patch("foreman.executor.Github")
-        dispatcher = Dispatcher(config=config, memory=memory)
+        drain_event = asyncio.Event()
+        drain_event.set()
 
-        call_order: list[str] = []
+        loop_task = asyncio.create_task(_drain_loop(task_queue, mock_executor, memory, config, drain_event))
+        await asyncio.sleep(0.02)
+        loop_task.cancel()
+        with suppress(asyncio.CancelledError):
+            await loop_task
 
-        async def slow_post(url, **kwargs):
-            call_order.append("start")
-            await asyncio.sleep(0)  # yield to event loop
-            call_order.append("end")
-            resp = MagicMock()
-            resp.status_code = 200
-            resp.json.return_value = skip_decision.model_dump()
-            return resp
+        # Task stays 'completed' — mark_done was not called because executor failed
+        row = task_queue._conn.execute("SELECT status FROM task_queue WHERE task_id = 'drain-task-001'").fetchone()
+        assert row[0] == "completed"
 
-        with patch("foreman.server.httpx.AsyncClient") as mock_client_cls:
-            mock_client = AsyncMock()
-            mock_client.__aenter__ = AsyncMock(return_value=mock_client)
-            mock_client.__aexit__ = AsyncMock(return_value=None)
-            mock_client.post = slow_post
-            mock_client_cls.return_value = mock_client
+    @pytest.mark.asyncio
+    async def test_drain_loop_processes_remaining_tasks_after_exception(
+        self, config: ForemanConfig, memory: MemoryStore, task_queue: TaskQueue
+    ) -> None:
+        """An executor exception on one task does not skip other tasks in the same drain batch."""
+        from foreman.protocol import DecisionType, LLMBackendRef, TaskContext, TaskMessage
 
-            await asyncio.gather(
-                dispatcher.dispatch(_make_event(), route_target),
-                dispatcher.dispatch(_make_event(issue_number=99), route_target),
+        for suffix in ("-A", "-B"):
+            task = TaskMessage(
+                task_id=f"drain-task{suffix}",
+                type="issue.triage",
+                repo="owner/repo",
+                payload={"number": 1},
+                context=TaskContext(llm_backend=LLMBackendRef(provider="anthropic", model="claude-sonnet-4-6")),
             )
+            decision = DecisionMessage(
+                task_id=f"drain-task{suffix}",
+                decision=DecisionType.skip,
+                rationale="r",
+                actions=[],
+            )
+            task_queue.enqueue(task, agent_url="http://agent")
+            task_queue.claim_next(agent_url="http://agent")
+            task_queue.complete(task.task_id, decision)
 
-        # Serialised: first task fully completes before second starts
-        assert call_order == ["start", "end", "start", "end"]
+        # Fail on first call, succeed on second
+        call_count = 0
+
+        def side_effect(*args, **kwargs) -> None:
+            nonlocal call_count
+            call_count += 1
+            if call_count == 1:
+                raise RuntimeError("first task fails")
+
+        mock_executor = MagicMock()
+        mock_executor.execute.side_effect = side_effect
+
+        drain_event = asyncio.Event()
+        drain_event.set()
+
+        loop_task = asyncio.create_task(_drain_loop(task_queue, mock_executor, memory, config, drain_event))
+        await asyncio.sleep(0.02)
+        loop_task.cancel()
+        with suppress(asyncio.CancelledError):
+            await loop_task
+
+        # One task failed (still 'completed'), one succeeded ('done')
+        statuses = dict(task_queue._conn.execute("SELECT task_id, status FROM task_queue").fetchall())
+        completed_count = sum(1 for s in statuses.values() if s == "completed")
+        done_count = sum(1 for s in statuses.values() if s == "done")
+        assert completed_count == 1
+        assert done_count == 1
+
+
+# ---------------------------------------------------------------------------
+# Background loops: requeue
+# ---------------------------------------------------------------------------
+
+
+class TestRequeueLoop:
+    """_requeue_loop() calls requeue_stale() and fail_exhausted() on each cycle."""
+
+    @pytest.mark.asyncio
+    async def test_requeue_loop_calls_requeue_and_fail_exhausted(self) -> None:
+        """requeue_loop calls both requeue_stale() and fail_exhausted() on each cycle."""
+        from foreman.config import QueueConfig
+
+        # Use requeue_interval_seconds=0 so asyncio.sleep(0) yields properly without mocking.
+        config = ForemanConfig(
+            identity=IdentityConfig(github_token="t", github_user="b"),
+            llm=LLMConfig(provider="anthropic", model="claude-sonnet-4-6"),
+            repos=[],
+            queue=QueueConfig(requeue_interval_seconds=0, max_retries=3),
+        )
+        mock_task_queue = MagicMock()
+        mock_task_queue.requeue_stale.return_value = 0
+        mock_task_queue.fail_exhausted.return_value = 0
+
+        loop_task = asyncio.create_task(_requeue_loop(mock_task_queue, config))
+        await asyncio.sleep(0.01)
+        loop_task.cancel()
+        with suppress(asyncio.CancelledError):
+            await loop_task
+
+        mock_task_queue.requeue_stale.assert_called()
+        mock_task_queue.fail_exhausted.assert_called_with(max_retries=3)
+
+    @pytest.mark.asyncio
+    async def test_requeue_loop_cancelled_cleanly(self, config: ForemanConfig) -> None:
+        """requeue_loop raises no unhandled error when cancelled."""
+        mock_task_queue = MagicMock()
+
+        loop_task = asyncio.create_task(_requeue_loop(mock_task_queue, config))
+        await asyncio.sleep(0)
+        loop_task.cancel()
+        with suppress(asyncio.CancelledError):
+            await loop_task
+
+    @pytest.mark.asyncio
+    async def test_requeue_loop_survives_requeue_stale_exception(self) -> None:
+        """A requeue-loop iteration that raises does not kill the loop."""
+        from foreman.config import IdentityConfig, LLMConfig, QueueConfig
+
+        fast_config = ForemanConfig(
+            identity=IdentityConfig(github_token="t", github_user="b"),
+            llm=LLMConfig(provider="anthropic", model="claude-sonnet-4-6"),
+            repos=[],
+            queue=QueueConfig(requeue_interval_seconds=0, max_retries=3),
+        )
+        mock_task_queue = MagicMock()
+        mock_task_queue.requeue_stale.side_effect = RuntimeError("db error")
+        mock_task_queue.fail_exhausted.return_value = 0
+
+        loop_task = asyncio.create_task(_requeue_loop(mock_task_queue, fast_config))
+        await asyncio.sleep(0.02)
+        loop_task.cancel()
+        with suppress(asyncio.CancelledError):
+            await loop_task
+
+        # Loop ran multiple iterations without dying
+        assert mock_task_queue.requeue_stale.call_count >= 2

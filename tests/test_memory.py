@@ -19,22 +19,25 @@ class TestMemoryStoreInit:
     def test_creates_db_file(self, tmp_path: Path) -> None:
         """MemoryStore creates the SQLite DB file at the given path."""
         db_path = tmp_path / "memory.db"
-        MemoryStore(db_path)
+        m = MemoryStore(db_path)
         assert db_path.exists()
+        m.close()
 
     def test_creates_parent_directories(self, tmp_path: Path) -> None:
         """MemoryStore creates intermediate directories if they don't exist."""
         db_path = tmp_path / "nested" / "dir" / "memory.db"
-        MemoryStore(db_path)
+        m = MemoryStore(db_path)
         assert db_path.exists()
+        m.close()
 
     def test_action_log_table_exists(self, tmp_path: Path) -> None:
         """action_log table is created with the correct schema."""
         db_path = tmp_path / "memory.db"
         store = MemoryStore(db_path)
         store.close()
-        with sqlite3.connect(db_path) as conn:
-            rows = conn.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='action_log'").fetchall()
+        conn = sqlite3.connect(db_path)
+        rows = conn.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='action_log'").fetchall()
+        conn.close()
         assert rows, "action_log table should exist"
 
     def test_memory_summary_table_exists(self, tmp_path: Path) -> None:
@@ -42,10 +45,9 @@ class TestMemoryStoreInit:
         db_path = tmp_path / "memory.db"
         store = MemoryStore(db_path)
         store.close()
-        with sqlite3.connect(db_path) as conn:
-            rows = conn.execute(
-                "SELECT name FROM sqlite_master WHERE type='table' AND name='memory_summary'"
-            ).fetchall()
+        conn = sqlite3.connect(db_path)
+        rows = conn.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='memory_summary'").fetchall()
+        conn.close()
         assert rows, "memory_summary table should exist"
 
 
@@ -69,8 +71,9 @@ class TestLogAction:
             actions=[ActionItem(type="add_label", label="bug")],
         )
 
-        with sqlite3.connect(store.db_path) as conn:
-            rows = conn.execute("SELECT * FROM action_log").fetchall()
+        conn = sqlite3.connect(store.db_path)
+        rows = conn.execute("SELECT * FROM action_log").fetchall()
+        conn.close()
         assert len(rows) == 1
 
     def test_log_action_stores_correct_values(self, store: MemoryStore) -> None:
@@ -85,10 +88,9 @@ class TestLogAction:
             actions=actions,
         )
 
-        with sqlite3.connect(store.db_path) as conn:
-            row = conn.execute(
-                "SELECT repo, issue_id, task_type, decision, rationale, actions FROM action_log"
-            ).fetchone()
+        conn = sqlite3.connect(store.db_path)
+        row = conn.execute("SELECT repo, issue_id, task_type, decision, rationale, actions FROM action_log").fetchone()
+        conn.close()
 
         assert row[0] == "owner/repo"
         assert row[1] == 7
@@ -111,8 +113,9 @@ class TestLogAction:
                 actions=[],
             )
 
-        with sqlite3.connect(store.db_path) as conn:
-            count = conn.execute("SELECT COUNT(*) FROM action_log").fetchone()[0]
+        conn = sqlite3.connect(store.db_path)
+        count = conn.execute("SELECT COUNT(*) FROM action_log").fetchone()[0]
+        conn.close()
         assert count == 3
 
     def test_log_action_null_rationale(self, store: MemoryStore) -> None:
@@ -126,8 +129,9 @@ class TestLogAction:
             actions=[],
         )
 
-        with sqlite3.connect(store.db_path) as conn:
-            row = conn.execute("SELECT rationale FROM action_log").fetchone()
+        conn = sqlite3.connect(store.db_path)
+        row = conn.execute("SELECT rationale FROM action_log").fetchone()
+        conn.close()
         assert row[0] is None
 
 

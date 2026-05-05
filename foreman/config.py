@@ -102,6 +102,25 @@ class PollingConfig(BaseModel):
     """How often to poll GitHub for new events (in seconds)."""
 
 
+class QueueConfig(BaseModel):
+    """Task queue configuration."""
+
+    db_path: Optional[Path] = None
+    """Path to the SQLite queue database; defaults to ``~/.agent-harness/queue.db`` at runtime."""
+
+    claim_timeout_seconds: int = 300
+    """Seconds before an uncompleted claimed task is re-enqueued."""
+
+    max_retries: int = 3
+    """Maximum number of times a task is re-enqueued before being marked failed."""
+
+    drain_interval_seconds: int = 10
+    """How often (seconds) the harness drains completed tasks from the queue."""
+
+    requeue_interval_seconds: int = 60
+    """How often (seconds) the harness checks for stale claimed tasks to re-enqueue."""
+
+
 class AgentAssignment(BaseModel):
     """A single agent assigned to a repository."""
 
@@ -139,6 +158,9 @@ class ForemanConfig(BaseModel):
 
     polling: PollingConfig = PollingConfig()
     """GitHub polling settings."""
+
+    queue: QueueConfig = QueueConfig()
+    """Task queue settings."""
 
     repos: list[RepoConfig] = []
     """Repositories to monitor."""
