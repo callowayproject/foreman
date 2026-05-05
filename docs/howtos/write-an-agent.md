@@ -66,6 +66,10 @@ Call this once per task, after all processing is done.
 | `task_id`  | `str`             | The `task_id` from the `TaskMessage` returned by `next_task()`. |
 | `decision` | `DecisionMessage` | Your agent's decision, rationale, and action list.         |
 
+> **Note:** Always pass `decision.task_id` as the `task_id` argument.
+> Passing a different value causes the nudge and the stored decision to reference different tasks;
+> the harness will not raise an error, but the drain loop will not find the intended result.
+
 ```python
 from foremanclient import DecisionMessage, DecisionType
 
