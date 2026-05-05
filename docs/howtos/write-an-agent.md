@@ -126,29 +126,44 @@ Across restarts, rely on the harness: if the decision is already in `action_log`
 
 ## Minimal Working Example
 
-A complete, runnable agent in under 30 lines:
+A complete, runnable agent in under 35 lines.
+The lifespan ensures the client is created once and that any tasks queued
+while the agent was down are claimed immediately on startup (see [Startup Poll](#startup-poll) for why this matters):
 
 ```python
 import os
+from contextlib import asynccontextmanager
 from fastapi import BackgroundTasks, FastAPI
 from foremanclient import DecisionMessage, DecisionType, ForemanClient
 from pydantic import BaseModel
-
-client = ForemanClient(os.environ["FOREMAN_HARNESS_URL"], os.environ["AGENT_URL"])
-app = FastAPI()
-
-class TaskNudge(BaseModel):
-    task_id: str
 
 def _decide(task):
     return DecisionMessage(
         task_id=task.task_id, decision=DecisionType.skip, rationale="No action needed."
     )
 
-def _run():
+def _run(client):
     task = client.next_task()
     if task:
         client.complete_task(task.task_id, _decide(task))
+
+@asynccontextmanager
+async def lifespan(app):
+    client = ForemanClient(os.environ["FOREMAN_HARNESS_URL"], os.environ["AGENT_URL"])
+    # Drain any tasks queued while the agent was down
+    while True:
+        task = client.next_task()
+        if task is None:
+            break
+        client.complete_task(task.task_id, _decide(task))
+    app.state.client = client
+    yield
+    client.close()
+
+app = FastAPI(lifespan=lifespan)
+
+class TaskNudge(BaseModel):
+    task_id: str
 
 @app.get("/health")
 def health():
@@ -156,7 +171,7 @@ def health():
 
 @app.post("/task", status_code=202)
 async def handle_task(nudge: TaskNudge, background_tasks: BackgroundTasks):
-    background_tasks.add_task(_run)
+    background_tasks.add_task(_run, app.state.client)
     return {"status": "accepted"}
 ```
 
@@ -180,15 +195,19 @@ The agent should return 202 immediately and process the task in a background thr
 
 ## Startup Poll
 
-On startup, call `next_task()` once to pick up any tasks that were enqueued while your agent was down:
+On startup, loop `next_task()` until it returns `None` to pick up all tasks that were enqueued
+while your agent was down:
 
 ```python
 from contextlib import asynccontextmanager
 
 @asynccontextmanager
 async def lifespan(app):
-    task = client.next_task()
-    if task:
+    client = ForemanClient(...)
+    while True:
+        task = client.next_task()
+        if task is None:
+            break
         _decide_and_complete(task)
     yield
     client.close()
@@ -196,9 +215,13 @@ async def lifespan(app):
 app = FastAPI(lifespan=lifespan)
 ```
 
+A single `next_task()` call only claims one task — if N tasks accumulated while the agent was offline,
+N-1 remain permanently stuck until the harness requeue cycle fires (up to `claim_timeout_seconds` later).
+Looping until `None` is the correct pattern.
+
 This is the key mechanism for zero task loss under agent restarts.
 The harness re-queues stale claimed tasks after `claim_timeout_seconds`,
-and the startup poll ensures your agent claims them immediately on boot.
+and the startup drain ensures your agent claims them immediately on boot.
 
 ## Reference
 
