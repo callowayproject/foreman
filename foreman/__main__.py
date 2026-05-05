@@ -164,7 +164,7 @@ def _run_start(args: Any) -> None:
 
         # Expose shared state for the lifespan background loops.
         app.state.task_queue = task_queue
-        app.state.executor = dispatcher._executor
+        app.state.executor = dispatcher.executor
         app.state.memory = memory
         app.state.config = config
 

@@ -53,7 +53,7 @@ class Dispatcher:
         self._config = config
         self._memory = memory
         self._task_queue = task_queue
-        self._executor = GitHubExecutor(token=str(config.identity.github_token), memory=memory)
+        self.executor = GitHubExecutor(token=str(config.identity.github_token), memory=memory)
 
     async def dispatch(self, event: dict[str, Any], route_target: RouteTarget) -> None:
         """Enqueue *event* for the agent described by *route_target* and nudge it.
