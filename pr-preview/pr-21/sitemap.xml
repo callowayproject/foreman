@@ -109,10 +109,19 @@
         <loc>https://callowayproject.github.io/foreman/specs/02-messaging-update/idea/</loc>
       </url>
       <url>
+        <loc>https://callowayproject.github.io/foreman/specs/02-messaging-update/phase-3-fixes/</loc>
+      </url>
+      <url>
         <loc>https://callowayproject.github.io/foreman/specs/02-messaging-update/phase-3-review/</loc>
       </url>
       <url>
         <loc>https://callowayproject.github.io/foreman/specs/02-messaging-update/plan/</loc>
+      </url>
+      <url>
+        <loc>https://callowayproject.github.io/foreman/specs/02-messaging-update/pr-21-fixes/</loc>
+      </url>
+      <url>
+        <loc>https://callowayproject.github.io/foreman/specs/02-messaging-update/pr-21-review/</loc>
       </url>
       <url>
         <loc>https://callowayproject.github.io/foreman/tutorials/installation/</loc>
