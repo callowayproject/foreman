@@ -35,6 +35,8 @@ class ForemanClient:
             (e.g. ``"http://localhost:8000"``).
         agent_url: This agent's own base URL, sent when claiming tasks so
             the harness knows which agent holds the claim.
+        timeout: HTTP request timeout in seconds applied to all requests.
+            Defaults to ``5.0``.
 
     Example:
         >>> with ForemanClient(
@@ -46,9 +48,9 @@ class ForemanClient:
         ...         client.complete_task(task.task_id, decision)
     """
 
-    def __init__(self, harness_url: str, agent_url: str) -> None:
+    def __init__(self, harness_url: str, agent_url: str, timeout: float = 5.0) -> None:
         self._agent_url = agent_url
-        self._http = httpx.Client(base_url=harness_url)
+        self._http = httpx.Client(base_url=harness_url, timeout=timeout)
 
     def close(self) -> None:
         """Close the underlying HTTP connection pool."""

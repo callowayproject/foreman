@@ -225,6 +225,16 @@ class TestForemanClientLifecycle:
             with client as c:
                 assert c is client
 
+    def test_custom_timeout_forwarded_to_httpx(self) -> None:
+        """timeout kwarg is forwarded to the underlying httpx.Client."""
+        client = ForemanClient(harness_url=_HARNESS_URL, agent_url=_AGENT_URL, timeout=10.0)
+        assert client._http.timeout == httpx.Timeout(10.0)
+
+    def test_default_timeout_is_five_seconds(self) -> None:
+        """Default timeout is 5.0 seconds when not specified."""
+        client = _make_client()
+        assert client._http.timeout == httpx.Timeout(5.0)
+
 
 # ---------------------------------------------------------------------------
 # ForemanClientError
