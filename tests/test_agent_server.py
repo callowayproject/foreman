@@ -140,6 +140,58 @@ class TestTaskEndpointAccepted:
 # ---------------------------------------------------------------------------
 
 
+class TestHeartbeatDuringProcessing:
+    """_process_task fires heartbeat every 25 s while triage runs."""
+
+    def test_heartbeat_called_during_triage(self, mock_foreman_client: MagicMock, mocker) -> None:
+        """heartbeat() is called at least once while triage is running."""
+        import threading
+
+        task = _make_task()
+        heartbeat_called = threading.Event()
+
+        def slow_triage(_task):
+            # Wait until the heartbeat thread fires at least once
+            assert heartbeat_called.wait(timeout=2), "heartbeat not called within 2 s"
+            return MagicMock()
+
+        def record_heartbeat(*args, **kwargs):
+            heartbeat_called.set()
+
+        mock_foreman_client.heartbeat.side_effect = record_heartbeat
+        mock_foreman_client.next_task.side_effect = [task, None]
+        mocker.patch("agent.triage", side_effect=slow_triage)
+
+        # Patch the heartbeat interval to 0.05 s so the test doesn't take 25 s
+        mocker.patch("agent._HEARTBEAT_INTERVAL", 0.05)
+
+        app.state.client = mock_foreman_client
+        with TestClient(app):
+            pass
+        del app.state.client
+
+        mock_foreman_client.heartbeat.assert_called()
+
+    def test_heartbeat_stopped_after_triage(self, mock_foreman_client: MagicMock, mocker) -> None:
+        """Heartbeat thread stops firing after triage completes."""
+        import time
+
+        task = _make_task()
+        mock_foreman_client.next_task.side_effect = [task, None]
+        stub_decision = MagicMock()
+        mocker.patch("agent.triage", return_value=stub_decision)
+        mocker.patch("agent._HEARTBEAT_INTERVAL", 0.05)
+
+        app.state.client = mock_foreman_client
+        with TestClient(app):
+            pass
+        del app.state.client
+
+        calls_after_complete = mock_foreman_client.heartbeat.call_count
+        time.sleep(0.2)  # wait to see if more heartbeats fire after triage
+        assert mock_foreman_client.heartbeat.call_count == calls_after_complete
+
+
 class TestStartupPoll:
     """Lifespan startup poll drains all queued tasks on boot."""
 

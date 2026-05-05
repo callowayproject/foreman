@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import asyncio
 import os
+import threading
 from contextlib import asynccontextmanager
 from typing import TYPE_CHECKING, AsyncIterator
 
@@ -16,6 +17,8 @@ if TYPE_CHECKING:
     from foremanclient.models import DecisionMessage, TaskMessage
 
 logger = structlog.get_logger(__name__)
+
+_HEARTBEAT_INTERVAL: float = 25.0
 
 
 def _get_client(application: FastAPI) -> ForemanClient:
@@ -52,12 +55,26 @@ def triage(task: TaskMessage) -> DecisionMessage:
 async def _process_task(client: ForemanClient, task: TaskMessage) -> None:
     """Call triage on *task* and report the completed decision to the harness.
 
+    A daemon heartbeat thread fires every :data:`_HEARTBEAT_INTERVAL` seconds
+    while triage is running so the harness does not re-queue the task mid-flight.
+
     Args:
         client: The :class:`~foremanclient.ForemanClient` to use for completing the task.
         task: The :class:`~foremanclient.models.TaskMessage` to process.
     """
-    decision = await asyncio.to_thread(triage, task)
-    await asyncio.to_thread(client.complete_task, task.task_id, decision)
+    stop_event = threading.Event()
+
+    def _heartbeat_loop() -> None:
+        while not stop_event.wait(timeout=_HEARTBEAT_INTERVAL):
+            client.heartbeat(task.task_id)
+
+    heartbeat_thread = threading.Thread(target=_heartbeat_loop, daemon=True)
+    heartbeat_thread.start()
+    try:
+        decision = await asyncio.to_thread(triage, task)
+        await asyncio.to_thread(client.complete_task, task.task_id, decision)
+    finally:
+        stop_event.set()
 
 
 async def _poll_and_process(client: ForemanClient) -> None:
