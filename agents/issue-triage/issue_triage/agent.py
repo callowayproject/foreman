@@ -73,13 +73,20 @@ async def _poll_and_process(client: ForemanClient) -> None:
 
 @asynccontextmanager
 async def _lifespan(application: FastAPI) -> AsyncIterator[None]:
-    """FastAPI lifespan: startup poll for tasks queued while the agent was down.
+    """FastAPI lifespan: drain all tasks queued while the agent was down.
+
+    Loops calling next_task() until the queue is empty so that accumulated
+    pending tasks are not left stuck after an unclean restart.
 
     Args:
         application: The FastAPI application instance.
     """
     client = _get_client(application)
-    await _poll_and_process(client)
+    while True:
+        task = await asyncio.to_thread(client.next_task)
+        if task is None:
+            break
+        await _process_task(client, task)
     yield
     client.close()
 

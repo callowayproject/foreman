@@ -141,12 +141,29 @@ class TestTaskEndpointAccepted:
 
 
 class TestStartupPoll:
-    """Lifespan startup poll fires next_task() once on boot."""
+    """Lifespan startup poll drains all queued tasks on boot."""
 
-    def test_startup_poll_calls_next_task_once(self, mock_foreman_client: MagicMock) -> None:
-        """Lifespan startup poll calls client.next_task() exactly once."""
+    def test_startup_poll_calls_next_task_once_when_queue_empty(self, mock_foreman_client: MagicMock) -> None:
+        """Startup poll calls next_task() once when the queue is empty (returns None)."""
         app.state.client = mock_foreman_client
         with TestClient(app):
             pass
         del app.state.client
         assert mock_foreman_client.next_task.call_count == 1
+
+    def test_startup_poll_drains_all_queued_tasks(self, mock_foreman_client: MagicMock, mocker) -> None:
+        """Startup poll loops until next_task() returns None, processing each task."""
+        tasks = [_make_task(f"t{i}") for i in range(3)]
+        mock_foreman_client.next_task.side_effect = [*tasks, None]
+        stub_decision = MagicMock()
+        mocker.patch("agent.triage", return_value=stub_decision)
+
+        app.state.client = mock_foreman_client
+        with TestClient(app):
+            pass
+        del app.state.client
+
+        # next_task called 4 times: 3 tasks + 1 None to break the loop
+        assert mock_foreman_client.next_task.call_count == 4
+        # All 3 tasks completed
+        assert mock_foreman_client.complete_task.call_count == 3
