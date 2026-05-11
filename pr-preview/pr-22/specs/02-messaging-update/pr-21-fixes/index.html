@@ -12,13 +12,13 @@
         <meta name="author" content="Corey Oordt">
       
       
-        <link rel="canonical" href="https://callowayproject.github.io/foreman/reference/api/router/">
+        <link rel="canonical" href="https://callowayproject.github.io/foreman/specs/02-messaging-update/pr-21-fixes/">
       
       
-        <link rel="prev" href="../protocol/">
+        <link rel="prev" href="../plan/">
       
       
-        <link rel="next" href="../server/">
+        <link rel="next" href="../pr-21-review/">
       
       
         
@@ -29,7 +29,7 @@
     
     
       
-        <title>Router - Foreman</title>
+        <title>PR #21 Fix Plan - Foreman</title>
       
     
     
@@ -97,7 +97,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#foreman.router" class="md-skip">
+        <a href="#pr-21-fix-plan" class="md-skip">
           Skip to content
         </a>
       
@@ -130,7 +130,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Router
+              PR #21 Fix Plan
             
           </span>
         </div>
@@ -279,13 +279,11 @@
   
   
   
-    
-  
   
     
     
-      <li class="md-tabs__item md-tabs__item--active">
-        <a href="../../" class="md-tabs__link">
+      <li class="md-tabs__item">
+        <a href="../../../reference/" class="md-tabs__link">
           
   
   Reference
@@ -300,11 +298,13 @@
   
   
   
+    
+  
   
     
     
-      <li class="md-tabs__item">
-        <a href="../../../specs/" class="md-tabs__link">
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../../" class="md-tabs__link">
           
   
   Specs
@@ -554,8 +554,6 @@
       
   
   
-    
-  
   
   
     
@@ -577,23 +575,20 @@
     
     
       
-        
-        
-      
       
         
       
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../" class="md-nav__link ">
+            <a href="../../../reference/" class="md-nav__link ">
               
   
   
@@ -611,13 +606,13 @@
             </a>
             
               
-              <label class="md-nav__link " for="__nav_5" id="__nav_5_label" tabindex="">
+              <label class="md-nav__link " for="__nav_5" id="__nav_5_label" tabindex="0">
                 <span class="md-nav__icon md-icon"></span>
               </label>
             
           </div>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_5">
             <span class="md-nav__icon md-icon"></span>
             
@@ -637,7 +632,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../agent-protocol/" class="md-nav__link">
+      <a href="../../../reference/agent-protocol/" class="md-nav__link">
         
   
   
@@ -665,7 +660,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../cli/" class="md-nav__link">
+      <a href="../../../reference/cli/" class="md-nav__link">
         
   
   
@@ -693,7 +688,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../configuration/" class="md-nav__link">
+      <a href="../../../reference/configuration/" class="md-nav__link">
         
   
   
@@ -718,8 +713,6 @@
                 
   
   
-    
-  
   
   
     
@@ -765,21 +758,18 @@
       
       
         
-          
-          
-        
       
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_5" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_5" >
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="../" class="md-nav__link ">
+            <a href="../../../reference/api/" class="md-nav__link ">
               
   
   
@@ -797,13 +787,13 @@
             </a>
             
               
-              <label class="md-nav__link " for="__nav_5_5" id="__nav_5_5_label" tabindex="">
+              <label class="md-nav__link " for="__nav_5_5" id="__nav_5_5_label" tabindex="0">
                 <span class="md-nav__icon md-icon"></span>
               </label>
             
           </div>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_5_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_5_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_5_5">
             <span class="md-nav__icon md-icon"></span>
             
@@ -823,7 +813,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../config/" class="md-nav__link">
+      <a href="../../../reference/api/config/" class="md-nav__link">
         
   
   
@@ -851,7 +841,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../containers/" class="md-nav__link">
+      <a href="../../../reference/api/containers/" class="md-nav__link">
         
   
   
@@ -879,7 +869,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../credentials/" class="md-nav__link">
+      <a href="../../../reference/api/credentials/" class="md-nav__link">
         
   
   
@@ -907,7 +897,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../executor/" class="md-nav__link">
+      <a href="../../../reference/api/executor/" class="md-nav__link">
         
   
   
@@ -935,7 +925,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../logging_info/" class="md-nav__link">
+      <a href="../../../reference/api/logging_info/" class="md-nav__link">
         
   
   
@@ -963,7 +953,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../memory/" class="md-nav__link">
+      <a href="../../../reference/api/memory/" class="md-nav__link">
         
   
   
@@ -991,7 +981,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../middleware/" class="md-nav__link">
+      <a href="../../../reference/api/middleware/" class="md-nav__link">
         
   
   
@@ -1019,7 +1009,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../otel/" class="md-nav__link">
+      <a href="../../../reference/api/otel/" class="md-nav__link">
         
   
   
@@ -1047,7 +1037,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../poller/" class="md-nav__link">
+      <a href="../../../reference/api/poller/" class="md-nav__link">
         
   
   
@@ -1075,7 +1065,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../protocol/" class="md-nav__link">
+      <a href="../../../reference/api/protocol/" class="md-nav__link">
         
   
   
@@ -1100,35 +1090,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      
-      
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Router
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="././" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../../../reference/api/router/" class="md-nav__link">
         
   
   
@@ -1144,36 +1109,6 @@
   
 
       </a>
-      
-        
-
-
-<nav class="md-nav md-nav--secondary" aria-label="On this page">
-  
-  
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      On this page
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#foreman.router" class="md-nav__link">
-    <span class="md-ellipsis">
-      <span class="md-typeset">
-        <code class="doc-symbol doc-symbol-toc doc-symbol-module"></code>&nbsp;router
-      </span>
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -1186,7 +1121,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../server/" class="md-nav__link">
+      <a href="../../../reference/api/server/" class="md-nav__link">
         
   
   
@@ -1214,7 +1149,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../settings/" class="md-nav__link">
+      <a href="../../../reference/api/settings/" class="md-nav__link">
         
   
   
@@ -1271,7 +1206,7 @@
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="../llm/" class="md-nav__link ">
+            <a href="../../../reference/api/llm/" class="md-nav__link ">
               
   
   
@@ -1315,7 +1250,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../llm/anthropic/" class="md-nav__link">
+      <a href="../../../reference/api/llm/anthropic/" class="md-nav__link">
         
   
   
@@ -1343,7 +1278,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../llm/base/" class="md-nav__link">
+      <a href="../../../reference/api/llm/base/" class="md-nav__link">
         
   
   
@@ -1371,7 +1306,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../llm/ollama/" class="md-nav__link">
+      <a href="../../../reference/api/llm/ollama/" class="md-nav__link">
         
   
   
@@ -1434,7 +1369,7 @@
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="../routers/" class="md-nav__link ">
+            <a href="../../../reference/api/routers/" class="md-nav__link ">
               
   
   
@@ -1478,7 +1413,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../routers/agent/" class="md-nav__link">
+      <a href="../../../reference/api/routers/agent/" class="md-nav__link">
         
   
   
@@ -1506,7 +1441,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../routers/health/" class="md-nav__link">
+      <a href="../../../reference/api/routers/health/" class="md-nav__link">
         
   
   
@@ -1554,6 +1489,8 @@
       
   
   
+    
+  
   
   
     
@@ -1571,20 +1508,23 @@
     
     
       
+        
+        
+      
       
         
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" checked>
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../../specs/" class="md-nav__link ">
+            <a href="../../" class="md-nav__link ">
               
   
   
@@ -1602,13 +1542,13 @@
             </a>
             
               
-              <label class="md-nav__link " for="__nav_6" id="__nav_6_label" tabindex="0">
+              <label class="md-nav__link " for="__nav_6" id="__nav_6_label" tabindex="">
                 <span class="md-nav__icon md-icon"></span>
               </label>
             
           </div>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_6">
             <span class="md-nav__icon md-icon"></span>
             
@@ -1644,17 +1584,20 @@
       
       
         
+          
+          
+        
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
       
         
         
         <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_2" >
         
           
-          <label class="md-nav__link" for="__nav_6_2" id="__nav_6_2_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_6_2" id="__nav_6_2_label" tabindex="">
             
   
   
@@ -1690,7 +1633,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../specs/01-agent-harness/SPEC/" class="md-nav__link">
+      <a href="../../01-agent-harness/SPEC/" class="md-nav__link">
         
   
   
@@ -1718,7 +1661,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../specs/01-agent-harness/idea/" class="md-nav__link">
+      <a href="../../01-agent-harness/idea/" class="md-nav__link">
         
   
   
@@ -1746,7 +1689,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../specs/01-agent-harness/plan/" class="md-nav__link">
+      <a href="../../01-agent-harness/plan/" class="md-nav__link">
         
   
   
@@ -1774,7 +1717,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../specs/01-agent-harness/todo/" class="md-nav__link">
+      <a href="../../01-agent-harness/todo/" class="md-nav__link">
         
   
   
@@ -1807,8 +1750,10 @@
                 
   
   
+    
   
   
+  
     
     
       
@@ -1831,18 +1776,21 @@
     
       
       
-        
-      
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_3" >
         
           
-          <label class="md-nav__link" for="__nav_6_3" id="__nav_6_3_label" tabindex="0">
+          
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_6_3" id="__nav_6_3_label" tabindex="">
             
   
   
@@ -1860,7 +1808,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_6_3_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_6_3_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_6_3">
             <span class="md-nav__icon md-icon"></span>
             
@@ -1878,7 +1826,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../specs/02-messaging-update/SPEC/" class="md-nav__link">
+      <a href="../SPEC/" class="md-nav__link">
         
   
   
@@ -1906,7 +1854,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../specs/02-messaging-update/idea/" class="md-nav__link">
+      <a href="../idea/" class="md-nav__link">
         
   
   
@@ -1934,7 +1882,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../specs/02-messaging-update/phase-3-fixes/" class="md-nav__link">
+      <a href="../phase-3-fixes/" class="md-nav__link">
         
   
   
@@ -1962,7 +1910,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../specs/02-messaging-update/phase-3-review/" class="md-nav__link">
+      <a href="../phase-3-review/" class="md-nav__link">
         
   
   
@@ -1990,7 +1938,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../specs/02-messaging-update/plan/" class="md-nav__link">
+      <a href="../plan/" class="md-nav__link">
         
   
   
@@ -2015,10 +1963,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../../../specs/02-messaging-update/pr-21-fixes/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PR #21 Fix Plan
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="././" class="md-nav__link md-nav__link--active">
         
   
   
@@ -2034,6 +2009,115 @@
   
 
       </a>
+      
+        
+
+
+<nav class="md-nav md-nav--secondary" aria-label="On this page">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#task-1-wrap-_drain_loop-body-in-exception-handlers" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Task 1 — Wrap <code>_drain_loop</code> body in exception handlers
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#task-2-split-drain_completed-add-mark_done-transition-done-after-execute" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Task 2 — Split <code>drain_completed</code> / add <code>mark_done</code>; transition <code>done</code> after execute
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#task-3-drain-all-queued-tasks-on-agent-startup-loop-until-empty" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Task 3 — Drain all queued tasks on agent startup (loop until empty)
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#task-4-wrap-_requeue_loop-body-in-exception-handler" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Task 4 — Wrap <code>_requeue_loop</code> body in exception handler
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#task-5-remove-private-attribute-access-across-module-boundary" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Task 5 — Remove private-attribute access across module boundary
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#task-6-add-heartbeat-thread-to-reference-agent-_process_task" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Task 6 — Add heartbeat thread to reference agent <code>_process_task</code>
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#task-7-update-minimal-working-example-in-docs-to-include-startup-poll" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Task 7 — Update minimal working example in docs to include startup poll
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#implementation-order" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Implementation Order
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -2046,7 +2130,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../specs/02-messaging-update/pr-21-review/" class="md-nav__link">
+      <a href="../pr-21-review/" class="md-nav__link">
         
   
   
@@ -2217,6 +2301,8 @@
                     
                     
                     
+                      
+                    
                     
                       <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
                       <div class="md-sidebar-button__wrapper">
@@ -2232,6 +2318,8 @@
   
   
   
+    
+  
   
     <label class="md-nav__title" for="__toc">
       <span class="md-nav__icon md-icon"></span>
@@ -2240,10 +2328,87 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#foreman.router" class="md-nav__link">
+  <a href="#task-1-wrap-_drain_loop-body-in-exception-handlers" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
-        <code class="doc-symbol doc-symbol-toc doc-symbol-module"></code>&nbsp;router
+        Task 1 — Wrap <code>_drain_loop</code> body in exception handlers
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#task-2-split-drain_completed-add-mark_done-transition-done-after-execute" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Task 2 — Split <code>drain_completed</code> / add <code>mark_done</code>; transition <code>done</code> after execute
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#task-3-drain-all-queued-tasks-on-agent-startup-loop-until-empty" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Task 3 — Drain all queued tasks on agent startup (loop until empty)
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#task-4-wrap-_requeue_loop-body-in-exception-handler" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Task 4 — Wrap <code>_requeue_loop</code> body in exception handler
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#task-5-remove-private-attribute-access-across-module-boundary" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Task 5 — Remove private-attribute access across module boundary
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#task-6-add-heartbeat-thread-to-reference-agent-_process_task" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Task 6 — Add heartbeat thread to reference agent <code>_process_task</code>
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#task-7-update-minimal-working-example-in-docs-to-include-startup-poll" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Task 7 — Update minimal working example in docs to include startup poll
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#implementation-order" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Implementation Order
       </span>
     </span>
   </a>
@@ -2296,7 +2461,7 @@
         <a href="../../" class="md-path__link">
           
   <span class="md-ellipsis">
-    Reference
+    Specs
   </span>
 
         </a>
@@ -2311,10 +2476,10 @@
     
     
       <li class="md-path__item">
-        <a href="../" class="md-path__link">
+        <a href="../SPEC/" class="md-path__link">
           
   <span class="md-ellipsis">
-    Api
+    02 messaging update
   </span>
 
         </a>
@@ -2331,7 +2496,7 @@
                 
                   
   
-    <a href="https://github.com/callowayproject/foreman/edit/master/docs/reference/api/router.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
+    <a href="https://github.com/callowayproject/foreman/edit/master/docs/specs/02-messaging-update/pr-21-fixes.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
       
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-file-pen" viewBox="0 0 24 24"><path d="M12.659 22H18a2 2 0 0 0 2-2V8a2.4 2.4 0 0 0-.706-1.706l-3.588-3.588A2.4 2.4 0 0 0 14 2H6a2 2 0 0 0-2 2v9.34"/><path d="M14 2v5a1 1 0 0 0 1 1h5M10.378 12.622a1 1 0 0 1 3 3.003L8.36 20.637a2 2 0 0 1-.854.506l-2.867.837a.5.5 0 0 1-.62-.62l.836-2.869a2 2 0 0 1 .506-.853z"/></svg>
     </a>
@@ -2340,40 +2505,137 @@
     
       
     
-    <a href="https://github.com/callowayproject/foreman/raw/master/docs/reference/api/router.md" title="View source of this page" class="md-content__button md-icon">
+    <a href="https://github.com/callowayproject/foreman/raw/master/docs/specs/02-messaging-update/pr-21-fixes.md" title="View source of this page" class="md-content__button md-icon">
       
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-file-code-2" viewBox="0 0 24 24"><path d="M4 12.15V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.706.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2h-3.35"/><path d="M14 2v5a1 1 0 0 0 1 1h5M5 16l-3 3 3 3M9 22l3-3-3-3"/></svg>
     </a>
   
 
 
-  <h1 id="__skip">Router</h1>
-
-<div class="doc doc-object doc-module">
-
-
-
-<a id="foreman.router"></a>
-    <div class="doc doc-contents first">
-
-        <p>Routes GitHub events (repo + event_type) to agent URLs.</p>
-
-          <backlinks identifier="foreman.router" handler="python" />
-
-
-
-
-
-
-
-
-
-
-
-
-    </div>
-
-</div>
+<h1 id="pr-21-fix-plan">PR #21 Fix Plan<a class="headerlink" href="#pr-21-fix-plan" title="Permanent link">&para;</a></h1>
+<p>Implements all seven findings from <code>pr-21-review.md</code>.
+Tasks are ordered: high-priority blockers first, then medium, then low.</p>
+<hr />
+<h2 id="task-1-wrap-_drain_loop-body-in-exception-handlers">Task 1 — Wrap <code>_drain_loop</code> body in exception handlers<a class="headerlink" href="#task-1-wrap-_drain_loop-body-in-exception-handlers" title="Permanent link">&para;</a></h2>
+<p><strong>File:</strong> <code>foreman/server.py:131-149</code> <strong>Priority:</strong> High (must fix before merge)</p>
+<p>Wrap the outer <code>drain_completed()</code> call in a broad <code>try/except</code> that logs and continues so the loop never dies.
+Wrap each per-task <code>executor.execute()</code> + <code>memory.upsert_memory_summary()</code> block in a separate inner <code>try/except</code>
+so one bad task does not abort the others.
+Also extend the <code>_lifespan</code> finally block's <code>contextlib.suppress</code> to include <code>Exception</code>
+so a previously-crashed drain task does not re-raise during shutdown.</p>
+<p><strong>Acceptance criteria:</strong></p>
+<ul class="task-list">
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> <code>_drain_loop</code> has an outer <code>try/except Exception</code> around <code>drain_completed()</code> that calls <code>logger.exception</code>
+    and continues the loop</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> <code>_drain_loop</code> has an inner <code>try/except Exception</code> around <code>executor.execute()</code> + <code>memory.upsert_memory_summary()</code> per
+    task</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> <code>_lifespan</code> finally block uses <code>contextlib.suppress(asyncio.CancelledError, Exception)</code> for <code>drain_task</code></li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> New test: a drain-loop iteration that raises inside <code>executor.execute</code> does not kill the loop
+    (subsequent iteration still runs)</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> Full test suite passes</li>
+</ul>
+<hr />
+<h2 id="task-2-split-drain_completed-add-mark_done-transition-done-after-execute">Task 2 — Split <code>drain_completed</code> / add <code>mark_done</code>; transition <code>done</code> after execute<a class="headerlink" href="#task-2-split-drain_completed-add-mark_done-transition-done-after-execute" title="Permanent link">&para;</a></h2>
+<p><strong>Files:</strong> <code>foreman/queue.py:179-183</code>, <code>foreman/server.py:138-146</code> <strong>Priority:</strong> High (must fix before merge)</p>
+<p>Remove the <code>UPDATE … done</code> + <code>commit</code> from <code>drain_completed</code> so it only reads rows.
+Add a new <code>mark_done(task_id: str) -&gt; None</code> method that transitions a single row to <code>done</code> and commits.
+In <code>_drain_loop</code>, call <code>task_queue.mark_done(task.task_id)</code> after <code>executor.execute()</code> succeeds.</p>
+<p>This gives at-least-once delivery: a crash between <code>execute</code> and <code>mark_done</code> causes re-drain on next start,
+which matches the stated design goal.</p>
+<p>Note: <code>drain_completed</code> tests in <code>test_queue.py</code> that assert <code>status == 'done'</code> after the call must be updated —
+<code>drain_completed</code> now leaves status as <code>completed</code>; <code>mark_done</code> transitions to <code>done</code>.</p>
+<p><strong>Acceptance criteria:</strong></p>
+<ul class="task-list">
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> <code>drain_completed</code> no longer contains any <code>UPDATE</code> or <code>commit</code> call</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> <code>mark_done(task_id)</code> method exists on <code>TaskQueue</code>, transitions one row <code>completed → done</code>, commits</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> <code>_drain_loop</code> calls <code>task_queue.mark_done(task.task_id)</code> inside the per-task try block,
+    after <code>memory.upsert_memory_summary()</code></li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> Existing <code>drain_completed</code> tests updated to reflect that rows remain <code>completed</code> after the call</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> New test: <code>mark_done</code> transitions the correct row to <code>done</code> and leaves other rows untouched</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> New test: executor failure leaves the task in <code>completed</code> state (not <code>done</code>)</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> Full test suite passes</li>
+</ul>
+<hr />
+<h2 id="task-3-drain-all-queued-tasks-on-agent-startup-loop-until-empty">Task 3 — Drain all queued tasks on agent startup (loop until empty)<a class="headerlink" href="#task-3-drain-all-queued-tasks-on-agent-startup-loop-until-empty" title="Permanent link">&para;</a></h2>
+<p><strong>File:</strong> <code>agents/issue-triage/issue_triage/agent.py:82</code> <strong>Priority:</strong> Medium (should fix)</p>
+<p>Replace the single <code>await _poll_and_process(client)</code> call in <code>_lifespan</code> with a loop
+that calls <code>client.next_task()</code> repeatedly until it returns <code>None</code>, processing each task before moving to the next.</p>
+<p><strong>Acceptance criteria:</strong></p>
+<ul class="task-list">
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> <code>_lifespan</code> startup poll loops:
+    <code>while True: task = await asyncio.to_thread(client.next_task); if task is None: break; await _process_task(client, task)</code></li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> New integration test: 3 tasks enqueued while agent is "down"; agent restart claims and processes all 3
+    (no stuck <code>pending</code> rows)</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> Full test suite passes</li>
+</ul>
+<hr />
+<h2 id="task-4-wrap-_requeue_loop-body-in-exception-handler">Task 4 — Wrap <code>_requeue_loop</code> body in exception handler<a class="headerlink" href="#task-4-wrap-_requeue_loop-body-in-exception-handler" title="Permanent link">&para;</a></h2>
+<p><strong>File:</strong> <code>foreman/server.py:163-168</code> <strong>Priority:</strong> Medium (should fix)</p>
+<p>Mirror the fix from Task 1: wrap the <code>requeue_stale()</code> + <code>fail_exhausted()</code> block in <code>try/except Exception</code> with
+<code>logger.exception</code>.
+Also extend <code>_lifespan</code> finally block's <code>contextlib.suppress</code> for <code>requeue_task</code> to include <code>Exception</code>.</p>
+<p><strong>Acceptance criteria:</strong></p>
+<ul class="task-list">
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> <code>_requeue_loop</code> has <code>try/except Exception</code> around <code>requeue_stale()</code> + <code>fail_exhausted()</code> that logs and continues</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> <code>_lifespan</code> finally block uses <code>contextlib.suppress(asyncio.CancelledError, Exception)</code> for <code>requeue_task</code></li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> New test: a requeue-loop iteration that raises does not kill the loop</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> Full test suite passes</li>
+</ul>
+<hr />
+<h2 id="task-5-remove-private-attribute-access-across-module-boundary">Task 5 — Remove private-attribute access across module boundary<a class="headerlink" href="#task-5-remove-private-attribute-access-across-module-boundary" title="Permanent link">&para;</a></h2>
+<p><strong>Files:</strong> <code>foreman/server.py</code>, <code>foreman/__main__.py:167</code> <strong>Priority:</strong> Low (nice to have)</p>
+<p>Rename <code>Dispatcher._executor</code> to <code>Dispatcher.executor</code> (public).
+Update <code>__main__.py</code> to use <code>dispatcher.executor</code>.</p>
+<p><strong>Acceptance criteria:</strong></p>
+<ul class="task-list">
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> <code>Dispatcher.__init__</code> assigns <code>self.executor</code> (not <code>self._executor</code>)</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> <code>__main__.py</code> references <code>dispatcher.executor</code></li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> No remaining references to <code>dispatcher._executor</code> in the codebase</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> Full test suite passes</li>
+</ul>
+<hr />
+<h2 id="task-6-add-heartbeat-thread-to-reference-agent-_process_task">Task 6 — Add heartbeat thread to reference agent <code>_process_task</code><a class="headerlink" href="#task-6-add-heartbeat-thread-to-reference-agent-_process_task" title="Permanent link">&para;</a></h2>
+<p><strong>File:</strong> <code>agents/issue-triage/issue_triage/agent.py:52-60</code> <strong>Priority:</strong> Low (nice to have)</p>
+<p>Wrap the <code>asyncio.to_thread(triage, task)</code> call with a daemon heartbeat thread
+that fires <code>client.heartbeat(task.task_id)</code> every 25 seconds until the triage call finishes.</p>
+<p><strong>Acceptance criteria:</strong></p>
+<ul class="task-list">
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> <code>_process_task</code> starts a daemon <code>threading.Thread</code> that calls <code>client.heartbeat(task.task_id)</code> every 25 s</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> The heartbeat thread is stopped (via <code>threading.Event</code>) in a <code>finally</code> block after <code>triage</code> returns or raises</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> <code>import threading</code> added to <code>agent.py</code></li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> Full test suite passes</li>
+</ul>
+<hr />
+<h2 id="task-7-update-minimal-working-example-in-docs-to-include-startup-poll">Task 7 — Update minimal working example in docs to include startup poll<a class="headerlink" href="#task-7-update-minimal-working-example-in-docs-to-include-startup-poll" title="Permanent link">&para;</a></h2>
+<p><strong>File:</strong> <code>docs/howtos/write-an-agent.md:125-156</code> <strong>Priority:</strong> Low (nice to have)</p>
+<p>Replace the module-level <code>ForemanClient</code> instantiation
+and bare <code>FastAPI()</code> with a proper <code>@asynccontextmanager lifespan</code> that: creates the client, runs a startup poll
+(claiming any queued tasks), yields, and closes the client.
+Pass the lifespan to <code>FastAPI(lifespan=lifespan)</code>.</p>
+<p><strong>Acceptance criteria:</strong></p>
+<ul class="task-list">
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> Minimal example uses <code>@asynccontextmanager</code> lifespan (import from <code>contextlib</code>)</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> Lifespan creates <code>ForemanClient</code>, calls <code>next_task()</code> + <code>complete_task()</code> in a startup-poll loop, yields,
+    calls <code>client.close()</code></li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> <code>FastAPI(lifespan=lifespan)</code> used instead of bare <code>FastAPI()</code></li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> A note is added (or the startup-poll section is cross-linked) so readers understand why the lifespan is needed</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> <code>rumdl</code> / pre-commit passes</li>
+</ul>
+<hr />
+<h2 id="implementation-order">Implementation Order<a class="headerlink" href="#implementation-order" title="Permanent link">&para;</a></h2>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>Task 2  (queue.py: split drain_completed / add mark_done)
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>Task 1  (server.py: wrap _drain_loop — depends on mark_done existing)
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>Task 4  (server.py: wrap _requeue_loop — independent, batch with Task 1 or separate)
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>Task 3  (agent.py: startup drain loop)
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>Task 5  (server.py + __main__.py: publicize executor attr)
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>Task 6  (agent.py: heartbeat thread)
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>Task 7  (docs: minimal example lifespan)
+</span></code></pre></div>
+<p>Tasks 2 and 1 are tightly coupled (Task 1's drain loop calls <code>mark_done</code>); implement them together.
+Tasks 4, 5 are independent and can each be a single commit.
+Tasks 6, 7 are independent documentation/agent polish.</p>
+<hr />
+<p><em>Plan created 2026-05-05.</em> <em>Derived from <code>pr-21-review.md</code>.</em> <em>All tasks completed 2026-05-05.</em></p>
 
 
 

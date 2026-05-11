@@ -15,21 +15,21 @@
         <link rel="canonical" href="https://callowayproject.github.io/foreman/specs/02-messaging-update/idea/">
       
       
-        <link rel="prev" href="../../01-agent-harness/todo/">
+        <link rel="prev" href="../SPEC/">
       
       
-        <link rel="next" href="../../../tutorials/installation/">
+        <link rel="next" href="../phase-3-fixes/">
       
       
         
       
       
       <link rel="icon" href="../../../assets/favicon.png">
-      <meta name="generator" content="zensical-0.0.36">
+      <meta name="generator" content="zensical-0.0.39">
     
     
       
-        <title>Messaging update - Foreman</title>
+        <title>Messaging Update: Queue-Mediated Agent Protocol - Foreman</title>
       
     
     
@@ -97,7 +97,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#messaging-update" class="md-skip">
+        <a href="#messaging-update-queue-mediated-agent-protocol" class="md-skip">
           Skip to content
         </a>
       
@@ -130,7 +130,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Messaging update
+              Messaging Update: Queue-Mediated Agent Protocol
             
           </span>
         </div>
@@ -264,7 +264,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="../../../howtos/" class="md-tabs__link">
+        <a href="../../../howtos/write-an-agent/" class="md-tabs__link">
           
   
   Howtos
@@ -469,8 +469,6 @@
     
       
         
-          
-        
       
     
     
@@ -488,9 +486,8 @@
         <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
         
           
-          <div class="md-nav__link md-nav__container">
-            <a href="../../../howtos/" class="md-nav__link ">
-              
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
   
   
   <span class="md-ellipsis">
@@ -504,9 +501,8 @@
   
   
 
-            </a>
-            
-          </div>
+            <span class="md-nav__icon md-icon"></span>
+          </label>
         
         <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_4">
@@ -519,6 +515,32 @@
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../howtos/write-an-agent/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Write an Agent
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
               
             
           </ul>
@@ -1737,6 +1759,18 @@
       
         
       
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
     
     
     
@@ -1789,6 +1823,34 @@
                 
   
   
+  
+  
+    <li class="md-nav__item">
+      <a href="../SPEC/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Spec: Queue-Mediated Agent Protocol
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
     
   
   
@@ -1808,7 +1870,7 @@
   <span class="md-ellipsis">
     
   
-    Messaging update
+    Messaging Update: Queue-Mediated Agent Protocol
   
 
     
@@ -1826,7 +1888,7 @@
   <span class="md-ellipsis">
     
   
-    Messaging update
+    Messaging Update: Queue-Mediated Agent Protocol
   
 
     
@@ -1863,10 +1925,205 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#recommended-direction" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Recommended Direction
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#key-assumptions-to-validate" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Key Assumptions to Validate
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mvp-scope" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        MVP Scope
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#not-doing-and-why" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Not Doing (and Why)
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#open-questions" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Open Questions
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../phase-3-fixes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Phase 3 Review — Remaining Fixes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../phase-3-review/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Phase 3 Code Review — foreman-client
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../plan/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Implementation Plan: Queue-Mediated Agent Protocol
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../pr-21-fixes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PR #21 Fix Plan
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../pr-21-review/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PR Review: Update task management flow and add integration tests
+  
+
+    
+  </span>
+  
+  
+
+      </a>
     </li>
   
 
@@ -2059,6 +2316,61 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#recommended-direction" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Recommended Direction
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#key-assumptions-to-validate" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Key Assumptions to Validate
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mvp-scope" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        MVP Scope
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#not-doing-and-why" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Not Doing (and Why)
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#open-questions" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Open Questions
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -2120,7 +2432,7 @@
     
     
       <li class="md-path__item">
-        <a href="././" class="md-path__link">
+        <a href="../SPEC/" class="md-path__link">
           
   <span class="md-ellipsis">
     02 messaging update
@@ -2156,10 +2468,80 @@
   
 
 
-<h1 id="messaging-update">Messaging update<a class="headerlink" href="#messaging-update" title="Permanent link">&para;</a></h1>
+<h1 id="messaging-update-queue-mediated-agent-protocol">Messaging Update: Queue-Mediated Agent Protocol<a class="headerlink" href="#messaging-update-queue-mediated-agent-protocol" title="Permanent link">&para;</a></h1>
 <h2 id="problem-statement">Problem Statement<a class="headerlink" href="#problem-statement" title="Permanent link">&para;</a></h2>
-<p>The current wire protocol doesn't handle the case where a message is sent to a node that is not connected.
-This leads to missed events with no way to recover.</p>
+<p>How might we ensure GitHub events dispatched to agent containers are processed reliably,
+even when agents are temporarily unavailable?</p>
+<h2 id="recommended-direction">Recommended Direction<a class="headerlink" href="#recommended-direction" title="Permanent link">&para;</a></h2>
+<p>The harness owns a task queue (SQLite by default, pluggable interface).
+Events are enqueued before any dispatch attempt — the queue is the source of truth.
+<code>POST /task → 202 Accepted</code> becomes a nudge ("check your queue now"), not a delivery mechanism.
+Agents poll the queue at startup, on a background interval, and when nudged.</p>
+<p>Results flow symmetrically: the agent writes its DecisionMessage back to the queue,
+then POSTs to <code>POST /harness/result → 202 Accepted</code> to nudge the harness.
+The harness also has a background task that periodically checks for completed tasks.
+HTTP nudges are optimizations that degrade gracefully — the queue always wins.</p>
+<p>This preserves the core constraint: the harness owns all infrastructure.
+Agents embed a thin <code>foreman-client</code> library that handles queue I/O.
+Agent authors call <code>client.next_task()</code> and <code>client.complete_task(task_id, decision)</code>.
+They don't implement queue management.</p>
+<h2 id="key-assumptions-to-validate">Key Assumptions to Validate<a class="headerlink" href="#key-assumptions-to-validate" title="Permanent link">&para;</a></h2>
+<ul class="task-list">
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> SQLite with WAL mode handles concurrent harness writes + agent reads
+    without contention — benchmark before committing the schema</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Agents are Python (or can embed a Python client) — validate the agent
+    container build process supports a shared library dependency</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> 202 nudge + background poll provides acceptable end-to-end latency —
+    define "acceptable" explicitly (target: &lt; 30s for MVP)</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> One agent per queue is sufficient for MVP — the queue abstraction must
+    not bake in single-consumer assumptions that block future fan-out</li>
+</ul>
+<h2 id="mvp-scope">MVP Scope<a class="headerlink" href="#mvp-scope" title="Permanent link">&para;</a></h2>
+<p><strong>In:</strong></p>
+<ul>
+<li><code>task_queue</code> table in existing <code>memory.db</code>: task_id, agent_url, status,
+  payload, created_at, claimed_at, completed_at, result, retry_count</li>
+<li>Harness writes: enqueue on poll event; <code>POST /task → 202</code> nudge to agent;
+  <code>POST /result</code> endpoint for agent callback; background drain loop for
+  completed tasks; re-enqueue tasks claimed but not completed within timeout</li>
+<li>Harness reads: poll queue for completed tasks on callback + interval</li>
+<li><code>foreman-client</code> lib: <code>next_task()</code>, <code>complete_task(task_id, decision)</code>,
+  <code>heartbeat(task_id)</code> — heartbeat resets the claim timeout clock</li>
+<li>Agent protocol: <code>POST /task → 202</code> (nudge only); startup queue poll;
+  configurable background poll interval</li>
+<li>Delivery guarantee: at-least-once; task_id is the idempotency key</li>
+</ul>
+<p><strong>Out:</strong></p>
+<ul>
+<li>Multiple agent containers per queue (no consumer groups in MVP)</li>
+<li>External queue backends (Redis, NATS) — define pluggable interface,
+  implement SQLite only</li>
+<li>Task prioritization or ordering beyond FIFO</li>
+<li>Monitoring UI — structured log output only</li>
+</ul>
+<h2 id="not-doing-and-why">Not Doing (and Why)<a class="headerlink" href="#not-doing-and-why" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Agent-owned queues</strong> — every agent author would reimplement queue logic;
+  harness owns infrastructure</li>
+<li><strong>Exactly-once delivery</strong> — requires distributed coordination; at-least-once<ul>
+<li>idempotency is sufficient and far simpler</li>
+</ul>
+</li>
+<li><strong>File-system queuing</strong> — ephemeral in containers; shared volumes add
+  deployment surface for no real gain over SQLite</li>
+<li><strong>Keep synchronous dispatch as fallback</strong> — two delivery paths means neither
+  is authoritative; commit to queue-first fully</li>
+</ul>
+<h2 id="open-questions">Open Questions<a class="headerlink" href="#open-questions" title="Permanent link">&para;</a></h2>
+<ul>
+<li>What is the claim timeout?
+  If an agent pulls a task and crashes before completing, the harness must detect and re-enqueue it —
+  define the TTL and re-enqueue logic before writing the schema.</li>
+<li>Is <code>foreman-client</code> a separate PyPI package, part of the <code>foreman</code> package,
+  or vendored into each agent at build time?</li>
+<li>Should <code>GET /queue/status</code> be exposed on the harness for operator visibility,
+  or is structured logging sufficient for MVP?</li>
+</ul>
 
 
 
