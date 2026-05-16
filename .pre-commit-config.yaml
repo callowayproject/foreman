@@ -60,7 +60,11 @@ repos:
     hooks:
       - id: rumdl      # Lint + auto-fix, fails if unfixable issues remain
       - id: rumdl-fmt  # Pure format, always exits 0
-
+  - repo: https://github.com/djlint/djLint
+    rev: v1.36.4
+    hooks:
+      - id: djlint-reformat
+      - id: djlint
 
 ci:
   autofix_prs: false

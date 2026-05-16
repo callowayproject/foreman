@@ -1,0 +1,15 @@
+<!-- Table of contents item -->
+<li>
+    <a href="{{ toc_item.url }}" class="md-nav__link">{{ toc_item.content }}</a>
+    <!-- Table of contents list -->
+    {% if toc_item.children %}
+        <nav aria-label="{{ toc_item.title | striptags | e }}">
+            <ul class="toc__list">
+                {% for toc_item in toc_item.children %}
+                    {% include "partials/toc-item-new.html" %}
+
+                {% endfor %}
+            </ul>
+        </nav>
+    {% endif %}
+</li>

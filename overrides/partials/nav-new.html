@@ -1,0 +1,36 @@
+{% import "partials/nav-item-new.html" as item with context %}
+<!-- Navigation -->
+{% set class = "sidebar-nav sidebar-nav--primary" %}
+{% if "navigation.tabs" in features %}
+    {% set class = class ~ " sidebar-nav--lifted" %}
+{% endif %}
+<div class="{{ class }}"
+     aria-label="{{ lang.t('nav') }}"
+     data-md-level="0">
+    <!-- Site title -->
+    <label class="sidebar__title" for="__drawer">
+        <a href="{{ config.extra.homepage | d(nav.homepage.url, true) | url }}"
+           title="{{ config.site_name | e }}"
+           class="sidebar__button logo"
+           aria-label="{{ config.site_name }}"
+           data-md-component="logo">
+            {% include "partials/logo.html" %}
+
+        </a>
+        {{ config.site_name }}
+    </label>
+    <!-- Repository information -->
+    {% if config.repo_url %}
+        <div class="sidebar__source">
+            {% include "partials/source.html" %}
+
+        </div>
+    {% endif %}
+    <!-- Navigation list -->
+    <ul>
+        {% for nav_item in nav.items %}
+            {% set path = "__nav_" ~ loop.index %}
+            {{ item.render(nav_item, path, 1) }}
+        {% endfor %}
+    </ul>
+</div>

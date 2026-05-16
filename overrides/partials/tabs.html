@@ -1,0 +1,7 @@
+{% import "partials/tabs-item.html" as item with context %}
+<!-- Navigation tabs -->
+<nav aria-label="{{ lang.t('tabs') }}" data-md-component="tabs">
+    <ul>
+        {% for nav_item in nav.items %}{{ item.render(nav_item) }}{% endfor %}
+    </ul>
+</nav>

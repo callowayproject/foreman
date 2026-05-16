@@ -1,0 +1,270 @@
+/* ============================================================
+   FOREMAN · Colors & Type
+   The Worksite Palette + Single-Family Typography
+   Source of truth for tokens. See README.md for full rationale.
+   ============================================================ */
+
+/* Public Sans — body & headlines (single-family rule) */
+@import url('https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,300..900;1,300..900&display=swap');
+
+:root {
+  /* ---------- Brand palette · OKLCH ---------- */
+  --blueprint-steel: oklch(42% 0.065 258); /* primary · nav, card-headers, links, active */
+  --pre-dawn-navy: oklch(23% 0.085 263); /* deepest tone · hero, body text, logo */
+  --safety-tape-pale: oklch(95% 0.14 103); /* tertiary · sidebar wash only */
+  --site-signal-amber: oklch(77% 0.17 80); /* hover/active highlight */
+  --construction-orange: oklch(63% 0.22 42); /* primary CTA · ONE per screen */
+  --near-black: oklch(15% 0.015 258); /* body text · never #000 */
+
+  /* ---------- Tonal ramps (from DESIGN.json) ---------- */
+  --steel-100: #1A2136;
+  --steel-200: #252F52;
+  --steel-300: #2F3D68;
+  --steel-400: #43527A;
+  --steel-500: #5D6D97;
+  --steel-600: #7B8AB0;
+  --steel-700: #A3AECA;
+  --steel-800: #D4D9EB;
+
+  --navy-100: #0C1524;
+  --navy-200: #121F38;
+  --navy-300: #192C50;
+  --navy-400: #172A54;
+  --navy-500: #2B4A8C;
+  --navy-600: #4A6DB8;
+  --navy-700: #7998D1;
+  --navy-800: #BAC8E9;
+
+  --amber-100: #4A2A00;
+  --amber-200: #7A4500;
+  --amber-300: #AB6100;
+  --amber-400: #D68000;
+  --amber-500: #F7B526;
+  --amber-600: #FAC85C;
+  --amber-700: #FBD98E;
+  --amber-800: #FCEDB8;
+
+  --orange-100: #5C2000;
+  --orange-200: #8C3300;
+  --orange-300: #C04700;
+  --orange-400: #FE6400;
+  --orange-500: #FE8033;
+  --orange-600: #FE9D66;
+  --orange-700: #FFC099;
+  --orange-800: #FFDFCC;
+
+  --pale-100: #6B5C00;
+  --pale-200: #8C7A00;
+  --pale-300: #B89F00;
+  --pale-400: #D9BC00;
+  --pale-500: #EDD300;
+  --pale-600: #F5E84A;
+  --pale-700: #FDF396;
+  --pale-800: #FEFBE0;
+
+  /* ---------- Surface tokens ---------- */
+  --surface: oklch(100% 0.002 258); /* card body, page bg */
+  --surface-tinted: oklch(98% 0.004 258); /* alternating sections */
+  --surface-sidebar: oklch(95% 0.14 103 / 10%); /* safety-tape wash · 10% */
+  --surface-deep: oklch(19% 0.05 263); /* code blocks on dark */
+  --surface-contrast: oklch(95% 0.008 258 / 12%); /* contrast bg */
+
+  /* ---------- Foreground tokens ---------- */
+  --fg-1: var(--near-black); /* body */
+  --fg-2: oklch(38% 0.018 258); /* secondary prose */
+  --fg-3: oklch(42% 0.018 258); /* tertiary / meta */
+  --fg-on-dark: oklch(96% 0.008 258); /* text on navy/steel */
+  --fg-on-dark-2: oklch(80% 0.018 258); /* secondary on dark */
+
+  /* ---------- Borders ---------- */
+  --border-hairline: oklch(42% 0.065 258 / 12%); /* low-contrast separator */
+  --border-default: oklch(42% 0.065 258 / 20%); /* card edge */
+  --border-strong: oklch(42% 0.065 258 / 40%); /* hover/focus */
+  --search-border: 1px solid oklch(96% 0.008 258 / 25%);
+  --card-border: 1px solid var(--border-default);
+
+  /* ---------- API doc-label colors ---------- */
+  --doc-label-private-bg: oklch(35% 0.12 15);
+  --doc-label-property-bg: oklch(33% 0.10 155);
+  --doc-label-read-only-bg: oklch(82% 0.16 95);
+  --doc-label-fg-light: oklch(98% 0.005 258);
+  --doc-label-fg-dark: oklch(15% 0.015 258);
+  --doc-symbol-parameter-fg: #829bd1;
+  --doc-symbol-type_parameter-fg: #829bd1;
+  --doc-symbol-attribute-fg: #953800;
+  --doc-symbol-function-fg: #8250df;
+  --doc-symbol-method-fg: #8250df;
+  --doc-symbol-class-fg: #0550ae;
+  --doc-symbol-type_alias-fg: #0550ae;
+  --doc-symbol-module-fg: #5cad0f;
+
+
+  /* ---------- Type scale ---------- */
+  --font-sans: "Public Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-mono: ui-monospace, "Cascadia Code", "Source Code Pro", Menlo, Consolas, monospace;
+
+  --fs-xs: 0.625rem;
+  --fs-sm: 0.75rem;
+  --fs-md: 0.875rem;
+  --fs-eyebrow: 0.75rem; /* 12px · uppercase section labels */
+  --fs-label: 0.8125rem; /* 13px · meta, tags, sidebar 2nd */
+  --fs-body-sm: 0.875rem; /* 14px · code, dense UI */
+  --fs-body: 1rem; /* 16px · prose */
+  --fs-body-lg: 1.125rem; /* 18px · hero descriptor */
+  --fs-h3: 1.14rem; /* card title scale */
+  --fs-h2: 1.5rem; /* 24px · subhead default */
+  --fs-h1: 2.25rem; /* 36px · heading default */
+  --fs-hero: clamp(2.25rem, 4vw + 1rem, 4rem); /* 36–64px hero */
+  --fs-nav-item: 0.875rem; /* 14px · nav menu item */
+
+  --fw-regular: 400;
+  --fw-medium: 500;
+  --fw-semibold: 600;
+  --fw-bold: 700;
+
+  --lh-tight: 1.12;
+  --lh-snug: 1.334;
+  --lh-normal: 1.6;
+  --lh-loose: 1.75;
+
+  --ls-tight: -0.015em;
+  --ls-normal: 0;
+  --ls-label: 0.02857em;
+  --ls-eyebrow: 0.08em;
+
+  /* ---------- Spacing & radii ---------- */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+  --space-2xl: 48px;
+
+  --radius-xs: 2px;
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-pill: 100px;
+
+  /* ---------- Motion ---------- */
+  --ease-standard: cubic-bezier(0, 0, 0.2, 1);
+  --dur-fast: 150ms;
+
+  /* ---------- Layout ---------- */
+  --header-height: 66px;
+  --footer-height: 48px;
+  --nav-width: 260px;
+  --toc-width: 220px;
+
+  --breadcrumb-icon: url('data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-chevron-right" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg>')
+}
+
+/* ============================================================
+   SEMANTIC ELEMENT STYLES
+   Apply to bare HTML; component CSS extends from here.
+   ============================================================ */
+
+html {
+  font-family: var(--font-sans);
+  color: var(--fg-1);
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  font-family: var(--font-sans);
+  font-size: var(--fs-body);
+  line-height: var(--lh-normal);
+  color: var(--fg-1);
+}
+
+h1, .h1 {
+  font-family: var(--font-sans);
+  font-size: var(--fs-h1);
+  font-weight: var(--fw-bold);
+  line-height: var(--lh-tight);
+  letter-spacing: var(--ls-tight);
+  text-wrap: balance;
+  color: var(--pre-dawn-navy);
+  margin: 0 0 1.5rem;
+}
+
+h2, .h2 {
+  font-family: var(--font-sans);
+  font-size: var(--fs-h2);
+  font-weight: var(--fw-bold);
+  line-height: var(--lh-snug);
+  letter-spacing: var(--ls-normal);
+  color: var(--fg-1);
+  margin: 0 0 0.75rem;
+}
+
+h3, .h3 {
+  font-family: var(--font-sans);
+  font-size: var(--fs-h3);
+  font-weight: var(--fw-bold);
+  line-height: var(--lh-normal);
+  color: var(--fg-1);
+  margin: 0 0 0.5rem;
+}
+
+p, .p {
+  font-family: var(--font-sans);
+  font-size: var(--fs-body);
+  line-height: var(--lh-normal);
+  color: var(--fg-1);
+  max-width: 70ch; /* Do: cap prose at 70ch */
+  margin: 0 0 1em;
+}
+
+.eyebrow {
+  font-family: var(--font-sans);
+  font-size: var(--fs-eyebrow);
+  font-weight: var(--fw-medium);
+  letter-spacing: var(--ls-eyebrow);
+  text-transform: uppercase;
+  color: var(--blueprint-steel);
+}
+
+.label {
+  font-family: var(--font-sans);
+  font-size: var(--fs-label);
+  font-weight: var(--fw-medium);
+  line-height: var(--lh-loose);
+  letter-spacing: var(--ls-label);
+  color: var(--fg-2);
+}
+
+.intro p {
+  font-size: var(--fs-body-lg);
+  line-height: var(--lh-normal);
+  color: var(--fg-2);
+}
+
+code, .code, kbd, samp, pre {
+  font-family: var(--font-mono);
+  font-size: var(--fs-body-sm);
+  background: var(--surface-tinted);
+  padding: 1px 6px;
+  border-radius: var(--radius-sm);
+}
+
+a {
+  color: var(--blueprint-steel);
+  text-decoration-color: var(--border-default);
+  text-underline-offset: 3px;
+  transition: color var(--dur-fast) var(--ease-standard);
+}
+
+a:hover {
+  color: var(--site-signal-amber);
+}
+
+hr {
+  border: 0;
+  border-top: 1px solid var(--border-hairline);
+  margin: var(--space-lg) 0;
+}
+
+::selection {
+  background: var(--site-signal-amber);
+  color: var(--pre-dawn-navy);
+}

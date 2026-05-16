@@ -71,12 +71,11 @@ Copyright &copy; 2026 Corey Oordt
 # Read more: https://zensical.org/docs/customization/#additional-css
 #
 extra_css = [
-    "assets/css/colors.css",
-    "assets/css/extra.css",
-    "assets/css/mkdocstrings.css",
-    "assets/css/cards.css",
-    "assets/css/field-list.css",
-    "assets/css/home.css",
+    "assets/css/reset.css",
+    "assets/css/colors_and_type.css",
+    "assets/css/header.css",
+    "assets/css/content.css",
+    "assets/css/nav.css"
 ]
 
 # With the `extra_javascript` option you can add your own JavaScript to your
@@ -85,7 +84,7 @@ extra_css = [
 # The path provided should be relative to the "docs_dir".
 #
 # Read more: https://zensical.org/docs/customization/#additional-javascript
-#extra_javascript = ["javascripts/extra.js"]
+extra_javascript = ["assets/bundle.6e5f0216.min.js"]
 
 repo_url = "https://github.com/callowayproject/foreman"
 
@@ -95,7 +94,7 @@ repo_url = "https://github.com/callowayproject/foreman"
 [project.theme]
 
 # change this to "classic" to use the traditional Material for MkDocs look.
-#variant = "classic"
+variant = "modern"
 
 # Zensical allows you to override specific blocks, partials, or whole
 # templates as well as to define your own templates. To do this, uncomment
@@ -227,12 +226,12 @@ features = [
     # When pruning is enabled, only the visible navigation items are included
     # in the rendered HTML, reducing the size of the built site by 33% or more.
     # https://zensical.org/docs/setup/navigation/#navigation-pruning
-    # "navigation.prune",
+     "navigation.prune",
 
     # When sections are enabled, top-level sections are rendered as groups in
     # the sidebar for viewports above 1220px, but remain as-is on mobile.
     # https://zensical.org/docs/setup/navigation/#navigation-sections
-    "navigation.sections",
+#    "navigation.sections",
 
     # When tabs are enabled, top-level sections are rendered in a menu layer
     # below the header for viewports above 1220px, but remain as-is on mobile.
@@ -375,13 +374,13 @@ custom_checkbox = true
 [project.markdown_extensions.pymdownx.tilde]
 
 [project.plugins.mkdocstrings.handlers.python]
-inventories = ["https://docs.python.org/3/objects.inv"]
+#inventories = ["https://docs.python.org/3/objects.inv"]
 
 [project.plugins.mkdocstrings.handlers.python.options]
 # General
 allow_inspection = true
-backlinks = "tree"
-enable_inventory = true
+#backlinks = "tree"
+enable_inventory = false
 extensions = [
     "dataclasses",
     "unpack_typeddict",
@@ -393,20 +392,21 @@ show_source = false
 # Headings
 show_root_toc_entry = true
 show_root_full_path = false
-show_category_heading = true
+show_category_heading = false
 show_symbol_type_heading = true
 show_symbol_type_toc = true
 type_parameter_heading = true
+parameter_headings = false
 
 # Members
 members_order = "alphabetical"
-group_by_category = true
+#group_by_category = true
 summary = true
 
 # Docstrings
 docstring_style = "google"
 docstring_options.ignore_init_summary = true
-docstring_section_style = "spacy"
+docstring_section_style = "list"
 merge_init_into_class = true
 relative_crossrefs = true
 scoped_crossrefs = true
@@ -419,3 +419,6 @@ show_signature_annotations = true
 show_signature_type_parameters = true
 separate_signature = true
 signature_crossrefs = true
+
+[project.markdown_extensions.zensical.extensions.macros]
+j2_extensions = ["jinja2.ext.debug"]
