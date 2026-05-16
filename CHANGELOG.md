@@ -1,5 +1,76 @@
 # Changelog
 
+## 0.4.1 (2026-05-16)
+
+[Compare the full difference.](https://github.com/callowayproject/foreman/compare/0.4.0...0.4.1)
+
+### Other
+
+- Bump the uv group across 1 directory with 7 updates. [2f48a82](https://github.com/callowayproject/foreman/commit/2f48a82271e91a4e6a19771f76b15dfad2b385ab)
+
+  Bumps the uv group with 7 updates in the / directory:
+
+  | Package | From | To |
+  | --- | --- | --- |
+  | [orjson](https://github.com/ijl/orjson) | `3.11.8` | `3.11.9` |
+  | [pydantic-settings](https://github.com/pydantic/pydantic-settings) | `2.14.0` | `2.14.1` |
+  | [litellm](https://github.com/BerriAI/litellm) | `1.83.14` | `1.84.0` |
+  | [uv](https://github.com/astral-sh/uv) | `0.11.8` | `0.11.14` |
+  | [types-pyyaml](https://github.com/python/typeshed) | `6.0.12.20260408` | `6.0.12.20260510` |
+  | [coverage](https://github.com/coveragepy/coveragepy) | `7.13.5` | `7.14.0` |
+  | [zensical](https://github.com/zensical/zensical) | `0.0.39` | `0.0.42` |
+
+  Updates `orjson` from 3.11.8 to 3.11.9
+
+  - [Release notes](https://github.com/ijl/orjson/releases)
+  - [Changelog](https://github.com/ijl/orjson/blob/master/CHANGELOG.md)
+  - [Commits](https://github.com/ijl/orjson/compare/3.11.8...3.11.9)
+
+  Updates `pydantic-settings` from 2.14.0 to 2.14.1
+
+  - [Release notes](https://github.com/pydantic/pydantic-settings/releases)
+  - [Commits](https://github.com/pydantic/pydantic-settings/compare/v2.14.0...v2.14.1)
+
+  Updates `litellm` from 1.83.14 to 1.84.0
+
+  - [Release notes](https://github.com/BerriAI/litellm/releases)
+  - [Commits](https://github.com/BerriAI/litellm/commits/v1.84.0)
+
+  Updates `uv` from 0.11.8 to 0.11.14
+
+  - [Release notes](https://github.com/astral-sh/uv/releases)
+  - [Changelog](https://github.com/astral-sh/uv/blob/main/CHANGELOG.md)
+  - [Commits](https://github.com/astral-sh/uv/compare/0.11.8...0.11.14)
+
+  Updates `types-pyyaml` from 6.0.12.20260408 to 6.0.12.20260510
+
+  - [Commits](https://github.com/python/typeshed/commits)
+
+  Updates `coverage` from 7.13.5 to 7.14.0
+
+  - [Release notes](https://github.com/coveragepy/coveragepy/releases)
+  - [Changelog](https://github.com/coveragepy/coveragepy/blob/main/CHANGES.rst)
+  - [Commits](https://github.com/coveragepy/coveragepy/compare/7.13.5...7.14.0)
+
+  Updates `zensical` from 0.0.39 to 0.0.42
+
+  - [Release notes](https://github.com/zensical/zensical/releases)
+  - [Commits](https://github.com/zensical/zensical/compare/v0.0.39...v0.0.42)
+
+  ______________________________________________________________________
+
+  **updated-dependencies:** - dependency-name: orjson
+  dependency-version: 3.11.9
+  dependency-type: direct:production
+  update-type: version-update:semver-patch
+  dependency-group: uv
+
+  **signed-off-by:** dependabot[bot] <support@github.com>
+
+- [pre-commit.ci] pre-commit autoupdate. [749486a](https://github.com/callowayproject/foreman/commit/749486a92d89f6bd20b8b1ec563d82df1c32a861)
+
+  **updates:** - [github.com/pre-commit/mirrors-mypy: v1.20.2 → v2.0.0](https://github.com/pre-commit/mirrors-mypy/compare/v1.20.2...v2.0.0)
+
 ## 0.4.0 (2026-05-05)
 
 [Compare the full difference.](https://github.com/callowayproject/foreman/compare/0.3.0...0.4.0)
