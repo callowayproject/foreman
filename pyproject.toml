@@ -16,8 +16,8 @@ dynamic = ["version"]
 license = { file = "LICENSE" }
 requires-python = ">=3.12"
 dependencies = [
-    "orjson>=3.8.12",
-    "pydantic-settings>=2.13.1",
+    "orjson>=3.11.9",
+    "pydantic-settings>=2.14.1",
     "opentelemetry-api>=1.41.0",
     "fastapi[standard]",
     "opentelemetry-instrumentation-fastapi",
@@ -28,7 +28,7 @@ dependencies = [
     "opentelemetry-exporter-otlp",
     "PyYAML>=6.0",
     "PyGithub>=2.0",
-    "litellm>=1.83.9",
+    "litellm>=1.84.0",
     "httpx>=0.28.1",
     "docker>=7.1.0",
 ]
@@ -51,7 +51,7 @@ dev = [
     "uv",
     "bump-my-version",
     "generate-changelog",
-    "types-pyyaml>=6.0.12.20260408",
+    "types-pyyaml>=6.0.12.20260510",
 ]
 test = [
     "pytest-cov",
@@ -68,7 +68,7 @@ docs = [
     "griffe-fieldz",
     "griffe-pydantic",
     "mkdocstrings[python]",
-    "zensical>=0.0.33",
+    "zensical>=0.0.42",
 ]
 
 
