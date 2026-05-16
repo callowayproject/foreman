@@ -1,0 +1,16 @@
+<!-- Search interface -->
+<form class="search-form">
+    <label for="search">Search</label>
+    <input id="search"
+           name="search"
+           type="search"
+           value=""
+           placeholder="Search"
+           class="search">
+    <button type="submit" class="search-button">
+        {% set icon = config.theme.icon.search or "material/magnify" %}
+        {% include ".icons/" ~ icon ~ ".svg" %}
+
+    </button>
+    <kbd>⌘K</kbd>
+</form>

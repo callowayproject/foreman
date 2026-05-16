@@ -66,7 +66,7 @@ class GitHubPoller:
 
         Returns:
             A list of event dicts, each with ``repo``, ``issue_number``, and
-            ``payload`` keys.
+                ``payload`` keys.
 
         Raises:
             GithubException: Propagated for all GitHub API errors; the caller

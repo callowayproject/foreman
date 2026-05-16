@@ -1,0 +1,306 @@
+{% import "partials/language.html" as lang with context %}
+<!DOCTYPE html>
+<html lang="{{ lang.t('language') }}" class="no-js">
+    <head>
+        <!-- Meta tags -->
+        {% block site_meta %}
+            <meta charset="utf-8" />
+            <meta name="viewport" content="width=device-width,initial-scale=1" />
+            <!-- Page description -->
+            {% if page.meta and page.meta.description %}
+                <meta name="description" content="{{ page.meta.description }}" />
+            {% elif config.site_description %}
+                <meta name="description" content="{{ config.site_description }}" />
+            {% endif %}
+            <!-- Page author -->
+            {% if page.meta and page.meta.author %}
+                <meta name="author" content="{{ page.meta.author }}" />
+            {% elif config.site_author %}
+                <meta name="author" content="{{ config.site_author }}" />
+            {% endif %}
+            <!-- Canonical -->
+            {% if page.canonical_url %}<link rel="canonical" href="{{ page.canonical_url }}" />{% endif %}
+            <!-- Previous page -->
+            {% if page.previous_page %}<link rel="prev" href="{{ page.previous_page.url | url }}" />{% endif %}
+            <!-- Next page -->
+            {% if page.next_page %}<link rel="next" href="{{ page.next_page.url | url }}" />{% endif %}
+            <!-- Alternate versions -->
+            {% if config.extra.alternate is iterable %}
+                {% for alt in config.extra.alternate %}
+                    <link rel="alternate"
+                          href="{{ alt.link | url }}"
+                          hreflang="{{ alt.lang | d(lang.t('language') ) }}" />
+                {% endfor %}
+            {% endif %}
+            <!-- Favicon -->
+            {% set href = config.theme.favicon | d("assets/images/favicon.png") %}
+            <link rel="icon" href="{{ href | url }}" />
+            <!-- Generator banner -->
+            <meta name="generator" content="{{ generator }}" />
+        {% endblock site_meta %}
+        <!-- Site title -->
+        {% block htmltitle %}
+            {% if page.meta and page.meta.title %}
+                <title>{{ page.meta.title }} - {{ config.site_name }}</title>
+            {% elif page.title and not page.is_homepage %}
+                <title>{{ page.title | striptags }} - {{ config.site_name }}</title>
+            {% else %}
+                <title>{{ config.site_name }}</title>
+            {% endif %}
+        {% endblock htmltitle %}
+        <!-- Theme-related style sheets -->
+        {% block styles %}
+            <!-- Custom icons -->
+            {% include "partials/icons.html" %}
+
+        {% endblock styles %}
+        <!-- JavaScript libraries -->
+        {% block libs %}
+            {% for script in config.extra.polyfills %}{{ script | script_tag }}{% endfor %}
+        {% endblock libs %}
+        <!-- Webfonts -->
+        {% block fonts %}
+            <!-- Load fonts from Google -->
+            {% if config.theme.font != false %}
+                {% set text = config.theme.font.text | d("Roboto", true) %}
+                {% set code = config.theme.font.code | d("Roboto Mono", true) %}
+                <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+                <link rel="stylesheet"
+                      href="https://fonts.googleapis.com/css?family={{ text | replace(' ', '+') + ':300,300i,400,400i,500,500i,700,700i%7C' + code | replace(' ', '+') + ':400,400i,700,700i' }}&amp;display=fallback" />
+                <style>
+        :root {
+          --cw-text-font: "{{ text }}";
+          --cw-code-font: "{{ code }}";
+        }
+                </style>
+            {% endif %}
+        {% endblock fonts %}
+        <!-- Custom style sheets -->
+        {% for path in config.extra_css %}<link rel="stylesheet" href="{{ path | url }}" />{% endfor %}
+        <!-- Helper functions for inline scripts -->
+        {% include "partials/javascripts/base.html" %}
+
+        <!-- Analytics -->
+        {% block analytics %}
+            {% include "partials/integrations/analytics.html" %}
+
+        {% endblock analytics %}
+        <!-- Custom front matter -->
+        {% block extrahead %}
+        {% endblock extrahead %}
+    </head>
+    <!-- Set text direction and color palette, if defined -->
+    {% set direction = config.theme.direction or lang.t("direction") %}
+    <body dir="{{ direction }}">
+        {% set features = config.theme.features or [] %}
+        <!--
+  State toggles - we need to set autocomplete="off" in order to reset the
+  drawer on back button invocation in some browsers
+-->
+        <input class="cw-toggle"
+               data-md-toggle="drawer"
+               type="checkbox"
+               id="__drawer"
+               autocomplete="off" />
+        <input class="cw-toggle"
+               data-md-toggle="search"
+               type="checkbox"
+               id="__search"
+               autocomplete="off" />
+        <!-- Overlay for expanded drawer -->
+        <label class="cw-overlay" for="__drawer" aria-label="{{ lang.t('nav') }}"></label>
+        <!-- Skip to content -->
+        <div data-md-component="skip">
+            {% if page.toc | first is defined %}
+                {% set skip = page.toc | first %}
+                <a href="{{ skip.url | url }}" class="cw-skip">{{ lang.t("action.skip") }}</a>
+            {% else %}
+                <a href="#__skip" class="cw-skip">{{ lang.t("action.skip") }}</a>
+            {% endif %}
+        </div>
+        <!-- Announcement bar -->
+        <div data-md-component="announce">
+            {% if self.announce() %}
+                <aside class="cw-banner">
+                    <!-- Button to dismiss announcement -->
+                    {% if "announce.dismiss" in features %}
+                        <button class="icon" aria-label="{{ lang.t('announce.dismiss') }}">
+                            {% set icon = config.theme.icon.close or "material/close" %}
+                            {% include ".icons/" ~ icon ~ ".svg" %}
+
+                        </button>
+                    {% endif %}
+                    <!-- Announcement bar content -->
+                    {% block announce %}
+                        This is an announcement!
+                    {% endblock announce %}
+                    {% if "announce.dismiss" in features %}
+                        {% include "partials/javascripts/announce.html" %}
+
+                    {% endif %}
+                </aside>
+            {% endif %}
+        </div>
+        <!-- Version warning -->
+        {% if config.extra.version %}
+            <div data-md-color-scheme="default" data-md-component="outdated" hidden>
+                {% if self.outdated() %}
+                    <aside class="cw-banner cw-banner--warning">
+                        {% block outdated %}
+                        {% endblock outdated %}
+                        {% include "partials/javascripts/outdated.html" %}
+
+                    </aside>
+                {% endif %}
+            </div>
+        {% endif %}
+        <!-- Header -->
+        {% block header %}
+            {% include "partials/header.html" %}
+
+        {% endblock header %}
+        <!-- Container -->
+        <div class="cw-container" data-md-component="container">
+            <!-- Hero teaser -->
+            {% block hero %}
+            {% endblock hero %}
+            <!-- Navigation tabs (collapsing) -->
+            {% block tabs %}
+                {#        {% if "navigation.tabs.sticky" not in features %}#}
+                {#          {% if "navigation.tabs" in features %}#}
+                {#            {% include "partials/tabs.html" %}#}
+                {#          {% endif %}#}
+                {#        {% endif %}#}
+            {% endblock tabs %}
+            <!-- Main area -->
+            <main class="layout md-grid" data-md-component="main">
+                <!-- Sidebars -->
+                {% block site_nav %}
+                    <!-- Navigation -->
+                    {% if nav %}
+                        {% if page.meta and page.meta.hide %}
+                            {% set hidden = "hidden" if "navigation" in page.meta.hide %}
+                        {% endif %}
+                        <div class="md-sidebar md-sidebar--primary sidebar md-sidebar__lifted"
+                             data-md-component="sidebar"
+                             data-md-type="navigation"
+                             {{ hidden }}>
+                            <div class="md-sidebar__scrollwrap">
+                                <div class="md-sidebar__inner">
+                                    {% include "partials/nav.html" %}
+
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+                    <!-- Page content container -->
+                    {% block container %}
+                        <div class="content" data-md-component="content">
+                            <!-- Navigation path (breadcrumbs) -->
+                            {% if "navigation.path" in features %}
+                                {% include "partials/path.html" %}
+
+                            {% endif %}
+                            <!-- Page content -->
+                            {% block content %}
+                                {% include "partials/content.html" %}
+
+                            {% endblock content %}
+                        </div>
+                    {% endblock container %}
+                    <!-- Table of contents -->
+                    {% if "toc.integrate" not in features %}
+                        {% if page.meta and page.meta.hide %}
+                            {% set hidden = "hidden" if "toc" in page.meta.hide %}
+                        {% endif %}
+                        <div class="toc"
+                             data-md-component="sidebar"
+                             data-md-type="toc"
+                             {{ hidden }}>
+                            {% include "partials/toc-new.html" %}
+
+                        </div>
+                    {% endif %}
+                {% endblock site_nav %}
+                <!-- User preference: content -->
+                {% include "partials/javascripts/content.html" %}
+
+                <!-- Back-to-top button -->
+                {% if "navigation.top" in features %}
+                    {% include "partials/top.html" %}
+
+                {% endif %}
+            </main>
+            <!-- Footer -->
+            {% block footer %}
+                {% include "partials/footer.html" %}
+
+            {% endblock footer %}
+        </div>
+        <!-- Dialog -->
+        <div class="cw-dialog" data-md-component="dialog">
+            <div class="cw-dialog__inner cw-typeset"></div>
+        </div>
+        <!-- Progress indicator -->
+        {% if "navigation.instant.progress" in features %}
+            {% include "partials/progress.html" %}
+
+        {% endif %}
+        <!-- Consent -->
+        {% if config.extra.consent %}
+            <div class="cw-consent" data-md-component="consent" id="__consent" hidden>
+                <div class="cw-consent__overlay"></div>
+                <aside class="cw-consent__inner">
+                    <form class="cw-consent__form cw-grid cw-typeset" name="consent">
+                        {% include "partials/consent.html" %}
+
+                    </form>
+                </aside>
+            </div>
+            <!-- User preference: consent -->
+            {% include "partials/javascripts/consent.html" %}
+
+        {% endif %}
+        <!-- Theme-related configuration -->
+        {% block config %}
+            {% set _ = namespace() %}
+            <!-- Extra configuration -->
+            {% set _.annotate = config.extra.annotate %}
+            {% set _.tags = config.extra.tags %}
+            <!-- Versioning -->
+            {%- if config.extra.version -%}
+                {%- set mike = config.plugins.mike -%}
+                {%- if not mike or mike.config.version_selector -%}
+                    {%- set _.version = config.extra.version -%}
+                {%- endif -%}
+            {%- endif -%}
+            <!-- Configuration -->
+            <script id="__config" type="application/json">
+        {{- {
+          "base": base_url,
+          "features": features,
+          "translations": {
+            "clipboard.copy": lang.t("clipboard.copy"),
+            "clipboard.copied": lang.t("clipboard.copied"),
+            "search.result.placeholder": lang.t("search.result.placeholder"),
+            "search.result.none": lang.t("search.result.none"),
+            "search.result.one": lang.t("search.result.one"),
+            "search.result.other": lang.t("search.result.other"),
+            "search.result.more.one": lang.t("search.result.more.one"),
+            "search.result.more.other": lang.t("search.result.more.other"),
+            "search.result.term.missing": lang.t("search.result.term.missing"),
+            "select.version": lang.t("select.version")
+          },
+          "search": "assets/javascripts/workers/search.js" | url,
+          "annotate": _.annotate or none,
+          "tags": _.tags or none,
+          "version": _.version or none
+        } | tojson -}}
+
+            </script>
+        {% endblock config %}
+        <!-- Theme-related JavaScript -->
+        {% block scripts %}
+        {% endblock scripts %}
+    </body>
+</html>
