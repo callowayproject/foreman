@@ -1,0 +1,2112 @@
+
+<!DOCTYPE html>
+<html lang="en" class="no-js">
+    <head>
+        <!-- Meta tags -->
+        
+            <meta charset="utf-8" />
+            <meta name="viewport" content="width=device-width,initial-scale=1" />
+            <!-- Page description -->
+            
+                <meta name="description" content="A Python harness that acts as an always-on AI co-maintainer for OSS repositories." />
+            
+            <!-- Page author -->
+            
+                <meta name="author" content="Corey Oordt" />
+            
+            <!-- Canonical -->
+            <link rel="canonical" href="https://callowayproject.github.io/foreman/specs/02-messaging-update/phase-3-review/" />
+            <!-- Previous page -->
+            <link rel="prev" href="../phase-3-fixes/" />
+            <!-- Next page -->
+            <link rel="next" href="../plan/" />
+            <!-- Alternate versions -->
+            
+                
+            
+            <!-- Favicon -->
+            
+            <link rel="icon" href="../../../assets/favicon.png" />
+            <!-- Generator banner -->
+            <meta name="generator" content="zensical-0.0.42" />
+        
+        <!-- Site title -->
+        
+            
+                <title>Phase 3 Code Review — foreman-client - Foreman</title>
+            
+        
+        <!-- Theme-related style sheets -->
+        
+            <!-- Custom icons -->
+            
+
+
+
+        
+        <!-- JavaScript libraries -->
+        
+            
+        
+        <!-- Webfonts -->
+        
+            <!-- Load fonts from Google -->
+            
+                
+                
+                <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+                <link rel="stylesheet"
+                      href="https://fonts.googleapis.com/css?family=Public+Sans:300,300i,400,400i,500,500i,700,700i%7CJetBrains+Mono:400,400i,700,700i&amp;display=fallback" />
+                <style>
+        :root {
+          --cw-text-font: "Public Sans";
+          --cw-code-font: "JetBrains Mono";
+        }
+                </style>
+            
+        
+        <!-- Custom style sheets -->
+        <link rel="stylesheet" href="../../../assets/css/reset.css" /><link rel="stylesheet" href="../../../assets/css/colors_and_type.css" /><link rel="stylesheet" href="../../../assets/css/header.css" /><link rel="stylesheet" href="../../../assets/css/content.css" /><link rel="stylesheet" href="../../../assets/css/nav.css" />
+        <!-- Helper functions for inline scripts -->
+        <!--
+  Copyright (c) 2025 Zensical and contributors
+
+  SPDX-License-Identifier: MIT
+  Third-party contributions licensed under DCO
+
+  Permission is hereby granted, free of charge, to any person obtaining a copy
+  of this software and associated documentation files (the "Software"), to
+  deal in the Software without restriction, including without limitation the
+  rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+  sell copies of the Software, and to permit persons to whom the Software is
+  furnished to do so, subject to the following conditions:
+
+  The above copyright notice and this permission notice shall be included in
+  all copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+  FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. IN NO EVENT SHALL THE
+  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+  IN THE SOFTWARE.
+-->
+<!--
+  A collection of functions used from within some partials to allow the usage
+  of state saved in local or session storage, e.g. to model preferences.
+-->
+<script>
+
+  /* Compute base path once to integrate with instant loading */
+  __md_scope = new URL("../../..", location)
+  if (!__md_scope.pathname.endsWith("/"))
+    __md_scope = new URL(__md_scope.pathname + "/", location)
+
+  /* Compute hash from the given string - see https://bit.ly/3pvPjXG */
+  __md_hash = v => [...v].reduce((h, c) => (h << 5) - h + c.charCodeAt(0), 0)
+
+  /* Fetch the value for a key from the given storage */
+  __md_get = (key, storage = localStorage, scope = __md_scope) => (
+    JSON.parse(storage.getItem(scope.pathname + "." + key))
+  )
+
+  /* Persist a key-value pair in the given storage */
+  __md_set = (key, value, storage = localStorage, scope = __md_scope) => {
+    try {
+      storage.setItem(scope.pathname + "." + key, JSON.stringify(value))
+    } catch (err) {
+      /* Uncritical, just swallow */
+    }
+  }
+
+  /* Detect platform for keyboard shortcuts */
+  document.documentElement.setAttribute("data-platform", navigator.platform);
+</script>
+
+        <!-- Analytics -->
+        
+            <!--
+  Copyright (c) 2025 Zensical and contributors
+
+  SPDX-License-Identifier: MIT
+  Third-party contributions licensed under DCO
+
+  Permission is hereby granted, free of charge, to any person obtaining a copy
+  of this software and associated documentation files (the "Software"), to
+  deal in the Software without restriction, including without limitation the
+  rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+  sell copies of the Software, and to permit persons to whom the Software is
+  furnished to do so, subject to the following conditions:
+
+  The above copyright notice and this permission notice shall be included in
+  all copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+  FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. IN NO EVENT SHALL THE
+  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+  IN THE SOFTWARE.
+-->
+<!-- Determine analytics provider -->
+
+<!-- Set up analytics provider -->
+
+
+        
+        <!-- Custom front matter -->
+        
+        
+    </head>
+    <!-- Set text direction and color palette, if defined -->
+    
+    <body dir="ltr">
+        
+        <!--
+  State toggles - we need to set autocomplete="off" in order to reset the
+  drawer on back button invocation in some browsers
+-->
+        <input class="cw-toggle"
+               data-md-toggle="drawer"
+               type="checkbox"
+               id="__drawer"
+               autocomplete="off" />
+        <input class="cw-toggle"
+               data-md-toggle="search"
+               type="checkbox"
+               id="__search"
+               autocomplete="off" />
+        <!-- Overlay for expanded drawer -->
+        <label class="cw-overlay" for="__drawer" aria-label="Navigation"></label>
+        <!-- Skip to content -->
+        <div data-md-component="skip">
+            
+                
+                <a href="#phase-3-code-review-foreman-client" class="cw-skip">Skip to content</a>
+            
+        </div>
+        <!-- Announcement bar -->
+        <div data-md-component="announce">
+            
+                <aside class="cw-banner">
+                    <!-- Button to dismiss announcement -->
+                    
+                        <button class="icon" aria-label="Don't show this again">
+                            
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-x" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg>
+
+                        </button>
+                    
+                    <!-- Announcement bar content -->
+                    
+                        This is an announcement!
+                    
+                    
+                        <!-- Announcement bar -->
+<script>
+  var el = document.querySelector("[data-md-component=announce]")
+  if (el) {
+    var content = el.querySelector("aside")
+    if (__md_hash(content.innerHTML) === __md_get("__announce"))
+      el.hidden = true
+  }
+</script>
+
+                    
+                </aside>
+            
+        </div>
+        <!-- Version warning -->
+        
+        <!-- Header -->
+        
+            <!-- Determine classes -->
+
+
+<!-- Header -->
+<header class="cw-header" data-md-component="header">
+    <!-- Link to home -->
+    <a href="../../.."
+       title="Foreman"
+       class="brand"
+       aria-label="Foreman"
+       data-md-component="logo">
+        
+  <img src="../../../assets/images/Foreman-logo.svg" alt="Foreman">
+
+
+        <span>Foreman</span>
+    </a>
+    <!-- Button to open drawer -->
+    <label class="md-header__button md-icon"
+           for="__drawer"
+           aria-label="Navigation">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-menu" viewBox="0 0 24 24"><path d="M4 5h16M4 12h16M4 19h16"/></svg>
+
+    </label>
+    <!-- tab navigation -->
+    
+<!-- Navigation tabs -->
+<nav aria-label="Tabs" data-md-component="tabs">
+    <ul>
+        
+    
+    <!-- Determine classes -->
+    
+    
+    <!-- Navigation item with nested items -->
+    
+        <li >
+            <a href="../../.."
+               
+               >
+    
+    Home
+</a>
+        </li>
+    
+
+    
+    <!-- Determine classes -->
+    
+    
+    <!-- Navigation item with nested items -->
+    
+        <li >
+            <a href="../../../development/"
+               
+               >
+    
+    Developer Guide
+</a>
+        </li>
+    
+
+    
+    <!-- Determine classes -->
+    
+    
+    <!-- Navigation item with nested items -->
+    
+        <li >
+            <a href="../../../explanation/"
+               
+               >
+    
+    How Foreman Works
+</a>
+        </li>
+    
+
+    
+    <!-- Determine classes -->
+    
+    
+    <!-- Navigation item with nested items -->
+    
+        <!-- Determine all nested items that are index pages -->
+        
+        
+            
+                
+            
+        
+        
+        <!-- Use index page as entry point if present, otherwise first child -->
+        
+        <!-- Recurse, if the first item has further nested items -->
+        
+            <li >
+                <a href="../../../howtos/write-an-agent/"
+                   
+                   >
+    
+    Howtos
+</a>
+            </li>
+        
+        <!-- Navigation item -->
+    
+
+    
+    <!-- Determine classes -->
+    
+    
+    <!-- Navigation item with nested items -->
+    
+        <!-- Determine all nested items that are index pages -->
+        
+        
+            
+                
+                    
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+        
+        
+        <!-- Use index page as entry point if present, otherwise first child -->
+        
+        <!-- Recurse, if the first item has further nested items -->
+        
+            <li >
+                <a href="../../../reference/"
+                   
+                   >
+    
+    Reference
+</a>
+            </li>
+        
+        <!-- Navigation item -->
+    
+
+    
+    <!-- Determine classes -->
+    
+    
+        
+    
+    <!-- Navigation item with nested items -->
+    
+        <!-- Determine all nested items that are index pages -->
+        
+        
+            
+                
+                    
+                
+            
+                
+            
+                
+            
+        
+        
+        <!-- Use index page as entry point if present, otherwise first child -->
+        
+        <!-- Recurse, if the first item has further nested items -->
+        
+            <li class="active">
+                <a href="../../"
+                   class="active"
+                   aria-current="page">
+    
+    Specs
+</a>
+            </li>
+        
+        <!-- Navigation item -->
+    
+
+    
+    <!-- Determine classes -->
+    
+    
+    <!-- Navigation item with nested items -->
+    
+        <!-- Determine all nested items that are index pages -->
+        
+        
+            
+                
+            
+                
+            
+        
+        
+        <!-- Use index page as entry point if present, otherwise first child -->
+        
+        <!-- Recurse, if the first item has further nested items -->
+        
+            <li >
+                <a href="../../../tutorials/installation/"
+                   
+                   >
+    
+    Tutorials
+</a>
+            </li>
+        
+        <!-- Navigation item -->
+    
+
+    </ul>
+</nav>
+
+    <div class="nav-buttons">
+        <!-- Color palette toggle -->
+        
+        
+        
+        
+        
+        
+        <!-- Site language selector -->
+        
+        <!-- Button to open search modal -->
+        
+            
+            <!-- Check if search is actually enabled - see https://t.ly/DT_0V -->
+            
+                
+                
+                
+                
+                
+                
+                
+                <!-- Search interface -->
+                <!-- Search interface -->
+<form class="search-form">
+    <label for="search">Search</label>
+    <input id="search"
+           name="search"
+           type="search"
+           value=""
+           placeholder="Search"
+           class="search">
+    <button type="submit" class="search-button">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-search" viewBox="0 0 24 24"><path d="m21 21-4.34-4.34"/><circle cx="11" cy="11" r="8"/></svg>
+
+    </button>
+    <kbd>⌘K</kbd>
+</form>
+
+            
+        
+        <!-- Repository information -->
+        <div class="md-header__source">
+            
+                <!-- Repository information -->
+<a href="https://github.com/callowayproject/foreman"
+   title="Go to repository"
+   class="source">
+    <div class="icon">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2026 Fonticons, Inc.--><path fill="currentColor" d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+
+    </div>
+</a>
+
+            
+        </div>
+    </div>
+    <!-- Navigation tabs (sticky) -->
+    
+</header>
+
+        
+        <!-- Container -->
+        <div class="cw-container" data-md-component="container">
+            <!-- Hero teaser -->
+            
+            
+            <!-- Navigation tabs (collapsing) -->
+            
+                
+                
+                
+                
+                
+            
+            <!-- Main area -->
+            <main class="layout md-grid" data-md-component="main">
+                <!-- Sidebars -->
+                
+                    <!-- Navigation -->
+                    
+                        
+                        <div class="md-sidebar md-sidebar--primary sidebar md-sidebar__lifted"
+                             data-md-component="sidebar"
+                             data-md-type="navigation"
+                             >
+                            <div class="md-sidebar__scrollwrap">
+                                <div class="md-sidebar__inner">
+                                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="Foreman" class="md-nav__button md-logo" aria-label="Foreman" data-md-component="logo">
+      
+  <img src="../../../assets/images/Foreman-logo.svg" alt="Foreman">
+
+    </a>
+    Foreman
+  </label>
+  
+    <div class="md-nav__source">
+      <!-- Repository information -->
+<a href="https://github.com/callowayproject/foreman"
+   title="Go to repository"
+   class="source">
+    <div class="icon">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2026 Fonticons, Inc.--><path fill="currentColor" d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+
+    </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Home
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../development/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Developer Guide
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../explanation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  How Foreman Works
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../../howtos/write-an-agent/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Howtos
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../../reference/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Reference
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" checked>
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Specs
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_6" id="__nav_6_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  Specs
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../01-agent-harness/SPEC/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  01 agent harness
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_6_3" id="__nav_6_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  02 messaging update
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_6_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_6_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  02 messaging update
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../SPEC/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Spec: Queue-Mediated Agent Protocol
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../idea/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Messaging Update: Queue-Mediated Agent Protocol
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../phase-3-fixes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Phase 3 Review — Remaining Fixes
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Phase 3 Code Review — foreman-client
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="././" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Phase 3 Code Review — foreman-client
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+
+<nav class="md-nav md-nav--secondary" aria-label="On this page">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#findings" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Findings
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Findings">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#important-fix-before-phase-4" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Important — Fix before Phase 4
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Important — Fix before Phase 4">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-httpxclient-is-never-closed-clientpy51" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        1. <code>httpx.Client</code> is never closed (<code>client.py:51</code>)
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-llmbackendref-and-taskcontext-not-exported-__init__py4" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        2. <code>LLMBackendRef</code> and <code>TaskContext</code> not exported (<code>__init__.py:4</code>)
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#suggestions-lower-priority" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Suggestions — Lower priority
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Suggestions — Lower priority">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#3-import-json-inside-test-methods-test_clientpy119-133-185" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        3. <code>import json</code> inside test methods (<code>test_client.py:119, 133, 185</code>)
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-misleading-ordering-comment-in-test-test_clientpy105-107" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        4. Misleading ordering comment in test (<code>test_client.py:105-107</code>)
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-redundant-task_id-param-on-complete_task-spec-design-note" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        5. Redundant <code>task_id</code> param on <code>complete_task</code> (spec design note)
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#6-no-configurable-timeout-on-httpxclient-clientpy51" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        6. No configurable timeout on <code>httpx.Client</code> (<code>client.py:51</code>)
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#axes-verdict" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Axes Verdict
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#status" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Status
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../plan/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Implementation Plan: Queue-Mediated Agent Protocol
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../pr-21-fixes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  PR #21 Fix Plan
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../pr-21-review/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  PR Review: Update task management flow and add integration tests
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../../tutorials/installation/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Tutorials
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+
+                                </div>
+                            </div>
+                        </div>
+                    
+                    <!-- Page content container -->
+                    
+                        <div class="content" data-md-component="content">
+                            <!-- Navigation path (breadcrumbs) -->
+                            
+                                
+<!-- Determine whether to show navigation path -->
+
+<!-- Determine whether we have enough pages for rendering -->
+
+
+    
+
+<!-- Navigation path (breadcrumbs) -->
+
+    <nav class="breadcrumbs" aria-label="Navigation" >
+        <ol>
+            <!-- Render homepage first, if available -->
+            
+    
+    <!-- Navigation item with nested items -->
+    
+        <li>
+            <a href="../../..">
+    
+    Home
+</a>
+        </li>
+    
+
+            <!-- Render ancestors in reverse -->
+            
+    
+    <!-- Navigation item with nested items -->
+    
+        <!-- Determine all nested items that are index pages -->
+        
+        
+            
+                
+                    
+                
+            
+                
+            
+                
+            
+        
+        
+        <!-- Use index page as entry point if present, otherwise first child -->
+        
+        <!-- Recurse, if the first item has further nested items -->
+        
+            <li>
+                <a href="../../">
+    
+    Specs
+</a>
+            </li>
+        
+        <!-- Navigation item -->
+    
+
+    
+    <!-- Navigation item with nested items -->
+    
+        <!-- Determine all nested items that are index pages -->
+        
+        
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+        
+        
+        <!-- Use index page as entry point if present, otherwise first child -->
+        
+        <!-- Recurse, if the first item has further nested items -->
+        
+            <li>
+                <a href="../SPEC/">
+    
+    02 messaging update
+</a>
+            </li>
+        
+        <!-- Navigation item -->
+    
+
+            <li class="active">Phase 3 Code Review — foreman-client</li>
+        </ol>
+    </nav>
+
+
+                            
+                            <!-- Page content -->
+                            
+                                <article>
+    <!-- Actions -->
+    <!-- Actions -->
+
+    <div class="article-meta">
+        <!-- Edit button -->
+        
+            <a href="https://github.com/callowayproject/foreman/edit/master/docs/specs/02-messaging-update/phase-3-review.md"
+               title="Edit this page"
+               class="md-content__button md-icon"
+               rel="edit">
+                
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-file-pen" viewBox="0 0 24 24"><path d="M12.659 22H18a2 2 0 0 0 2-2V8a2.4 2.4 0 0 0-.706-1.706l-3.588-3.588A2.4 2.4 0 0 0 14 2H6a2 2 0 0 0-2 2v9.34"/><path d="M14 2v5a1 1 0 0 0 1 1h5M10.378 12.622a1 1 0 0 1 3 3.003L8.36 20.637a2 2 0 0 1-.854.506l-2.867.837a.5.5 0 0 1-.62-.62l.836-2.869a2 2 0 0 1 .506-.853z"/></svg>
+
+            </a>
+        
+        <!-- View button -->
+        
+            
+                
+            
+            <a href="https://github.com/callowayproject/foreman/raw/master/docs/specs/02-messaging-update/phase-3-review.md"
+               title="View source of this page"
+               class="md-content__button md-icon">
+                
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-file-code-2" viewBox="0 0 24 24"><path d="M4 12.15V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.706.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2h-3.35"/><path d="M14 2v5a1 1 0 0 0 1 1h5M5 16l-3 3 3 3M9 22l3-3-3-3"/></svg>
+
+            </a>
+        
+    </div>
+
+
+    <!--
+    Hack: check whether the content contains a h1 headline. If it doesn't, the
+    page title (or respectively site name) is used as the main headline.
+  -->
+    
+    <!-- Page content -->
+    <h1 id="phase-3-code-review-foreman-client">Phase 3 Code Review — <code>foreman-client</code><a class="headerlink" href="#phase-3-code-review-foreman-client" title="Permanent link">&para;</a></h1>
+<p>Reviewed commit <code>adffcef</code> (Phase 3 implementation).
+Files: <code>foreman-client/foremanclient/client.py</code>, <code>models.py</code>, <code>__init__.py</code>, <code>tests/test_client.py</code>.</p>
+<hr />
+<h2 id="findings">Findings<a class="headerlink" href="#findings" title="Permanent link">&para;</a></h2>
+<h3 id="important-fix-before-phase-4">Important — Fix before Phase 4<a class="headerlink" href="#important-fix-before-phase-4" title="Permanent link">&para;</a></h3>
+<h4 id="1-httpxclient-is-never-closed-clientpy51">1. <code>httpx.Client</code> is never closed (<code>client.py:51</code>)<a class="headerlink" href="#1-httpxclient-is-never-closed-clientpy51" title="Permanent link">&para;</a></h4>
+<p><code>ForemanClient.__init__</code> creates <code>self._http = httpx.Client(base_url=harness_url)</code> but the class has no <code>close()</code> method
+and no context manager support.
+The <code>httpx.Client</code> holds a connection pool; in long-running agent services this leaks file descriptors.</p>
+<p><strong>Fix:</strong> add <code>close()</code> and <code>__enter__</code>/<code>__exit__</code>:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Close the underlying HTTP connection pool.&quot;&quot;&quot;</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="bp">self</span><span class="o">.</span><span class="n">_http</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="k">def</span><span class="w"> </span><span class="fm">__enter__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ForemanClient</span><span class="p">:</span>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    <span class="k">return</span> <span class="bp">self</span>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="k">def</span><span class="w"> </span><span class="fm">__exit__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">_</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>    <span class="bp">self</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</span></code></pre></div>
+<h4 id="2-llmbackendref-and-taskcontext-not-exported-__init__py4">2. <code>LLMBackendRef</code> and <code>TaskContext</code> not exported (<code>__init__.py:4</code>)<a class="headerlink" href="#2-llmbackendref-and-taskcontext-not-exported-__init__py4" title="Permanent link">&para;</a></h4>
+<p>Both types appear as nested fields of <code>TaskMessage</code>.
+Agent authors constructing <code>TaskMessage</code> instances in unit tests need them.
+They should be in <code>__all__</code> alongside <code>TaskMessage</code>.</p>
+<p><strong>Fix:</strong> add to <code>__init__.py</code>:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">foremanclient.models</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>    <span class="n">ActionItem</span><span class="p">,</span> <span class="n">DecisionMessage</span><span class="p">,</span> <span class="n">DecisionType</span><span class="p">,</span>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>    <span class="n">LLMBackendRef</span><span class="p">,</span> <span class="n">TaskContext</span><span class="p">,</span> <span class="n">TaskMessage</span><span class="p">,</span>
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="p">)</span>
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>    <span class="o">...</span><span class="p">,</span>
+</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>    <span class="s2">&quot;LLMBackendRef&quot;</span><span class="p">,</span>
+</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>    <span class="s2">&quot;TaskContext&quot;</span><span class="p">,</span>
+</span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="p">]</span>
+</span></code></pre></div>
+<hr />
+<h3 id="suggestions-lower-priority">Suggestions — Lower priority<a class="headerlink" href="#suggestions-lower-priority" title="Permanent link">&para;</a></h3>
+<h4 id="3-import-json-inside-test-methods-test_clientpy119-133-185">3. <code>import json</code> inside test methods (<code>test_client.py:119, 133, 185</code>)<a class="headerlink" href="#3-import-json-inside-test-methods-test_clientpy119-133-185" title="Permanent link">&para;</a></h4>
+<p><code>import json</code> appears inside three test method bodies.
+Move to module-level imports.</p>
+<h4 id="4-misleading-ordering-comment-in-test-test_clientpy105-107">4. Misleading ordering comment in test (<code>test_client.py:105-107</code>)<a class="headerlink" href="#4-misleading-ordering-comment-in-test-test_clientpy105-107" title="Permanent link">&para;</a></h4>
+<p>The comment "Verify /queue/complete was called first" is followed by assertions that only check requests are not None —
+not actual call order.
+Either remove the comment or verify ordering via <code>respx.calls</code> timestamp/index.</p>
+<h4 id="5-redundant-task_id-param-on-complete_task-spec-design-note">5. Redundant <code>task_id</code> param on <code>complete_task</code> (spec design note)<a class="headerlink" href="#5-redundant-task_id-param-on-complete_task-spec-design-note" title="Permanent link">&para;</a></h4>
+<p><code>complete_task(task_id, decision)</code> — <code>task_id</code> is already in <code>decision.task_id</code>.
+The nudge uses the positional <code>task_id</code> while the complete body uses <code>decision.model_dump()</code>.
+If a caller passes mismatched values, both calls proceed with different IDs silently.
+This matches the spec's stated API, so it is a spec-level design concern rather than a code bug.</p>
+<p>Consider for Phase 6 (API docs): note that callers should always pass <code>decision.task_id</code> as <code>task_id</code>.</p>
+<h4 id="6-no-configurable-timeout-on-httpxclient-clientpy51">6. No configurable timeout on <code>httpx.Client</code> (<code>client.py:51</code>)<a class="headerlink" href="#6-no-configurable-timeout-on-httpxclient-clientpy51" title="Permanent link">&para;</a></h4>
+<p>Defaults to httpx's 5-second connect + read timeout.
+For heartbeat callers, a failing harness causes a 5-second block.
+Exposing a <code>timeout: float = 5.0</code> constructor parameter would let agent authors tune this.</p>
+<hr />
+<h2 id="axes-verdict">Axes Verdict<a class="headerlink" href="#axes-verdict" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Axis</th>
+<th>Result</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Correctness</td>
+<td>Pass (with caveats)</td>
+<td>Resource leak and missing exports are the gaps</td>
+</tr>
+<tr>
+<td>Readability</td>
+<td>Pass</td>
+<td>Minor import style issue in tests</td>
+</tr>
+<tr>
+<td>Architecture</td>
+<td>Pass</td>
+<td>Clean standalone package; correct HTTP contract</td>
+</tr>
+<tr>
+<td>Security</td>
+<td>Pass</td>
+<td>No SSRF risk; no secrets in logs</td>
+</tr>
+<tr>
+<td>Performance</td>
+<td>Pass</td>
+<td>Connection pooling correct; timeout note is minor</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="status">Status<a class="headerlink" href="#status" title="Permanent link">&para;</a></h2>
+<ul class="task-list">
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Fix <code>httpx.Client</code> lifecycle (close + context manager) — <strong>before Phase 4 merge</strong></li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Export <code>LLMBackendRef</code> and <code>TaskContext</code> — <strong>before Phase 4 merge</strong></li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Move <code>import json</code> to module level in tests — anytime</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Remove misleading ordering comment — anytime</li>
+</ul>
+    <!-- Tags -->
+    <!--
+  Copyright (c) 2025 Zensical and contributors
+
+  SPDX-License-Identifier: MIT
+  Third-party contributions licensed under DCO
+
+  Permission is hereby granted, free of charge, to any person obtaining a copy
+  of this software and associated documentation files (the "Software"), to
+  deal in the Software without restriction, including without limitation the
+  rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+  sell copies of the Software, and to permit persons to whom the Software is
+  furnished to do so, subject to the following conditions:
+
+  The above copyright notice and this permission notice shall be included in
+  all copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+  FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. IN NO EVENT SHALL THE
+  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+  IN THE SOFTWARE.
+-->
+<!-- Determine whether to show tags -->
+
+<!-- Tags -->
+
+
+    <!-- Source file information -->
+    <!--
+  Copyright (c) 2025 Zensical and contributors
+
+  SPDX-License-Identifier: MIT
+  Third-party contributions licensed under DCO
+
+  Permission is hereby granted, free of charge, to any person obtaining a copy
+  of this software and associated documentation files (the "Software"), to
+  deal in the Software without restriction, including without limitation the
+  rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+  sell copies of the Software, and to permit persons to whom the Software is
+  furnished to do so, subject to the following conditions:
+
+  The above copyright notice and this permission notice shall be included in
+  all copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+  FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. IN NO EVENT SHALL THE
+  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+  IN THE SOFTWARE.
+-->
+<!-- Render date of last update -->
+
+
+<!-- Render date of creation -->
+
+
+<!-- ---------------------------------------------------------------------- -->
+<!-- Render authors -->
+
+
+<!-- ---------------------------------------------------------------------- -->
+<!-- Render committers from GitHub -->
+
+
+<!-- Render committers from GitLab -->
+
+
+<!-- Render committers -->
+
+
+<!-- ---------------------------------------------------------------------- -->
+<!-- Determine date of last update -->
+
+<!-- Source file information -->
+
+
+    <!-- Was this page helpful? -->
+    <!--
+  Copyright (c) 2025 Zensical and contributors
+
+  SPDX-License-Identifier: MIT
+  Third-party contributions licensed under DCO
+
+  Permission is hereby granted, free of charge, to any person obtaining a copy
+  of this software and associated documentation files (the "Software"), to
+  deal in the Software without restriction, including without limitation the
+  rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+  sell copies of the Software, and to permit persons to whom the Software is
+  furnished to do so, subject to the following conditions:
+
+  The above copyright notice and this permission notice shall be included in
+  all copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+  FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. IN NO EVENT SHALL THE
+  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+  IN THE SOFTWARE.
+-->
+<!-- Determine feedback configuration -->
+
+<!-- Determine whether to show feedback -->
+
+<!-- Was this page helpful? -->
+
+
+    <!-- Comment system -->
+    <!--
+  Copyright (c) 2025 Zensical and contributors
+
+  SPDX-License-Identifier: MIT
+  Third-party contributions licensed under DCO
+
+  Permission is hereby granted, free of charge, to any person obtaining a copy
+  of this software and associated documentation files (the "Software"), to
+  deal in the Software without restriction, including without limitation the
+  rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+  sell copies of the Software, and to permit persons to whom the Software is
+  furnished to do so, subject to the following conditions:
+
+  The above copyright notice and this permission notice shall be included in
+  all copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+  FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. IN NO EVENT SHALL THE
+  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+  IN THE SOFTWARE.
+-->
+<!-- Comment system -->
+
+</article>
+
+                            
+                        </div>
+                    
+                    <!-- Table of contents -->
+                    
+                        
+                        <div class="toc"
+                             data-md-component="sidebar"
+                             data-md-type="toc"
+                             >
+                            
+<!-- Determine title -->
+
+
+<!-- Table of contents -->
+<nav aria-label="On this page">
+    
+    <!--
+    Check whether the content starts with a level 1 headline. If it does, the
+    top-level anchor must be skipped, since it would be redundant to the link
+    to the current page that is located just above the anchor. Therefore we
+    directly continue with the children of the anchor.
+  -->
+    
+    
+        
+    
+    <!-- Table of contents title and list -->
+    
+        <div class="toc__heading">On this page</div>
+        <ul class="toc__list">
+            
+                <!-- Table of contents item -->
+<li>
+    <a href="#findings" class="md-nav__link">Findings</a>
+    <!-- Table of contents list -->
+    
+        <nav aria-label="Findings">
+            <ul class="toc__list">
+                
+                    <!-- Table of contents item -->
+<li>
+    <a href="#important-fix-before-phase-4" class="md-nav__link">Important — Fix before Phase 4</a>
+    <!-- Table of contents list -->
+    
+        <nav aria-label="Important — Fix before Phase 4">
+            <ul class="toc__list">
+                
+                    <!-- Table of contents item -->
+<li>
+    <a href="#1-httpxclient-is-never-closed-clientpy51" class="md-nav__link">1. <code>httpx.Client</code> is never closed (<code>client.py:51</code>)</a>
+    <!-- Table of contents list -->
+    
+</li>
+
+                
+                    <!-- Table of contents item -->
+<li>
+    <a href="#2-llmbackendref-and-taskcontext-not-exported-__init__py4" class="md-nav__link">2. <code>LLMBackendRef</code> and <code>TaskContext</code> not exported (<code>__init__.py:4</code>)</a>
+    <!-- Table of contents list -->
+    
+</li>
+
+                
+            </ul>
+        </nav>
+    
+</li>
+
+                
+                    <!-- Table of contents item -->
+<li>
+    <a href="#suggestions-lower-priority" class="md-nav__link">Suggestions — Lower priority</a>
+    <!-- Table of contents list -->
+    
+        <nav aria-label="Suggestions — Lower priority">
+            <ul class="toc__list">
+                
+                    <!-- Table of contents item -->
+<li>
+    <a href="#3-import-json-inside-test-methods-test_clientpy119-133-185" class="md-nav__link">3. <code>import json</code> inside test methods (<code>test_client.py:119, 133, 185</code>)</a>
+    <!-- Table of contents list -->
+    
+</li>
+
+                
+                    <!-- Table of contents item -->
+<li>
+    <a href="#4-misleading-ordering-comment-in-test-test_clientpy105-107" class="md-nav__link">4. Misleading ordering comment in test (<code>test_client.py:105-107</code>)</a>
+    <!-- Table of contents list -->
+    
+</li>
+
+                
+                    <!-- Table of contents item -->
+<li>
+    <a href="#5-redundant-task_id-param-on-complete_task-spec-design-note" class="md-nav__link">5. Redundant <code>task_id</code> param on <code>complete_task</code> (spec design note)</a>
+    <!-- Table of contents list -->
+    
+</li>
+
+                
+                    <!-- Table of contents item -->
+<li>
+    <a href="#6-no-configurable-timeout-on-httpxclient-clientpy51" class="md-nav__link">6. No configurable timeout on <code>httpx.Client</code> (<code>client.py:51</code>)</a>
+    <!-- Table of contents list -->
+    
+</li>
+
+                
+            </ul>
+        </nav>
+    
+</li>
+
+                
+            </ul>
+        </nav>
+    
+</li>
+
+            
+                <!-- Table of contents item -->
+<li>
+    <a href="#axes-verdict" class="md-nav__link">Axes Verdict</a>
+    <!-- Table of contents list -->
+    
+</li>
+
+            
+                <!-- Table of contents item -->
+<li>
+    <a href="#status" class="md-nav__link">Status</a>
+    <!-- Table of contents list -->
+    
+</li>
+
+            
+        </ul>
+    
+</nav>
+
+                        </div>
+                    
+                
+                <!-- User preference: content -->
+                <!--
+  Copyright (c) 2025 Zensical and contributors
+
+  SPDX-License-Identifier: MIT
+  Third-party contributions licensed under DCO
+
+  Permission is hereby granted, free of charge, to any person obtaining a copy
+  of this software and associated documentation files (the "Software"), to
+  deal in the Software without restriction, including without limitation the
+  rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+  sell copies of the Software, and to permit persons to whom the Software is
+  furnished to do so, subject to the following conditions:
+
+  The above copyright notice and this permission notice shall be included in
+  all copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+  FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. IN NO EVENT SHALL THE
+  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+  IN THE SOFTWARE.
+-->
+<!-- User-preference: link content tabs -->
+
+    <script>
+    var tabs = __md_get("__tabs")
+    if (Array.isArray(tabs))
+      main: for (var set of document.querySelectorAll(".tabbed-set")) {
+        var labels = set.querySelector(".tabbed-labels")
+        for (var tab of tabs)
+          for (var label of labels.getElementsByTagName("label"))
+            if (label.innerText.trim() === tab) {
+              var input = document.getElementById(label.htmlFor)
+              input.checked = true
+              continue main
+            }
+      }
+    </script>
+
+<!-- Switch to content tab target -->
+<script>
+  var target = document.getElementById(location.hash.slice(1))
+  if (target && target.name)
+    target.checked = target.name.startsWith("__tabbed_")
+</script>
+
+                <!-- Back-to-top button -->
+                
+                    <!--
+  Copyright (c) 2025 Zensical and contributors
+
+  SPDX-License-Identifier: MIT
+  Third-party contributions licensed under DCO
+
+  Permission is hereby granted, free of charge, to any person obtaining a copy
+  of this software and associated documentation files (the "Software"), to
+  deal in the Software without restriction, including without limitation the
+  rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+  sell copies of the Software, and to permit persons to whom the Software is
+  furnished to do so, subject to the following conditions:
+
+  The above copyright notice and this permission notice shall be included in
+  all copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+  FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. IN NO EVENT SHALL THE
+  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+  IN THE SOFTWARE.
+-->
+<!-- Back-to-top button -->
+<button type="button" class="md-top md-icon" data-md-component="top" hidden>
+    
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-circle-arrow-up" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m16 12-4-4-4 4M12 16V8"/></svg>
+
+    Back to top
+</button>
+
+                
+            </main>
+            <!-- Footer -->
+            
+                <!-- Footer -->
+<footer>
+    <!-- Link to previous and/or next page -->
+    
+    <!-- Further information -->
+    <div class="md-footer-meta md-typeset">
+        <div class="md-footer-meta__inner md-grid">
+            <!--
+  Copyright (c) 2025 Zensical and contributors
+
+  SPDX-License-Identifier: MIT
+  Third-party contributions licensed under DCO
+
+  Permission is hereby granted, free of charge, to any person obtaining a copy
+  of this software and associated documentation files (the "Software"), to
+  deal in the Software without restriction, including without limitation the
+  rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+  sell copies of the Software, and to permit persons to whom the Software is
+  furnished to do so, subject to the following conditions:
+
+  The above copyright notice and this permission notice shall be included in
+  all copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+  FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. IN NO EVENT SHALL THE
+  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+  IN THE SOFTWARE.
+-->
+<!-- Copyright and theme information -->
+<div class="md-copyright">
+    <div class="md-copyright__highlight">Copyright &copy; 2026 Corey Oordt
+</div>
+    
+        Made with
+        <a href="https://zensical.org/" target="_blank" rel="noopener">Zensical</a>
+    
+</div>
+
+            <!-- Social links -->
+            
+        </div>
+    </div>
+</footer>
+
+            
+        </div>
+        <!-- Dialog -->
+        <div class="cw-dialog" data-md-component="dialog">
+            <div class="cw-dialog__inner cw-typeset"></div>
+        </div>
+        <!-- Progress indicator -->
+        
+        <!-- Consent -->
+        
+        <!-- Theme-related configuration -->
+        
+            
+            <!-- Extra configuration -->
+            
+            
+            <!-- Versioning --><!-- Configuration -->
+            <script id="__config" type="application/json">{"annotate":null,"base":"../../..","features":["announce.dismiss","content.action.edit","content.action.view","content.code.annotate","content.code.copy","content.code.select","content.footnote.tooltips","content.tabs.link","content.tooltips","navigation.indexes","navigation.instant.prefetch","navigation.path","navigation.prune","navigation.tabs","navigation.top","navigation.tracking","search.highlight"],"search":"../../../assets/javascripts/workers/search.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":null}</script>
+        
+        <!-- Theme-related JavaScript -->
+        
+        
+    </body>
+</html>

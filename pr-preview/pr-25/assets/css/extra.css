@@ -1,0 +1,44 @@
+/*!* Header *!*/
+
+/*.md-header__inner {*/
+/*  display: flex;*/
+/*  align-items: center;*/
+/*  padding: 0 .4rem;*/
+/*}*/
+
+/*.md-grid {*/
+/*  max-width: 100%;*/
+/*}*/
+
+/*.md-search {*/
+/*  margin-left: auto;*/
+/*  display: flex;*/
+/*  align-items: center;*/
+/*  gap: 6px;*/
+/*}*/
+
+/*.md-search__button {*/
+/*  display: flex;*/
+/*  align-items: center;*/
+/*  gap: 8px;*/
+/*  padding: 6px 12px;*/
+/*  background: oklch(0.95 0.008 258 / 0.12);*/
+/*  color: white;*/
+/*  border: 1px solid oklch(0.95 0.008 258 / 0.18);*/
+/*  border-radius: 4px;*/
+/*  font-size: 13px;*/
+/*  font-family: var(--font-sans);*/
+/*  cursor: pointer;*/
+/*}*/
+
+/*.md-search__button:before {*/
+/*  background-color: white;*/
+/*}*/
+
+/*!* Body *!*/
+/*.md-main__inner {*/
+/*  display: grid;*/
+/*  grid-template-columns: 260px 1fr;*/
+/*  min-height: calc(100vh - 56px);*/
+/*  margin-top: 0;*/
+/*}*/

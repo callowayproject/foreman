@@ -1,0 +1,2391 @@
+
+<!DOCTYPE html>
+<html lang="en" class="no-js">
+    <head>
+        <!-- Meta tags -->
+        
+            <meta charset="utf-8" />
+            <meta name="viewport" content="width=device-width,initial-scale=1" />
+            <!-- Page description -->
+            
+                <meta name="description" content="A Python harness that acts as an always-on AI co-maintainer for OSS repositories." />
+            
+            <!-- Page author -->
+            
+                <meta name="author" content="Corey Oordt" />
+            
+            <!-- Canonical -->
+            <link rel="canonical" href="https://callowayproject.github.io/foreman/specs/02-messaging-update/pr-21-review/" />
+            <!-- Previous page -->
+            <link rel="prev" href="../pr-21-fixes/" />
+            <!-- Next page -->
+            <link rel="next" href="../../../tutorials/installation/" />
+            <!-- Alternate versions -->
+            
+                
+            
+            <!-- Favicon -->
+            
+            <link rel="icon" href="../../../assets/favicon.png" />
+            <!-- Generator banner -->
+            <meta name="generator" content="zensical-0.0.42" />
+        
+        <!-- Site title -->
+        
+            
+                <title>PR Review: Update task management flow and add integration tests - Foreman</title>
+            
+        
+        <!-- Theme-related style sheets -->
+        
+            <!-- Custom icons -->
+            
+
+
+
+        
+        <!-- JavaScript libraries -->
+        
+            
+        
+        <!-- Webfonts -->
+        
+            <!-- Load fonts from Google -->
+            
+                
+                
+                <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+                <link rel="stylesheet"
+                      href="https://fonts.googleapis.com/css?family=Public+Sans:300,300i,400,400i,500,500i,700,700i%7CJetBrains+Mono:400,400i,700,700i&amp;display=fallback" />
+                <style>
+        :root {
+          --cw-text-font: "Public Sans";
+          --cw-code-font: "JetBrains Mono";
+        }
+                </style>
+            
+        
+        <!-- Custom style sheets -->
+        <link rel="stylesheet" href="../../../assets/css/reset.css" /><link rel="stylesheet" href="../../../assets/css/colors_and_type.css" /><link rel="stylesheet" href="../../../assets/css/header.css" /><link rel="stylesheet" href="../../../assets/css/content.css" /><link rel="stylesheet" href="../../../assets/css/nav.css" />
+        <!-- Helper functions for inline scripts -->
+        <!--
+  Copyright (c) 2025 Zensical and contributors
+
+  SPDX-License-Identifier: MIT
+  Third-party contributions licensed under DCO
+
+  Permission is hereby granted, free of charge, to any person obtaining a copy
+  of this software and associated documentation files (the "Software"), to
+  deal in the Software without restriction, including without limitation the
+  rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+  sell copies of the Software, and to permit persons to whom the Software is
+  furnished to do so, subject to the following conditions:
+
+  The above copyright notice and this permission notice shall be included in
+  all copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+  FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. IN NO EVENT SHALL THE
+  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+  IN THE SOFTWARE.
+-->
+<!--
+  A collection of functions used from within some partials to allow the usage
+  of state saved in local or session storage, e.g. to model preferences.
+-->
+<script>
+
+  /* Compute base path once to integrate with instant loading */
+  __md_scope = new URL("../../..", location)
+  if (!__md_scope.pathname.endsWith("/"))
+    __md_scope = new URL(__md_scope.pathname + "/", location)
+
+  /* Compute hash from the given string - see https://bit.ly/3pvPjXG */
+  __md_hash = v => [...v].reduce((h, c) => (h << 5) - h + c.charCodeAt(0), 0)
+
+  /* Fetch the value for a key from the given storage */
+  __md_get = (key, storage = localStorage, scope = __md_scope) => (
+    JSON.parse(storage.getItem(scope.pathname + "." + key))
+  )
+
+  /* Persist a key-value pair in the given storage */
+  __md_set = (key, value, storage = localStorage, scope = __md_scope) => {
+    try {
+      storage.setItem(scope.pathname + "." + key, JSON.stringify(value))
+    } catch (err) {
+      /* Uncritical, just swallow */
+    }
+  }
+
+  /* Detect platform for keyboard shortcuts */
+  document.documentElement.setAttribute("data-platform", navigator.platform);
+</script>
+
+        <!-- Analytics -->
+        
+            <!--
+  Copyright (c) 2025 Zensical and contributors
+
+  SPDX-License-Identifier: MIT
+  Third-party contributions licensed under DCO
+
+  Permission is hereby granted, free of charge, to any person obtaining a copy
+  of this software and associated documentation files (the "Software"), to
+  deal in the Software without restriction, including without limitation the
+  rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+  sell copies of the Software, and to permit persons to whom the Software is
+  furnished to do so, subject to the following conditions:
+
+  The above copyright notice and this permission notice shall be included in
+  all copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+  FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. IN NO EVENT SHALL THE
+  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+  IN THE SOFTWARE.
+-->
+<!-- Determine analytics provider -->
+
+<!-- Set up analytics provider -->
+
+
+        
+        <!-- Custom front matter -->
+        
+        
+    </head>
+    <!-- Set text direction and color palette, if defined -->
+    
+    <body dir="ltr">
+        
+        <!--
+  State toggles - we need to set autocomplete="off" in order to reset the
+  drawer on back button invocation in some browsers
+-->
+        <input class="cw-toggle"
+               data-md-toggle="drawer"
+               type="checkbox"
+               id="__drawer"
+               autocomplete="off" />
+        <input class="cw-toggle"
+               data-md-toggle="search"
+               type="checkbox"
+               id="__search"
+               autocomplete="off" />
+        <!-- Overlay for expanded drawer -->
+        <label class="cw-overlay" for="__drawer" aria-label="Navigation"></label>
+        <!-- Skip to content -->
+        <div data-md-component="skip">
+            
+                
+                <a href="#pr-review-update-task-management-flow-and-add-integration-tests" class="cw-skip">Skip to content</a>
+            
+        </div>
+        <!-- Announcement bar -->
+        <div data-md-component="announce">
+            
+                <aside class="cw-banner">
+                    <!-- Button to dismiss announcement -->
+                    
+                        <button class="icon" aria-label="Don't show this again">
+                            
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-x" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg>
+
+                        </button>
+                    
+                    <!-- Announcement bar content -->
+                    
+                        This is an announcement!
+                    
+                    
+                        <!-- Announcement bar -->
+<script>
+  var el = document.querySelector("[data-md-component=announce]")
+  if (el) {
+    var content = el.querySelector("aside")
+    if (__md_hash(content.innerHTML) === __md_get("__announce"))
+      el.hidden = true
+  }
+</script>
+
+                    
+                </aside>
+            
+        </div>
+        <!-- Version warning -->
+        
+        <!-- Header -->
+        
+            <!-- Determine classes -->
+
+
+<!-- Header -->
+<header class="cw-header" data-md-component="header">
+    <!-- Link to home -->
+    <a href="../../.."
+       title="Foreman"
+       class="brand"
+       aria-label="Foreman"
+       data-md-component="logo">
+        
+  <img src="../../../assets/images/Foreman-logo.svg" alt="Foreman">
+
+
+        <span>Foreman</span>
+    </a>
+    <!-- Button to open drawer -->
+    <label class="md-header__button md-icon"
+           for="__drawer"
+           aria-label="Navigation">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-menu" viewBox="0 0 24 24"><path d="M4 5h16M4 12h16M4 19h16"/></svg>
+
+    </label>
+    <!-- tab navigation -->
+    
+<!-- Navigation tabs -->
+<nav aria-label="Tabs" data-md-component="tabs">
+    <ul>
+        
+    
+    <!-- Determine classes -->
+    
+    
+    <!-- Navigation item with nested items -->
+    
+        <li >
+            <a href="../../.."
+               
+               >
+    
+    Home
+</a>
+        </li>
+    
+
+    
+    <!-- Determine classes -->
+    
+    
+    <!-- Navigation item with nested items -->
+    
+        <li >
+            <a href="../../../development/"
+               
+               >
+    
+    Developer Guide
+</a>
+        </li>
+    
+
+    
+    <!-- Determine classes -->
+    
+    
+    <!-- Navigation item with nested items -->
+    
+        <li >
+            <a href="../../../explanation/"
+               
+               >
+    
+    How Foreman Works
+</a>
+        </li>
+    
+
+    
+    <!-- Determine classes -->
+    
+    
+    <!-- Navigation item with nested items -->
+    
+        <!-- Determine all nested items that are index pages -->
+        
+        
+            
+                
+            
+        
+        
+        <!-- Use index page as entry point if present, otherwise first child -->
+        
+        <!-- Recurse, if the first item has further nested items -->
+        
+            <li >
+                <a href="../../../howtos/write-an-agent/"
+                   
+                   >
+    
+    Howtos
+</a>
+            </li>
+        
+        <!-- Navigation item -->
+    
+
+    
+    <!-- Determine classes -->
+    
+    
+    <!-- Navigation item with nested items -->
+    
+        <!-- Determine all nested items that are index pages -->
+        
+        
+            
+                
+                    
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+        
+        
+        <!-- Use index page as entry point if present, otherwise first child -->
+        
+        <!-- Recurse, if the first item has further nested items -->
+        
+            <li >
+                <a href="../../../reference/"
+                   
+                   >
+    
+    Reference
+</a>
+            </li>
+        
+        <!-- Navigation item -->
+    
+
+    
+    <!-- Determine classes -->
+    
+    
+        
+    
+    <!-- Navigation item with nested items -->
+    
+        <!-- Determine all nested items that are index pages -->
+        
+        
+            
+                
+                    
+                
+            
+                
+            
+                
+            
+        
+        
+        <!-- Use index page as entry point if present, otherwise first child -->
+        
+        <!-- Recurse, if the first item has further nested items -->
+        
+            <li class="active">
+                <a href="../../"
+                   class="active"
+                   aria-current="page">
+    
+    Specs
+</a>
+            </li>
+        
+        <!-- Navigation item -->
+    
+
+    
+    <!-- Determine classes -->
+    
+    
+    <!-- Navigation item with nested items -->
+    
+        <!-- Determine all nested items that are index pages -->
+        
+        
+            
+                
+            
+                
+            
+        
+        
+        <!-- Use index page as entry point if present, otherwise first child -->
+        
+        <!-- Recurse, if the first item has further nested items -->
+        
+            <li >
+                <a href="../../../tutorials/installation/"
+                   
+                   >
+    
+    Tutorials
+</a>
+            </li>
+        
+        <!-- Navigation item -->
+    
+
+    </ul>
+</nav>
+
+    <div class="nav-buttons">
+        <!-- Color palette toggle -->
+        
+        
+        
+        
+        
+        
+        <!-- Site language selector -->
+        
+        <!-- Button to open search modal -->
+        
+            
+            <!-- Check if search is actually enabled - see https://t.ly/DT_0V -->
+            
+                
+                
+                
+                
+                
+                
+                
+                <!-- Search interface -->
+                <!-- Search interface -->
+<form class="search-form">
+    <label for="search">Search</label>
+    <input id="search"
+           name="search"
+           type="search"
+           value=""
+           placeholder="Search"
+           class="search">
+    <button type="submit" class="search-button">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-search" viewBox="0 0 24 24"><path d="m21 21-4.34-4.34"/><circle cx="11" cy="11" r="8"/></svg>
+
+    </button>
+    <kbd>⌘K</kbd>
+</form>
+
+            
+        
+        <!-- Repository information -->
+        <div class="md-header__source">
+            
+                <!-- Repository information -->
+<a href="https://github.com/callowayproject/foreman"
+   title="Go to repository"
+   class="source">
+    <div class="icon">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2026 Fonticons, Inc.--><path fill="currentColor" d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+
+    </div>
+</a>
+
+            
+        </div>
+    </div>
+    <!-- Navigation tabs (sticky) -->
+    
+</header>
+
+        
+        <!-- Container -->
+        <div class="cw-container" data-md-component="container">
+            <!-- Hero teaser -->
+            
+            
+            <!-- Navigation tabs (collapsing) -->
+            
+                
+                
+                
+                
+                
+            
+            <!-- Main area -->
+            <main class="layout md-grid" data-md-component="main">
+                <!-- Sidebars -->
+                
+                    <!-- Navigation -->
+                    
+                        
+                        <div class="md-sidebar md-sidebar--primary sidebar md-sidebar__lifted"
+                             data-md-component="sidebar"
+                             data-md-type="navigation"
+                             >
+                            <div class="md-sidebar__scrollwrap">
+                                <div class="md-sidebar__inner">
+                                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="Foreman" class="md-nav__button md-logo" aria-label="Foreman" data-md-component="logo">
+      
+  <img src="../../../assets/images/Foreman-logo.svg" alt="Foreman">
+
+    </a>
+    Foreman
+  </label>
+  
+    <div class="md-nav__source">
+      <!-- Repository information -->
+<a href="https://github.com/callowayproject/foreman"
+   title="Go to repository"
+   class="source">
+    <div class="icon">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2026 Fonticons, Inc.--><path fill="currentColor" d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+
+    </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Home
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../development/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Developer Guide
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../explanation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  How Foreman Works
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../../howtos/write-an-agent/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Howtos
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../../reference/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Reference
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" checked>
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Specs
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_6" id="__nav_6_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  Specs
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../01-agent-harness/SPEC/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  01 agent harness
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_6_3" id="__nav_6_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  02 messaging update
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_6_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_6_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  02 messaging update
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../SPEC/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Spec: Queue-Mediated Agent Protocol
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../idea/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Messaging Update: Queue-Mediated Agent Protocol
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../phase-3-fixes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Phase 3 Review — Remaining Fixes
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../phase-3-review/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Phase 3 Code Review — foreman-client
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../plan/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Implementation Plan: Queue-Mediated Agent Protocol
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../pr-21-fixes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  PR #21 Fix Plan
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  PR Review: Update task management flow and add integration tests
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="././" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  PR Review: Update task management flow and add integration tests
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+
+<nav class="md-nav md-nav--secondary" aria-label="On this page">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#executive-summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Executive Summary
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ratings" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Ratings
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pr-health" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        PR Health
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#high-priority-issues" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        High Priority Issues
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="High Priority Issues">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-_drain_loop-crashes-permanently-on-any-executor-or-db-exception" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        🐛 #1: <code>_drain_loop</code> crashes permanently on any executor or DB exception
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-drain_completed-marks-tasks-done-before-executing-actions-executor-failures-silently-drop-github-actions" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        🐛 #2: <code>drain_completed</code> marks tasks <code>done</code> before executing actions — executor failures silently drop GitHub actions
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#medium-priority-issues" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Medium Priority Issues
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Medium Priority Issues">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#3-startup-poll-claims-only-one-task-n1-tasks-queued-during-downtime-are-permanently-stuck" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        🐛 #3: Startup poll claims only one task — N−1 tasks queued during downtime are permanently stuck
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-_requeue_loop-has-the-same-no-exception-handling-problem-as-_drain_loop" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        🐛 #4: <code>_requeue_loop</code> has the same no-exception-handling problem as <code>_drain_loop</code>
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#low-priority-issues" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Low Priority Issues
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Low Priority Issues">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#5-private-attribute-accessed-across-module-boundary" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        🏗️ #5: Private attribute accessed across module boundary
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#6-reference-agent-has-no-heartbeat-during-llm-call" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        🐛 #6: Reference agent has no heartbeat during LLM call
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#7-minimal-working-example-in-docs-omits-startup-poll" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        🎨 #7: Minimal working example in docs omits startup poll
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#flow-impact-analysis" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Flow Impact Analysis
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../../tutorials/installation/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Tutorials
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+
+                                </div>
+                            </div>
+                        </div>
+                    
+                    <!-- Page content container -->
+                    
+                        <div class="content" data-md-component="content">
+                            <!-- Navigation path (breadcrumbs) -->
+                            
+                                
+<!-- Determine whether to show navigation path -->
+
+<!-- Determine whether we have enough pages for rendering -->
+
+
+    
+
+<!-- Navigation path (breadcrumbs) -->
+
+    <nav class="breadcrumbs" aria-label="Navigation" >
+        <ol>
+            <!-- Render homepage first, if available -->
+            
+    
+    <!-- Navigation item with nested items -->
+    
+        <li>
+            <a href="../../..">
+    
+    Home
+</a>
+        </li>
+    
+
+            <!-- Render ancestors in reverse -->
+            
+    
+    <!-- Navigation item with nested items -->
+    
+        <!-- Determine all nested items that are index pages -->
+        
+        
+            
+                
+                    
+                
+            
+                
+            
+                
+            
+        
+        
+        <!-- Use index page as entry point if present, otherwise first child -->
+        
+        <!-- Recurse, if the first item has further nested items -->
+        
+            <li>
+                <a href="../../">
+    
+    Specs
+</a>
+            </li>
+        
+        <!-- Navigation item -->
+    
+
+    
+    <!-- Navigation item with nested items -->
+    
+        <!-- Determine all nested items that are index pages -->
+        
+        
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+        
+        
+        <!-- Use index page as entry point if present, otherwise first child -->
+        
+        <!-- Recurse, if the first item has further nested items -->
+        
+            <li>
+                <a href="../SPEC/">
+    
+    02 messaging update
+</a>
+            </li>
+        
+        <!-- Navigation item -->
+    
+
+            <li class="active">PR Review: Update task management flow and add integration tests</li>
+        </ol>
+    </nav>
+
+
+                            
+                            <!-- Page content -->
+                            
+                                <article>
+    <!-- Actions -->
+    <!-- Actions -->
+
+    <div class="article-meta">
+        <!-- Edit button -->
+        
+            <a href="https://github.com/callowayproject/foreman/edit/master/docs/specs/02-messaging-update/pr-21-review.md"
+               title="Edit this page"
+               class="md-content__button md-icon"
+               rel="edit">
+                
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-file-pen" viewBox="0 0 24 24"><path d="M12.659 22H18a2 2 0 0 0 2-2V8a2.4 2.4 0 0 0-.706-1.706l-3.588-3.588A2.4 2.4 0 0 0 14 2H6a2 2 0 0 0-2 2v9.34"/><path d="M14 2v5a1 1 0 0 0 1 1h5M10.378 12.622a1 1 0 0 1 3 3.003L8.36 20.637a2 2 0 0 1-.854.506l-2.867.837a.5.5 0 0 1-.62-.62l.836-2.869a2 2 0 0 1 .506-.853z"/></svg>
+
+            </a>
+        
+        <!-- View button -->
+        
+            
+                
+            
+            <a href="https://github.com/callowayproject/foreman/raw/master/docs/specs/02-messaging-update/pr-21-review.md"
+               title="View source of this page"
+               class="md-content__button md-icon">
+                
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-file-code-2" viewBox="0 0 24 24"><path d="M4 12.15V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.706.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2h-3.35"/><path d="M14 2v5a1 1 0 0 0 1 1h5M5 16l-3 3 3 3M9 22l3-3-3-3"/></svg>
+
+            </a>
+        
+    </div>
+
+
+    <!--
+    Hack: check whether the content contains a h1 headline. If it doesn't, the
+    page title (or respectively site name) is used as the main headline.
+  -->
+    
+    <!-- Page content -->
+    <h1 id="pr-review-update-task-management-flow-and-add-integration-tests">PR Review: Update task management flow and add integration tests<a class="headerlink" href="#pr-review-update-task-management-flow-and-add-integration-tests" title="Permanent link">&para;</a></h1>
+<h2 id="executive-summary">Executive Summary<a class="headerlink" href="#executive-summary" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Aspect</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>PR Goal</strong></td>
+<td>Implement a complete queue-mediated agent protocol: SQLite task queue, HTTP endpoints, <code>foreman-client</code> SDK, background drain/requeue loops, agent restart resilience</td>
+</tr>
+<tr>
+<td><strong>Files Changed</strong></td>
+<td>41 (4,781 additions / 714 deletions)</td>
+</tr>
+<tr>
+<td><strong>Risk Level</strong></td>
+<td>🟡 MEDIUM — core queue mechanics and test coverage are solid; two structural bugs in the drain pipeline need attention before shipping</td>
+</tr>
+<tr>
+<td><strong>Review Effort</strong></td>
+<td>&#8536; — six implementation phases spanning new package, background loops, agent protocol, integration test, and documentation</td>
+</tr>
+<tr>
+<td><strong>Recommendation</strong></td>
+<td>🔄 REQUEST CHANGES</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Affected Areas</strong>: <code>foreman/queue.py</code>, <code>foreman/server.py</code>, <code>foreman/routers/queue.py</code>, <code>foreman/routers/result.py</code>,
+<code>foreman/__main__.py</code>, <code>foreman-client/</code>, <code>agents/issue-triage/issue_triage/agent.py</code>, <code>tests/test_integration.py</code></p>
+<p><strong>Business Impact</strong>: This PR enables the zero-task-loss guarantee that is the MVP acceptance criterion.
+The queue, client SDK, and integration test are well-constructed.
+Two bugs in the drain pipeline can silently drop GitHub actions
+or permanently halt task processing on any transient error.</p>
+<p><strong>Flow Changes</strong>: Replaces synchronous <code>POST→parse→execute</code> dispatch with durable enqueue + fire-and-forget nudge.
+Decisions are now drained asynchronously by a background loop.
+Agent startup polls the queue on boot for resilience.</p>
+<h2 id="ratings">Ratings<a class="headerlink" href="#ratings" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Aspect</th>
+<th>Score</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Correctness</td>
+<td>&#8535;</td>
+</tr>
+<tr>
+<td>Security</td>
+<td>5/5</td>
+</tr>
+<tr>
+<td>Performance</td>
+<td>5/5</td>
+</tr>
+<tr>
+<td>Maintainability</td>
+<td>&#8536;</td>
+</tr>
+</tbody>
+</table>
+<h2 id="pr-health">PR Health<a class="headerlink" href="#pr-health" title="Permanent link">&para;</a></h2>
+<ul class="task-list">
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> Has clear description</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> References implementation plan (docs/specs/02-messaging-update/plan.md)</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> Appropriate size (6 phases — large but well-scoped)</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> Has relevant tests (261 unit tests + 1 integration test)</li>
+</ul>
+<hr />
+<h2 id="high-priority-issues">High Priority Issues<a class="headerlink" href="#high-priority-issues" title="Permanent link">&para;</a></h2>
+<p>(Must fix before merge)</p>
+<h3 id="1-_drain_loop-crashes-permanently-on-any-executor-or-db-exception">🐛 #1: <code>_drain_loop</code> crashes permanently on any executor or DB exception<a class="headerlink" href="#1-_drain_loop-crashes-permanently-on-any-executor-or-db-exception" title="Permanent link">&para;</a></h3>
+<p><strong>Location:</strong> <code>foreman/server.py:131-149</code></p>
+<p><strong>Confidence:</strong> ✅ HIGH</p>
+<p>The <code>while True</code> loop runs <code>task_queue.drain_completed()</code>, <code>executor.execute()</code>,
+and <code>memory.upsert_memory_summary()</code> with no exception handling.
+Any raise — GitHub API rate limit, bad credentials, transient SQLite I/O error —
+exits <code>while True</code> and the asyncio task dies.
+After that every <code>drain_event.set()</code> call from <code>/queue/complete</code> and <code>/harness/result</code> is a no-op: the loop is dead,
+completed tasks pile up in the queue, and GitHub actions are never taken.
+There is no alert, no restart, no visible signal to the operator.</p>
+<p>A second consequence: in <code>_lifespan</code>'s <code>finally</code> block, <code>await drain_task</code> re-raises any non-<code>CancelledError</code> exception.
+If the drain task crashed earlier with (e.g.) <code>sqlite3.OperationalError</code>,
+the re-raise propagates out of the <code>contextlib.suppress(asyncio.CancelledError)</code> guard and can disrupt clean shutdown.</p>
+<div class="language-diff highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a># foreman/server.py — inside _drain_loop while loop
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w"> </span>    drain_event.clear()
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="gd">-    pairs = task_queue.drain_completed()</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="gd">-    for task, decision in pairs:</span>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="gd">-        issue_number: int = task.payload.get(&quot;number&quot;, 0)</span>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="gd">-        executor.execute(decision, repo=task.repo, issue_number=issue_number, task_type=task.type)</span>
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="gd">-        summary = f&quot;decision={decision.decision.value}; rationale={decision.rationale}&quot;</span>
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="gd">-        memory.upsert_memory_summary(task.repo, issue_number, summary)</span>
+</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="gd">-    if pairs:</span>
+</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="gd">-        logger.info(&quot;Drain loop processed tasks&quot;, count=len(pairs))</span>
+</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="gi">+    try:</span>
+</span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="gi">+        pairs = task_queue.drain_completed()</span>
+</span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a><span class="gi">+        for task, decision in pairs:</span>
+</span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a><span class="gi">+            issue_number: int = task.payload.get(&quot;number&quot;, 0)</span>
+</span><span id="__span-0-16"><a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a><span class="gi">+            try:</span>
+</span><span id="__span-0-17"><a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a><span class="gi">+                executor.execute(decision, repo=task.repo, issue_number=issue_number, task_type=task.type)</span>
+</span><span id="__span-0-18"><a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a><span class="gi">+                summary = f&quot;decision={decision.decision.value}; rationale={decision.rationale}&quot;</span>
+</span><span id="__span-0-19"><a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a><span class="gi">+                memory.upsert_memory_summary(task.repo, issue_number, summary)</span>
+</span><span id="__span-0-20"><a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a><span class="gi">+            except Exception:</span>
+</span><span id="__span-0-21"><a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a><span class="gi">+                logger.exception(&quot;Drain loop: failed to execute task&quot;, task_id=task.task_id)</span>
+</span><span id="__span-0-22"><a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a><span class="gi">+        if pairs:</span>
+</span><span id="__span-0-23"><a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a><span class="gi">+            logger.info(&quot;Drain loop processed tasks&quot;, count=len(pairs))</span>
+</span><span id="__span-0-24"><a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a><span class="gi">+    except Exception:</span>
+</span><span id="__span-0-25"><a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a><span class="gi">+        logger.exception(&quot;Drain loop: unexpected error, continuing&quot;)</span>
+</span><span id="__span-0-26"><a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a>
+</span><span id="__span-0-27"><a id="__codelineno-0-27" name="__codelineno-0-27" href="#__codelineno-0-27"></a># foreman/server.py — _lifespan finally block
+</span><span id="__span-0-28"><a id="__codelineno-0-28" name="__codelineno-0-28" href="#__codelineno-0-28"></a><span class="gd">-    with contextlib.suppress(asyncio.CancelledError):</span>
+</span><span id="__span-0-29"><a id="__codelineno-0-29" name="__codelineno-0-29" href="#__codelineno-0-29"></a><span class="gd">-        await drain_task</span>
+</span><span id="__span-0-30"><a id="__codelineno-0-30" name="__codelineno-0-30" href="#__codelineno-0-30"></a><span class="gi">+    with contextlib.suppress(asyncio.CancelledError, Exception):</span>
+</span><span id="__span-0-31"><a id="__codelineno-0-31" name="__codelineno-0-31" href="#__codelineno-0-31"></a><span class="gi">+        await drain_task</span>
+</span></code></pre></div>
+<hr />
+<h3 id="2-drain_completed-marks-tasks-done-before-executing-actions-executor-failures-silently-drop-github-actions">🐛 #2: <code>drain_completed</code> marks tasks <code>done</code> before executing actions — executor failures silently drop GitHub actions<a class="headerlink" href="#2-drain_completed-marks-tasks-done-before-executing-actions-executor-failures-silently-drop-github-actions" title="Permanent link">&para;</a></h3>
+<p><strong>Location:</strong> <code>foreman/queue.py:179-183</code>, <code>foreman/server.py:138-146</code> | <strong>Confidence:</strong> ✅ HIGH</p>
+<p><code>drain_completed()</code> atomically updates all completed rows to <code>done</code>
+and commits to SQLite <strong>before</strong> returning the list to the caller.
+<code>_drain_loop</code> then calls <code>executor.execute()</code> on those rows.
+If the executor raises (network error, GitHub 403, etc.), the task is already <code>done</code> — it will never be retried,
+and the GitHub action (add label, post comment, close issue) is silently skipped with no record in <code>action_log</code>.</p>
+<p>Combined with issue #1 (the loop then crashes), one bad executor call causes both action loss and drain-loop death.</p>
+<p>The fix is to move the <code>done</code> transition to after a successful execute, on a per-task basis:</p>
+<div class="language-diff highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a># foreman/queue.py — drain_completed: remove batch UPDATE/commit
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w"> </span>def drain_completed(self) -&gt; list[tuple[TaskMessage, DecisionMessage]]:
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w"> </span>    rows = self._conn.execute(
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w"> </span>        &quot;SELECT task_id, payload, result FROM task_queue WHERE status = &#39;completed&#39;&quot;
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w"> </span>    ).fetchall()
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="w"> </span>    if not rows:
+</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="w"> </span>        return []
+</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="gd">-    task_ids = [r[0] for r in rows]</span>
+</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="gd">-    placeholders = &quot;,&quot;.join(&quot;?&quot; * len(task_ids))</span>
+</span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="gd">-    self._conn.execute(</span>
+</span><span id="__span-1-11"><a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="gd">-        f&quot;UPDATE task_queue SET status = &#39;done&#39; WHERE task_id IN ({placeholders})&quot;,</span>
+</span><span id="__span-1-12"><a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a><span class="gd">-        task_ids,</span>
+</span><span id="__span-1-13"><a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a><span class="gd">-    )</span>
+</span><span id="__span-1-14"><a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a><span class="gd">-    self._conn.commit()</span>
+</span><span id="__span-1-15"><a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a><span class="w"> </span>    return [
+</span><span id="__span-1-16"><a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a><span class="w"> </span>        (_TaskMessage.model_validate_json(payload), _DecisionMessage.model_validate_json(result))
+</span><span id="__span-1-17"><a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a><span class="w"> </span>        for _, payload, result in rows
+</span><span id="__span-1-18"><a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a><span class="w"> </span>    ]
+</span><span id="__span-1-19"><a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a>
+</span><span id="__span-1-20"><a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a><span class="gi">+def mark_done(self, task_id: str) -&gt; None:</span>
+</span><span id="__span-1-21"><a id="__codelineno-1-21" name="__codelineno-1-21" href="#__codelineno-1-21"></a><span class="gi">+    &quot;&quot;&quot;Transition a single completed task to done after its action is executed.</span>
+</span><span id="__span-1-22"><a id="__codelineno-1-22" name="__codelineno-1-22" href="#__codelineno-1-22"></a><span class="gi">+</span>
+</span><span id="__span-1-23"><a id="__codelineno-1-23" name="__codelineno-1-23" href="#__codelineno-1-23"></a><span class="gi">+    Args:</span>
+</span><span id="__span-1-24"><a id="__codelineno-1-24" name="__codelineno-1-24" href="#__codelineno-1-24"></a><span class="gi">+        task_id: ID of the task to mark done.</span>
+</span><span id="__span-1-25"><a id="__codelineno-1-25" name="__codelineno-1-25" href="#__codelineno-1-25"></a><span class="gi">+    &quot;&quot;&quot;</span>
+</span><span id="__span-1-26"><a id="__codelineno-1-26" name="__codelineno-1-26" href="#__codelineno-1-26"></a><span class="gi">+    self._conn.execute(&quot;UPDATE task_queue SET status = &#39;done&#39; WHERE task_id = ?&quot;, (task_id,))</span>
+</span><span id="__span-1-27"><a id="__codelineno-1-27" name="__codelineno-1-27" href="#__codelineno-1-27"></a><span class="gi">+    self._conn.commit()</span>
+</span><span id="__span-1-28"><a id="__codelineno-1-28" name="__codelineno-1-28" href="#__codelineno-1-28"></a>
+</span><span id="__span-1-29"><a id="__codelineno-1-29" name="__codelineno-1-29" href="#__codelineno-1-29"></a># foreman/server.py — _drain_loop: call mark_done per task, after execute succeeds
+</span><span id="__span-1-30"><a id="__codelineno-1-30" name="__codelineno-1-30" href="#__codelineno-1-30"></a><span class="w"> </span>    for task, decision in pairs:
+</span><span id="__span-1-31"><a id="__codelineno-1-31" name="__codelineno-1-31" href="#__codelineno-1-31"></a><span class="w"> </span>        issue_number: int = task.payload.get(&quot;number&quot;, 0)
+</span><span id="__span-1-32"><a id="__codelineno-1-32" name="__codelineno-1-32" href="#__codelineno-1-32"></a><span class="w"> </span>        executor.execute(decision, repo=task.repo, issue_number=issue_number, task_type=task.type)
+</span><span id="__span-1-33"><a id="__codelineno-1-33" name="__codelineno-1-33" href="#__codelineno-1-33"></a><span class="w"> </span>        summary = f&quot;decision={decision.decision.value}; rationale={decision.rationale}&quot;
+</span><span id="__span-1-34"><a id="__codelineno-1-34" name="__codelineno-1-34" href="#__codelineno-1-34"></a><span class="w"> </span>        memory.upsert_memory_summary(task.repo, issue_number, summary)
+</span><span id="__span-1-35"><a id="__codelineno-1-35" name="__codelineno-1-35" href="#__codelineno-1-35"></a><span class="gi">+        task_queue.mark_done(task.task_id)</span>
+</span></code></pre></div>
+<p>Note: with this change, a process crash between <code>executor.execute()</code>
+and <code>mark_done()</code> means the task is re-drained on next startup (at-least-once delivery for GitHub actions).
+This is correct — it matches the stated design goal.</p>
+<hr />
+<h2 id="medium-priority-issues">Medium Priority Issues<a class="headerlink" href="#medium-priority-issues" title="Permanent link">&para;</a></h2>
+<p>(Should fix, not blocking)</p>
+<h3 id="3-startup-poll-claims-only-one-task-n1-tasks-queued-during-downtime-are-permanently-stuck">🐛 #3: Startup poll claims only one task — N−1 tasks queued during downtime are permanently stuck<a class="headerlink" href="#3-startup-poll-claims-only-one-task-n1-tasks-queued-during-downtime-are-permanently-stuck" title="Permanent link">&para;</a></h3>
+<p><strong>Location:</strong> <code>agents/issue-triage/issue_triage/agent.py:82</code> | <strong>Confidence:</strong> ✅ HIGH</p>
+<p><code>_lifespan</code> calls <code>_poll_and_process</code> exactly once.
+If 3 tasks accumulated while the agent was down, 1 is claimed; the other 2 remain <code>pending</code> indefinitely.
+They are not <code>claimed</code>, so <code>requeue_stale()</code> never touches them.
+The harness sends nudges only when new tasks are enqueued, not retroactively for pre-existing <code>pending</code> tasks.
+Those tasks effectively vanish from the agent's perspective — no nudge, no retry, no failure.</p>
+<div class="language-diff highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a># agents/issue-triage/issue_triage/agent.py — _lifespan startup poll
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w"> </span>async def _lifespan(application: FastAPI) -&gt; AsyncIterator[None]:
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w"> </span>    client = _get_client(application)
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="gd">-    await _poll_and_process(client)</span>
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="gi">+    while True:</span>
+</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="gi">+        task = await asyncio.to_thread(client.next_task)</span>
+</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="gi">+        if task is None:</span>
+</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="gi">+            break</span>
+</span><span id="__span-2-9"><a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="gi">+        await _process_task(client, task)</span>
+</span><span id="__span-2-10"><a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="w"> </span>    yield
+</span><span id="__span-2-11"><a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a><span class="w"> </span>    client.close()
+</span></code></pre></div>
+<p>The integration test in <code>test_integration.py</code> only covers the single-task case (step 1 enqueues exactly one task).
+A second test covering N&gt;1 pending tasks would guard this path.</p>
+<hr />
+<h3 id="4-_requeue_loop-has-the-same-no-exception-handling-problem-as-_drain_loop">🐛 #4: <code>_requeue_loop</code> has the same no-exception-handling problem as <code>_drain_loop</code><a class="headerlink" href="#4-_requeue_loop-has-the-same-no-exception-handling-problem-as-_drain_loop" title="Permanent link">&para;</a></h3>
+<p><strong>Location:</strong> <code>foreman/server.py:163-168</code> | <strong>Confidence:</strong> ✅ HIGH</p>
+<p>If <code>task_queue.requeue_stale()</code> or <code>task_queue.fail_exhausted()</code> raises,
+the requeue loop exits <code>while True</code> and dies permanently.
+Stale claimed tasks are never recycled; exhausted tasks are never failed.
+The same shutdown re-raise risk applies.</p>
+<div class="language-diff highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a># foreman/server.py — inside _requeue_loop while loop
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w"> </span>    while True:
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w"> </span>        await asyncio.sleep(config.queue.requeue_interval_seconds)
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="gd">-        requeued = task_queue.requeue_stale()</span>
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="gd">-        failed = task_queue.fail_exhausted(max_retries=config.queue.max_retries)</span>
+</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="gd">-        logger.info(&quot;Requeue cycle&quot;, requeued=requeued, failed=failed)</span>
+</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="gi">+        try:</span>
+</span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="gi">+            requeued = task_queue.requeue_stale()</span>
+</span><span id="__span-3-9"><a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="gi">+            failed = task_queue.fail_exhausted(max_retries=config.queue.max_retries)</span>
+</span><span id="__span-3-10"><a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a><span class="gi">+            logger.info(&quot;Requeue cycle&quot;, requeued=requeued, failed=failed)</span>
+</span><span id="__span-3-11"><a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a><span class="gi">+        except Exception:</span>
+</span><span id="__span-3-12"><a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a><span class="gi">+            logger.exception(&quot;Requeue loop: unexpected error, continuing&quot;)</span>
+</span><span id="__span-3-13"><a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a>
+</span><span id="__span-3-14"><a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a># foreman/server.py — _lifespan finally block (same fix as #1)
+</span><span id="__span-3-15"><a id="__codelineno-3-15" name="__codelineno-3-15" href="#__codelineno-3-15"></a><span class="gd">-    with contextlib.suppress(asyncio.CancelledError):</span>
+</span><span id="__span-3-16"><a id="__codelineno-3-16" name="__codelineno-3-16" href="#__codelineno-3-16"></a><span class="gd">-        await requeue_task</span>
+</span><span id="__span-3-17"><a id="__codelineno-3-17" name="__codelineno-3-17" href="#__codelineno-3-17"></a><span class="gi">+    with contextlib.suppress(asyncio.CancelledError, Exception):</span>
+</span><span id="__span-3-18"><a id="__codelineno-3-18" name="__codelineno-3-18" href="#__codelineno-3-18"></a><span class="gi">+        await requeue_task</span>
+</span></code></pre></div>
+<hr />
+<h2 id="low-priority-issues">Low Priority Issues<a class="headerlink" href="#low-priority-issues" title="Permanent link">&para;</a></h2>
+<p>(Nice to have)</p>
+<h3 id="5-private-attribute-accessed-across-module-boundary">🏗️ #5: Private attribute accessed across module boundary<a class="headerlink" href="#5-private-attribute-accessed-across-module-boundary" title="Permanent link">&para;</a></h3>
+<p><strong>Location:</strong> <code>foreman/__main__.py:167</code> | <strong>Confidence:</strong> ✅ HIGH</p>
+<p><code>app.state.executor = dispatcher._executor</code> reaches into <code>Dispatcher</code>'s private state.
+If the attribute is renamed, this silently becomes <code>AttributeError</code> at runtime
+(not caught by mypy's <code>--ignore-missing-imports</code>).
+Expose it via a public attribute or property.</p>
+<div class="language-diff highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a># foreman/server.py — Dispatcher.__init__
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="gd">-    self._executor = GitHubExecutor(token=str(config.identity.github_token), memory=memory)</span>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="gi">+    self.executor = GitHubExecutor(token=str(config.identity.github_token), memory=memory)</span>
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>
+</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a># foreman/__main__.py
+</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="gd">-    app.state.executor = dispatcher._executor</span>
+</span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="gi">+    app.state.executor = dispatcher.executor</span>
+</span></code></pre></div>
+<hr />
+<h3 id="6-reference-agent-has-no-heartbeat-during-llm-call">🐛 #6: Reference agent has no heartbeat during LLM call<a class="headerlink" href="#6-reference-agent-has-no-heartbeat-during-llm-call" title="Permanent link">&para;</a></h3>
+<p><strong>Location:</strong> <code>agents/issue-triage/issue_triage/agent.py:52-60</code> | <strong>Confidence:</strong> ✅ HIGH</p>
+<p><code>_process_task</code> runs <code>triage(task)</code> (a synchronous LLM call) via <code>asyncio.to_thread</code> with no heartbeat.
+If the LLM call exceeds <code>claim_timeout_seconds</code> (default 300 s), the harness requeues the task.
+The next nudge or startup poll claims it again, causing double-processing.
+The docs show the heartbeat-thread pattern; the reference implementation should model it.</p>
+<div class="language-diff highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a># agents/issue-triage/issue_triage/agent.py
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="gi">+import threading</span>
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="gi">+</span>
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="w"> </span>async def _process_task(client: ForemanClient, task: TaskMessage) -&gt; None:
+</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="gd">-    decision = await asyncio.to_thread(triage, task)</span>
+</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="gi">+    stop = threading.Event()</span>
+</span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="gi">+</span>
+</span><span id="__span-5-8"><a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="gi">+    def _hb():</span>
+</span><span id="__span-5-9"><a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a><span class="gi">+        while not stop.wait(timeout=25):</span>
+</span><span id="__span-5-10"><a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a><span class="gi">+            client.heartbeat(task.task_id)</span>
+</span><span id="__span-5-11"><a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a><span class="gi">+</span>
+</span><span id="__span-5-12"><a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a><span class="gi">+    hb_thread = threading.Thread(target=_hb, daemon=True)</span>
+</span><span id="__span-5-13"><a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a><span class="gi">+    hb_thread.start()</span>
+</span><span id="__span-5-14"><a id="__codelineno-5-14" name="__codelineno-5-14" href="#__codelineno-5-14"></a><span class="gi">+    try:</span>
+</span><span id="__span-5-15"><a id="__codelineno-5-15" name="__codelineno-5-15" href="#__codelineno-5-15"></a><span class="gi">+        decision = await asyncio.to_thread(triage, task)</span>
+</span><span id="__span-5-16"><a id="__codelineno-5-16" name="__codelineno-5-16" href="#__codelineno-5-16"></a><span class="gi">+    finally:</span>
+</span><span id="__span-5-17"><a id="__codelineno-5-17" name="__codelineno-5-17" href="#__codelineno-5-17"></a><span class="gi">+        stop.set()</span>
+</span><span id="__span-5-18"><a id="__codelineno-5-18" name="__codelineno-5-18" href="#__codelineno-5-18"></a><span class="w"> </span>    await asyncio.to_thread(client.complete_task, task.task_id, decision)
+</span></code></pre></div>
+<hr />
+<h3 id="7-minimal-working-example-in-docs-omits-startup-poll">🎨 #7: Minimal working example in docs omits startup poll<a class="headerlink" href="#7-minimal-working-example-in-docs-omits-startup-poll" title="Permanent link">&para;</a></h3>
+<p><strong>Location:</strong> <code>docs/howtos/write-an-agent.md:125-156</code> | <strong>Confidence:</strong> ✅ HIGH</p>
+<p>The 30-line "Minimal Working Example" instantiates <code>ForemanClient</code> at module level and has no lifespan.
+A reader who copies it verbatim gets an agent without the zero-task-loss recovery path.
+The startup poll section appears later but many readers won't reach it.
+The example should include a minimal lifespan,
+or a note should be added that the example is incomplete for production use.</p>
+<div class="language-diff highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="gd">-client = ForemanClient(os.environ[&quot;FOREMAN_HARNESS_URL&quot;], os.environ[&quot;AGENT_URL&quot;])</span>
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="gd">-app = FastAPI()</span>
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="gi">+from contextlib import asynccontextmanager</span>
+</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="gi">+</span>
+</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="gi">+@asynccontextmanager</span>
+</span><span id="__span-6-6"><a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="gi">+async def lifespan(app):</span>
+</span><span id="__span-6-7"><a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="gi">+    client = ForemanClient(os.environ[&quot;FOREMAN_HARNESS_URL&quot;], os.environ[&quot;AGENT_URL&quot;])</span>
+</span><span id="__span-6-8"><a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a><span class="gi">+    app.state.client = client</span>
+</span><span id="__span-6-9"><a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a><span class="gi">+    task = client.next_task()   # startup poll — pick up tasks queued while down</span>
+</span><span id="__span-6-10"><a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a><span class="gi">+    if task:</span>
+</span><span id="__span-6-11"><a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a><span class="gi">+        client.complete_task(task.task_id, _decide(task))</span>
+</span><span id="__span-6-12"><a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a><span class="gi">+    yield</span>
+</span><span id="__span-6-13"><a id="__codelineno-6-13" name="__codelineno-6-13" href="#__codelineno-6-13"></a><span class="gi">+    client.close()</span>
+</span><span id="__span-6-14"><a id="__codelineno-6-14" name="__codelineno-6-14" href="#__codelineno-6-14"></a><span class="gi">+</span>
+</span><span id="__span-6-15"><a id="__codelineno-6-15" name="__codelineno-6-15" href="#__codelineno-6-15"></a><span class="gi">+app = FastAPI(lifespan=lifespan)</span>
+</span></code></pre></div>
+<hr />
+<h2 id="flow-impact-analysis">Flow Impact Analysis<a class="headerlink" href="#flow-impact-analysis" title="Permanent link">&para;</a></h2>
+<p><strong>Before this PR</strong>: <code>Dispatcher.dispatch()</code> → synchronous <code>POST /task</code> → parse <code>DecisionMessage</code> → <code>executor.execute()</code>
+(all in-request, blocking).</p>
+<p><strong>After this PR</strong>:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>Dispatcher.dispatch()
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>  → task_queue.enqueue()          [durable SQLite write]
+</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>  → POST /task {task_id}          [fire-and-forget nudge; failure is safe]
+</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>
+</span><span id="__span-7-5"><a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>Agent:
+</span><span id="__span-7-6"><a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>  POST /task nudge received
+</span><span id="__span-7-7"><a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a>  → background_tasks.add_task(_poll_and_process)
+</span><span id="__span-7-8"><a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a>    → client.next_task()          [POST /queue/next → claim]
+</span><span id="__span-7-9"><a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a>    → triage(task)                [LLM call]
+</span><span id="__span-7-10"><a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a>    → client.complete_task()      [POST /queue/complete → status=completed]
+</span><span id="__span-7-11"><a id="__codelineno-7-11" name="__codelineno-7-11" href="#__codelineno-7-11"></a>                                  [POST /harness/result → drain_event.set()]
+</span><span id="__span-7-12"><a id="__codelineno-7-12" name="__codelineno-7-12" href="#__codelineno-7-12"></a>
+</span><span id="__span-7-13"><a id="__codelineno-7-13" name="__codelineno-7-13" href="#__codelineno-7-13"></a>_drain_loop (background):
+</span><span id="__span-7-14"><a id="__codelineno-7-14" name="__codelineno-7-14" href="#__codelineno-7-14"></a>  ← drain_event wakes loop
+</span><span id="__span-7-15"><a id="__codelineno-7-15" name="__codelineno-7-15" href="#__codelineno-7-15"></a>  → task_queue.drain_completed()  [SELECT completed, UPDATE done — see issue #2]
+</span><span id="__span-7-16"><a id="__codelineno-7-16" name="__codelineno-7-16" href="#__codelineno-7-16"></a>  → executor.execute()            [GitHub API]
+</span><span id="__span-7-17"><a id="__codelineno-7-17" name="__codelineno-7-17" href="#__codelineno-7-17"></a>  → memory.upsert_memory_summary()
+</span><span id="__span-7-18"><a id="__codelineno-7-18" name="__codelineno-7-18" href="#__codelineno-7-18"></a>
+</span><span id="__span-7-19"><a id="__codelineno-7-19" name="__codelineno-7-19" href="#__codelineno-7-19"></a>_requeue_loop (background, every 60 s):
+</span><span id="__span-7-20"><a id="__codelineno-7-20" name="__codelineno-7-20" href="#__codelineno-7-20"></a>  → task_queue.requeue_stale()    [claimed + timed-out → pending]
+</span><span id="__span-7-21"><a id="__codelineno-7-21" name="__codelineno-7-21" href="#__codelineno-7-21"></a>  → task_queue.fail_exhausted()   [pending + retries ≥ max → failed]
+</span></code></pre></div>
+<p><strong>Changed callers of <code>Dispatcher</code></strong>: <code>__main__._run_loop</code>
+(unchanged call site; Dispatcher now requires <code>task_queue</code> arg).
+All existing integration tests updated correctly.</p>
+<p><strong>Affected by issue #2</strong>: <code>drain_completed</code> tests in <code>test_queue.py</code> will need updating once <code>mark_done</code> is split out.
+The integration test <code>test_pending_task_claimed_on_restart</code> checks <code>status in ("completed", "done")</code> —
+it will still pass after the fix since <code>drain_completed</code> no longer transitions to <code>done</code>.</p>
+<hr />
+<p><em>Review conducted on PR #21 against branch <code>noble-cupcake</code> → <code>main</code>, 2026-05-04.</em></p>
+    <!-- Tags -->
+    <!--
+  Copyright (c) 2025 Zensical and contributors
+
+  SPDX-License-Identifier: MIT
+  Third-party contributions licensed under DCO
+
+  Permission is hereby granted, free of charge, to any person obtaining a copy
+  of this software and associated documentation files (the "Software"), to
+  deal in the Software without restriction, including without limitation the
+  rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+  sell copies of the Software, and to permit persons to whom the Software is
+  furnished to do so, subject to the following conditions:
+
+  The above copyright notice and this permission notice shall be included in
+  all copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+  FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. IN NO EVENT SHALL THE
+  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+  IN THE SOFTWARE.
+-->
+<!-- Determine whether to show tags -->
+
+<!-- Tags -->
+
+
+    <!-- Source file information -->
+    <!--
+  Copyright (c) 2025 Zensical and contributors
+
+  SPDX-License-Identifier: MIT
+  Third-party contributions licensed under DCO
+
+  Permission is hereby granted, free of charge, to any person obtaining a copy
+  of this software and associated documentation files (the "Software"), to
+  deal in the Software without restriction, including without limitation the
+  rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+  sell copies of the Software, and to permit persons to whom the Software is
+  furnished to do so, subject to the following conditions:
+
+  The above copyright notice and this permission notice shall be included in
+  all copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+  FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. IN NO EVENT SHALL THE
+  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+  IN THE SOFTWARE.
+-->
+<!-- Render date of last update -->
+
+
+<!-- Render date of creation -->
+
+
+<!-- ---------------------------------------------------------------------- -->
+<!-- Render authors -->
+
+
+<!-- ---------------------------------------------------------------------- -->
+<!-- Render committers from GitHub -->
+
+
+<!-- Render committers from GitLab -->
+
+
+<!-- Render committers -->
+
+
+<!-- ---------------------------------------------------------------------- -->
+<!-- Determine date of last update -->
+
+<!-- Source file information -->
+
+
+    <!-- Was this page helpful? -->
+    <!--
+  Copyright (c) 2025 Zensical and contributors
+
+  SPDX-License-Identifier: MIT
+  Third-party contributions licensed under DCO
+
+  Permission is hereby granted, free of charge, to any person obtaining a copy
+  of this software and associated documentation files (the "Software"), to
+  deal in the Software without restriction, including without limitation the
+  rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+  sell copies of the Software, and to permit persons to whom the Software is
+  furnished to do so, subject to the following conditions:
+
+  The above copyright notice and this permission notice shall be included in
+  all copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+  FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. IN NO EVENT SHALL THE
+  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+  IN THE SOFTWARE.
+-->
+<!-- Determine feedback configuration -->
+
+<!-- Determine whether to show feedback -->
+
+<!-- Was this page helpful? -->
+
+
+    <!-- Comment system -->
+    <!--
+  Copyright (c) 2025 Zensical and contributors
+
+  SPDX-License-Identifier: MIT
+  Third-party contributions licensed under DCO
+
+  Permission is hereby granted, free of charge, to any person obtaining a copy
+  of this software and associated documentation files (the "Software"), to
+  deal in the Software without restriction, including without limitation the
+  rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+  sell copies of the Software, and to permit persons to whom the Software is
+  furnished to do so, subject to the following conditions:
+
+  The above copyright notice and this permission notice shall be included in
+  all copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+  FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. IN NO EVENT SHALL THE
+  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+  IN THE SOFTWARE.
+-->
+<!-- Comment system -->
+
+</article>
+
+                            
+                        </div>
+                    
+                    <!-- Table of contents -->
+                    
+                        
+                        <div class="toc"
+                             data-md-component="sidebar"
+                             data-md-type="toc"
+                             >
+                            
+<!-- Determine title -->
+
+
+<!-- Table of contents -->
+<nav aria-label="On this page">
+    
+    <!--
+    Check whether the content starts with a level 1 headline. If it does, the
+    top-level anchor must be skipped, since it would be redundant to the link
+    to the current page that is located just above the anchor. Therefore we
+    directly continue with the children of the anchor.
+  -->
+    
+    
+        
+    
+    <!-- Table of contents title and list -->
+    
+        <div class="toc__heading">On this page</div>
+        <ul class="toc__list">
+            
+                <!-- Table of contents item -->
+<li>
+    <a href="#executive-summary" class="md-nav__link">Executive Summary</a>
+    <!-- Table of contents list -->
+    
+</li>
+
+            
+                <!-- Table of contents item -->
+<li>
+    <a href="#ratings" class="md-nav__link">Ratings</a>
+    <!-- Table of contents list -->
+    
+</li>
+
+            
+                <!-- Table of contents item -->
+<li>
+    <a href="#pr-health" class="md-nav__link">PR Health</a>
+    <!-- Table of contents list -->
+    
+</li>
+
+            
+                <!-- Table of contents item -->
+<li>
+    <a href="#high-priority-issues" class="md-nav__link">High Priority Issues</a>
+    <!-- Table of contents list -->
+    
+        <nav aria-label="High Priority Issues">
+            <ul class="toc__list">
+                
+                    <!-- Table of contents item -->
+<li>
+    <a href="#1-_drain_loop-crashes-permanently-on-any-executor-or-db-exception" class="md-nav__link">🐛 #1: <code>_drain_loop</code> crashes permanently on any executor or DB exception</a>
+    <!-- Table of contents list -->
+    
+</li>
+
+                
+                    <!-- Table of contents item -->
+<li>
+    <a href="#2-drain_completed-marks-tasks-done-before-executing-actions-executor-failures-silently-drop-github-actions" class="md-nav__link">🐛 #2: <code>drain_completed</code> marks tasks <code>done</code> before executing actions — executor failures silently drop GitHub actions</a>
+    <!-- Table of contents list -->
+    
+</li>
+
+                
+            </ul>
+        </nav>
+    
+</li>
+
+            
+                <!-- Table of contents item -->
+<li>
+    <a href="#medium-priority-issues" class="md-nav__link">Medium Priority Issues</a>
+    <!-- Table of contents list -->
+    
+        <nav aria-label="Medium Priority Issues">
+            <ul class="toc__list">
+                
+                    <!-- Table of contents item -->
+<li>
+    <a href="#3-startup-poll-claims-only-one-task-n1-tasks-queued-during-downtime-are-permanently-stuck" class="md-nav__link">🐛 #3: Startup poll claims only one task — N−1 tasks queued during downtime are permanently stuck</a>
+    <!-- Table of contents list -->
+    
+</li>
+
+                
+                    <!-- Table of contents item -->
+<li>
+    <a href="#4-_requeue_loop-has-the-same-no-exception-handling-problem-as-_drain_loop" class="md-nav__link">🐛 #4: <code>_requeue_loop</code> has the same no-exception-handling problem as <code>_drain_loop</code></a>
+    <!-- Table of contents list -->
+    
+</li>
+
+                
+            </ul>
+        </nav>
+    
+</li>
+
+            
+                <!-- Table of contents item -->
+<li>
+    <a href="#low-priority-issues" class="md-nav__link">Low Priority Issues</a>
+    <!-- Table of contents list -->
+    
+        <nav aria-label="Low Priority Issues">
+            <ul class="toc__list">
+                
+                    <!-- Table of contents item -->
+<li>
+    <a href="#5-private-attribute-accessed-across-module-boundary" class="md-nav__link">🏗️ #5: Private attribute accessed across module boundary</a>
+    <!-- Table of contents list -->
+    
+</li>
+
+                
+                    <!-- Table of contents item -->
+<li>
+    <a href="#6-reference-agent-has-no-heartbeat-during-llm-call" class="md-nav__link">🐛 #6: Reference agent has no heartbeat during LLM call</a>
+    <!-- Table of contents list -->
+    
+</li>
+
+                
+                    <!-- Table of contents item -->
+<li>
+    <a href="#7-minimal-working-example-in-docs-omits-startup-poll" class="md-nav__link">🎨 #7: Minimal working example in docs omits startup poll</a>
+    <!-- Table of contents list -->
+    
+</li>
+
+                
+            </ul>
+        </nav>
+    
+</li>
+
+            
+                <!-- Table of contents item -->
+<li>
+    <a href="#flow-impact-analysis" class="md-nav__link">Flow Impact Analysis</a>
+    <!-- Table of contents list -->
+    
+</li>
+
+            
+        </ul>
+    
+</nav>
+
+                        </div>
+                    
+                
+                <!-- User preference: content -->
+                <!--
+  Copyright (c) 2025 Zensical and contributors
+
+  SPDX-License-Identifier: MIT
+  Third-party contributions licensed under DCO
+
+  Permission is hereby granted, free of charge, to any person obtaining a copy
+  of this software and associated documentation files (the "Software"), to
+  deal in the Software without restriction, including without limitation the
+  rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+  sell copies of the Software, and to permit persons to whom the Software is
+  furnished to do so, subject to the following conditions:
+
+  The above copyright notice and this permission notice shall be included in
+  all copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+  FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. IN NO EVENT SHALL THE
+  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+  IN THE SOFTWARE.
+-->
+<!-- User-preference: link content tabs -->
+
+    <script>
+    var tabs = __md_get("__tabs")
+    if (Array.isArray(tabs))
+      main: for (var set of document.querySelectorAll(".tabbed-set")) {
+        var labels = set.querySelector(".tabbed-labels")
+        for (var tab of tabs)
+          for (var label of labels.getElementsByTagName("label"))
+            if (label.innerText.trim() === tab) {
+              var input = document.getElementById(label.htmlFor)
+              input.checked = true
+              continue main
+            }
+      }
+    </script>
+
+<!-- Switch to content tab target -->
+<script>
+  var target = document.getElementById(location.hash.slice(1))
+  if (target && target.name)
+    target.checked = target.name.startsWith("__tabbed_")
+</script>
+
+                <!-- Back-to-top button -->
+                
+                    <!--
+  Copyright (c) 2025 Zensical and contributors
+
+  SPDX-License-Identifier: MIT
+  Third-party contributions licensed under DCO
+
+  Permission is hereby granted, free of charge, to any person obtaining a copy
+  of this software and associated documentation files (the "Software"), to
+  deal in the Software without restriction, including without limitation the
+  rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+  sell copies of the Software, and to permit persons to whom the Software is
+  furnished to do so, subject to the following conditions:
+
+  The above copyright notice and this permission notice shall be included in
+  all copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+  FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. IN NO EVENT SHALL THE
+  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+  IN THE SOFTWARE.
+-->
+<!-- Back-to-top button -->
+<button type="button" class="md-top md-icon" data-md-component="top" hidden>
+    
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-circle-arrow-up" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m16 12-4-4-4 4M12 16V8"/></svg>
+
+    Back to top
+</button>
+
+                
+            </main>
+            <!-- Footer -->
+            
+                <!-- Footer -->
+<footer>
+    <!-- Link to previous and/or next page -->
+    
+    <!-- Further information -->
+    <div class="md-footer-meta md-typeset">
+        <div class="md-footer-meta__inner md-grid">
+            <!--
+  Copyright (c) 2025 Zensical and contributors
+
+  SPDX-License-Identifier: MIT
+  Third-party contributions licensed under DCO
+
+  Permission is hereby granted, free of charge, to any person obtaining a copy
+  of this software and associated documentation files (the "Software"), to
+  deal in the Software without restriction, including without limitation the
+  rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+  sell copies of the Software, and to permit persons to whom the Software is
+  furnished to do so, subject to the following conditions:
+
+  The above copyright notice and this permission notice shall be included in
+  all copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+  FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. IN NO EVENT SHALL THE
+  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+  IN THE SOFTWARE.
+-->
+<!-- Copyright and theme information -->
+<div class="md-copyright">
+    <div class="md-copyright__highlight">Copyright &copy; 2026 Corey Oordt
+</div>
+    
+        Made with
+        <a href="https://zensical.org/" target="_blank" rel="noopener">Zensical</a>
+    
+</div>
+
+            <!-- Social links -->
+            
+        </div>
+    </div>
+</footer>
+
+            
+        </div>
+        <!-- Dialog -->
+        <div class="cw-dialog" data-md-component="dialog">
+            <div class="cw-dialog__inner cw-typeset"></div>
+        </div>
+        <!-- Progress indicator -->
+        
+        <!-- Consent -->
+        
+        <!-- Theme-related configuration -->
+        
+            
+            <!-- Extra configuration -->
+            
+            
+            <!-- Versioning --><!-- Configuration -->
+            <script id="__config" type="application/json">{"annotate":null,"base":"../../..","features":["announce.dismiss","content.action.edit","content.action.view","content.code.annotate","content.code.copy","content.code.select","content.footnote.tooltips","content.tabs.link","content.tooltips","navigation.indexes","navigation.instant.prefetch","navigation.path","navigation.prune","navigation.tabs","navigation.top","navigation.tracking","search.highlight"],"search":"../../../assets/javascripts/workers/search.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":null}</script>
+        
+        <!-- Theme-related JavaScript -->
+        
+        
+    </body>
+</html>
