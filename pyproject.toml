@@ -169,8 +169,10 @@ quiet = false
 whitelist-regex = []
 color = true
 
-[tool.black]
-line-length = 119
+[tool.djlint]
+profile="jinja"
+blank_line_after_tag="load,extends,include,endmacro"
+ignore="H030,H031,H006"
 
 [tool.ruff]
 exclude = [

@@ -1,0 +1,76 @@
+<!-- Determine classes -->
+{% set class = "cw-header" %}
+{% if "navigation.tabs.sticky" in features %}
+    {% set class = class ~ " cw-header--shadow cw-header--lifted" %}
+{% elif "navigation.tabs" not in features %}
+    {% set class = class ~ " cw-header--shadow" %}
+{% endif %}
+<!-- Header -->
+<header class="{{ class }}" data-md-component="header">
+    <!-- Link to home -->
+    <a href="{{ config.extra.homepage | d(nav.homepage.url, true) | url }}"
+       title="{{ config.site_name | e }}"
+       class="brand"
+       aria-label="{{ config.site_name }}"
+       data-md-component="logo">
+        {% include "partials/logo.html" %}
+
+        <span>{{ config.site_name }}</span>
+    </a>
+    <!-- Button to open drawer -->
+    <label class="md-header__button md-icon"
+           for="__drawer"
+           aria-label="{{ lang.t('nav') }}">
+        {% set icon = config.theme.icon.menu or "material/menu" %}
+        {% include ".icons/" ~ icon ~ ".svg" %}
+
+    </label>
+    <!-- tab navigation -->
+    {% include "partials/tabs.html" %}
+
+    <div class="nav-buttons">
+        <!-- Color palette toggle -->
+        {#  {% if config.theme.palette %}#}
+        {#  {% if not config.theme.palette is mapping %}#}
+        {#  {% include "partials/palette.html" %}#}
+        {#  {% include "partials/javascripts/palette.html" %}#}
+        {#  {% endif %}#}
+        {#  {% endif %}#}
+        <!-- Site language selector -->
+        {% if config.extra.alternate %}
+            {% include "partials/alternate.html" %}
+
+        {% endif %}
+        <!-- Button to open search modal -->
+        {% if "search" in config.plugins %}
+            {% set search = config.plugins["search"] | attr("config") %}
+            <!-- Check if search is actually enabled - see https://t.ly/DT_0V -->
+            {% if search.enabled %}
+                {#  <label#}
+                {#    class="md-header__button md-icon" for="__search"#}
+                {#    aria-label="{{ lang.t('search') }}"#}
+                {#  >#}
+                {#    {% set icon = config.theme.icon.search or "material/magnify" %}#}
+                {#    {% include ".icons/" ~ icon ~ ".svg" %}#}
+                {#  </label>#}
+                <!-- Search interface -->
+                {% include "partials/search.html" %}
+
+            {% endif %}
+        {% endif %}
+        <!-- Repository information -->
+        <div class="md-header__source">
+            {% if config.repo_url %}
+                {% include "partials/source.html" %}
+
+            {% endif %}
+        </div>
+    </div>
+    <!-- Navigation tabs (sticky) -->
+    {% if "navigation.tabs.sticky" in features %}
+        {% if "navigation.tabs" in features %}
+            {% include "partials/tabs.html" %}
+
+        {% endif %}
+    {% endif %}
+</header>

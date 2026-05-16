@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Poller - Foreman</title>
+        <link rel="stylesheet" href="../../reset.css">
+        <link rel="stylesheet" href="../../colors_and_type.css">
+        <link rel="stylesheet" href="../../header.css">
+        <link rel="stylesheet" href="../../content.css">
+        <link rel="stylesheet" href="../../prism.css">
+    </head>
+    <body>
+        <a href="#__skip" class="skip-link">Skip to content</a>
+        <header>
+            <a class="brand" href="#">
+                <img src="../../Foreman-logo.svg" alt="Foreman">
+                <span>Foreman</span>
+            </a>
+            <!--    <button class="navbar-toggler"
+            type="button"
+            data-bs-toggle="collapse"
+            data-bs-target="#navbar"
+            -->
+            <!--            aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">-->
+            <!--      <span class="navbar-toggler-icon"></span>-->
+            <!--    </button>-->
+            <nav id="navbar" aria-label="Main navigation">
+                <ul>
+                    <li>
+                        <a href="#">Home</a>
+                    </li>
+                    <li>
+                        <a href="#">Get Started</a>
+                    </li>
+                    <li>
+                        <a href="#">How It Works</a>
+                    </li>
+                    <li>
+                        <a href="#">How-To</a>
+                    </li>
+                    <li>
+                        <a class="active" aria-current="page" href="#">Reference</a>
+                    </li>
+                    <li>
+                        <a href="#">Developer</a>
+                    </li>
+                </ul>
+            </nav>
+            <div class="nav-buttons">
+                <!--    <button aria-label="Theme" class="theme">-->
+                <!--      <i data-lucide="sun" width="20px" height="20px"></i>-->
+                <!--    </button>-->
+                <form class="palette" data-md-component="palette">
+                    <input data-md-color-media="(prefers-color-scheme)"
+                           data-md-color-scheme="default"
+                           data-md-color-primary="indigo"
+                           data-md-color-accent="indigo"
+                           aria-label="Switch to light mode"
+                           type="radio"
+                           name="__palette"
+                           id="__palette_0">
+                    <label for="__palette_1" title="Switch to light mode">
+                        <i class="icon" data-lucide="sun-moon"></i>
+                    </label>
+                    <input data-md-color-media="(prefers-color-scheme: light)"
+                           data-md-color-scheme="default"
+                           data-md-color-primary="indigo"
+                           data-md-color-accent="indigo"
+                           aria-label="Switch to dark mode"
+                           type="radio"
+                           name="__palette"
+                           id="__palette_1">
+                    <label for="__palette_2" hidden="" title="Switch to dark mode">
+                        <i class="icon" data-lucide="sun"></i>
+                    </label>
+                    <input data-md-color-media="(prefers-color-scheme: dark)"
+                           data-md-color-scheme="slate"
+                           data-md-color-primary="indigo"
+                           data-md-color-accent="orange"
+                           aria-label="Switch to system preference"
+                           type="radio"
+                           name="__palette"
+                           id="__palette_2">
+                    <label for="__palette_0" hidden="" title="Switch to system preference">
+                        <i class="icon" data-lucide="moon-star"></i>
+                    </label>
+                </form>
+                <form class="search-form">
+                    <label for="search">Search</label>
+                    <input id="search"
+                           name="search"
+                           type="search"
+                           value=""
+                           placeholder="Search"
+                           class="search">
+                    <button type="submit" class="search-button">
+                        <i data-lucide="search" width="1rem" height="1rem"></i>
+                    </button>
+                    <kbd>⌘K</kbd>
+                </form>
+                <a href="#" aria-label="Repository" class="source icon">
+                    <span class="github-icon"></span>
+                </a>
+            </div>
+        </header>
+        <div class="layout">
+            <aside class="sidebar">
+                <ul>
+                    <li>
+                        <a href="../../agent-protocol/" class="sidebar-item">Agent Protocol Reference</a>
+                    </li>
+                    <li>
+                        <a href="../../cli/" class="sidebar-item">CLI Reference</a>
+                    </li>
+                    <li>
+                        <a href="../../configuration/" class="sidebar-item">Configuration Reference</a>
+                    </li>
+                    <li class="sidebar-section">
+                        <a href="../" class="sidebar-item eyebrow">Api</a>
+                        <ul>
+                            <li>
+                                <a href="../config/" class="sidebar-item">Config</a>
+                            </li>
+                            <li>
+                                <a href="../containers/" class="sidebar-item">Containers</a>
+                            </li>
+                            <li>
+                                <a href="../credentials/" class="sidebar-item">Credentials</a>
+                            </li>
+                            <li>
+                                <a href="../executor/" class="sidebar-item">Executor</a>
+                            </li>
+                            <li>
+                                <a href="../logging_info/" class="sidebar-item">Logging info</a>
+                            </li>
+                            <li>
+                                <a href="../memory/" class="sidebar-item">Memory</a>
+                            </li>
+                            <li>
+                                <a href="../middleware/" class="sidebar-item">Middleware</a>
+                            </li>
+                            <li>
+                                <a href="../otel/" class="sidebar-item">Otel</a>
+                            </li>
+                            <li>
+                                <a href="././" class="sidebar-item active">Poller</a>
+                            </li>
+                            <li>
+                                <a href="../protocol/" class="sidebar-item">Protocol</a>
+                            </li>
+                            <li>
+                                <a href="../router/" class="sidebar-item">Router</a>
+                            </li>
+                            <li>
+                                <a href="../server/" class="sidebar-item">Server</a>
+                            </li>
+                            <li>
+                                <a href="../settings/" class="sidebar-item">Settings</a>
+                            </li>
+                            <li class="sidebar-section">
+                                <a href="../llm/" class="sidebar-item eyebrow">Llm</a>
+                                <ul>
+                                    <li>
+                                        <a href="../llm/anthropic/" class="sidebar-item">Anthropic</a>
+                                    </li>
+                                    <li>
+                                        <a href="../llm/base/" class="sidebar-item">Base</a>
+                                    </li>
+                                    <li>
+                                        <a href="../llm/ollama/" class="sidebar-item">Ollama</a>
+                                    </li>
+                                </ul>
+                            </li>
+                            <li class="sidebar-section">
+                                <a href="../routers/" class="sidebar-item eyebrow">Routers</a>
+                                <ul>
+                                    <li>
+                                        <a href="../routers/agent/" class="sidebar-item">Agent</a>
+                                    </li>
+                                    <li>
+                                        <a href="../routers/health/" class="sidebar-item">Health</a>
+                                    </li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </aside>
+            <div class="content">
+                <nav aria-label="Breadcrumb" class="breadcrumbs">
+                    <ol>
+                        <li>
+                            <a href="../../..">Home</a>
+                        </li>
+                        <li>
+                            <a href="../../">Reference</a>
+                        </li>
+                        <li>
+                            <a href="../">API</a>
+                        </li>
+                        <li class="active">Poller</li>
+                    </ol>
+                </nav>
+                <article>
+                    <div class="article-meta">
+                        <a href="https://github.com/callowayproject/foreman/edit/master/docs/reference/api/poller.md"
+                           title="Edit this page"
+                           aria-label="Edit this page"
+                           rel="edit">
+                            <i data-lucide="file-pen"></i>
+                        </a>
+                        <a href="https://github.com/callowayproject/foreman/raw/master/docs/reference/api/poller.md"
+                           title="View source of this page"
+                           aria-label="View source of this page">
+                            <i data-lucide="file-code-2"></i>
+                        </a>
+                    </div>
+                    <h1 id="__skip">
+                        Poller
+                        <a id="foreman.poller"
+                           href="#__skip"
+                           class="headerlink"
+                           title="Permanent link">¶</a>
+                    </h1>
+                    <div class="intro">
+                        <p>Asyncio polling loop for GitHub repositories.</p>
+                        <p>
+                            Polls all configured repositories concurrently, bounded by semaphore to
+                            avoid GitHub API rate limits. Issues authored by repo collaborators are
+                            skipped by default. Exponential backoff is applied on 403/429 responses.
+                        </p>
+                    </div>
+                    <p>
+                        <span class="doc-section-title">Classes:</span>
+                    </p>
+                    <dl>
+                        <dt>
+                            <code><a href="./#foreman.poller.GitHubPoller">GitHubPoller</a></code>
+                        </dt>
+                        <dd>
+                            <p>Polls GitHub repositories for new/updated issues on a configured interval.</p>
+                        </dd>
+                    </dl>
+                    <div class="doc-class">
+                        <h2 id="foreman.poller.GitHubPoller">
+                            <span class="doc-symbol doc-symbol-class">class</span>
+                            <span class="doc-class-name">GitHubPoller</span>
+                            <a href="#foreman.poller.GitHubPoller"
+                               class="headerlink"
+                               title="Permanent link">¶</a>
+                        </h2>
+                        <pre id="__code_0"><code class="language-python">GitHubPoller(token: SecretStr, memory: MemoryStore, max_concurrent: int = _DEFAULT_MAX_CONCURRENT)</code></pre>
+                        <p>Polls GitHub repositories for new/updated issues on a configured interval.</p>
+                        <p>
+                            Repositories are polled concurrently using :mod:<code>asyncio</code>, limited by a semaphore. The last-polled
+                            timestamp for each repo is persisted so that only issues updated after that timestamp are emitted on
+                            subsequent
+                            polls.
+                        </p>
+                        <p>
+                            <span class="doc-section-title">Parameters:</span>
+                        </p>
+                        <dl>
+                            <dt>
+                                <code>token</code>
+                                (
+                                <code>
+                                    <span title="pydantic.SecretStr">SecretStr</span>
+                                </code>
+                                )
+                            </dt>
+                            <dd>
+                                <p>GitHub Personal Access Token for the bot account.</p>
+                            </dd>
+                            <dt>
+                                <code>memory</code>
+                                (
+                                <code>
+                                    <a class="autorefs autorefs-internal"
+                                       href="../memory/#foreman.memory.MemoryStore">MemoryStore</a>
+                                </code>
+                                )
+                            </dt>
+                            <dd>
+                                <p>
+                                    :class:
+                                    <code>~foreman.memory.MemoryStore</code>
+                                    used to persist poll state.
+                                </p>
+                            </dd>
+                            <dt>
+                                <code>max_concurrent</code>
+                                (
+                                <code>
+                                    <a class="autorefs autorefs-external"
+                                       href="https://docs.python.org/3/library/functions.html#int">int</a>
+                                </code>
+                                , default:
+                                <code>
+                                    <span title="foreman.poller._DEFAULT_MAX_CONCURRENT">_DEFAULT_MAX_CONCURRENT</span>
+                                </code>
+                                )
+                            </dt>
+                            <dd>
+                                <p>Maximum number of repos polled simultaneously.</p>
+                            </dd>
+                        </dl>
+                        <p>
+                            <span class="doc-section-title">Methods:</span>
+                        </p>
+                        <dl>
+                            <dt>
+                                <code>
+                                    <a class="autorefs autorefs-internal"
+                                       href="./#foreman.poller.GitHubPoller.poll_all">poll_all</a>
+                                </code>
+                            </dt>
+                            <dd>
+                                <p>Poll all repositories concurrently, respecting the semaphore limit.</p>
+                            </dd>
+                            <dt>
+                                <code>
+                                    <a class="autorefs autorefs-internal"
+                                       href="./#foreman.poller.GitHubPoller.poll_repo">poll_repo</a>
+                                </code>
+                            </dt>
+                            <dd>
+                                <p>Poll a single repository for new or updated issues.</p>
+                            </dd>
+                            <dt>
+                                <code>
+                                    <a class="autorefs autorefs-internal"
+                                       href="./#foreman.poller.GitHubPoller.run">run</a>
+                                </code>
+                            </dt>
+                            <dd>
+                                <p>
+                                    Poll all repos in a continuous loop at <em>interval_seconds</em> frequency.
+                                </p>
+                            </dd>
+                        </dl>
+                        <div class="doc-function">
+                            <h3 id="foreman.poller.GitHubPoller.poll_all">
+                                <span class="doc-symbol doc-symbol-method">method</span>
+                                <span class="doc-function-name">poll_all</span>
+                                <a href="#foreman.poller.GitHubPoller.poll_all"
+                                   class="headerlink"
+                                   title="Permanent link">¶</a>
+                            </h3>
+                            <span class="doc doc-labels tags">
+                                <span class="tag async">async</span>
+                            </span>
+                            <pre id="__code_1"><code class="language-python">poll_all(repos: list[RepoConfig], callback: Callable[[RepoConfig, dict[str, Any]], Awaitable[None]]) -> None</code></pre>
+                            <p>Poll all repositories concurrently, respecting the semaphore limit.</p>
+                            <p>
+                                Each repo is polled in a thread via :func:<code>asyncio.to_thread</code> so blocking PyGithub calls do not
+                                block the event loop. On 403/429
+                                errors, one retry is attempted after an exponential backoff delay. Other
+                                :class:<code>~github.GithubException</code>
+                                errors are re-raised.
+                            </p>
+                            <p>
+                                <span class="doc-section-title">Parameters:</span>
+                            </p>
+                            <dl>
+                                <dt>
+                                    <code>repos</code>
+                                    (
+                                    <code>list[RepoConfig]</code>
+                                    )
+                                </dt>
+                                <dd>
+                                    <p>List of repository configs to poll this cycle.</p>
+                                </dd>
+                                <dt>
+                                    <code>callback</code>
+                                    (
+                                    <code>Callable[[RepoConfig, dict[str, Any]], Awaitable[None]]</code>
+                                    )
+                                </dt>
+                                <dd>
+                                    <p>
+                                        Async callable invoked with <code>(repo_config, event)</code> for every emitted event.
+                                    </p>
+                                </dd>
+                            </dl>
+                        </div>
+                        <div class="doc-function">
+                            <h3 id="foreman.poller.GitHubPoller.poll_repo">
+                                <span class="doc-symbol doc-symbol-method">method</span>
+                                <span class="doc-function-name">poll_repo</span>
+                                <a href="#foreman.poller.GitHubPoller.poll_repo"
+                                   class="headerlink"
+                                   title="Permanent link">¶</a>
+                            </h3>
+                            <pre id="__code_2"><code class="language-python">poll_repo(self, repo_config: RepoConfig) -> list[dict[str, Any]]</code></pre>
+                            <p>Poll a single repository for new or updated issues.</p>
+                            <p>
+                                Fetches issues updated since the last recorded poll timestamp.
+                                Issues authored by collaborators are filtered out.
+                                Persists the new poll timestamp after a successful fetch.
+                            </p>
+                            <p>
+                                <span class="doc-section-title">Parameters:</span>
+                            </p>
+                            <dl>
+                                <dt>
+                                    <code>repo_config</code>
+                                    (
+                                    <code>
+                                        <a class="autorefs autorefs-internal"
+                                           href="../config/#foreman.config.RepoConfig">RepoConfig</a>
+                                    </code>
+                                    )
+                                </dt>
+                                <dd class="doc-md-description">
+                                    <p>Configuration for the repository to poll.</p>
+                                </dd>
+                            </dl>
+                            <p>
+                                <span class="doc-section-title">Returns:</span>
+                            </p>
+                            <dl>
+                                <dt>
+                                    <code>list[dict[str, Any]]</code>
+                                </dt>
+                                <dd>
+                                    <p>
+                                        A list of event dicts, each with <code>repo</code>, <code>issue_number</code>, and
+                                        <code>payload</code>
+                                        keys.
+                                    </p>
+                                </dd>
+                            </dl>
+                            <p>
+                                <span class="doc-section-title">Raises:</span>
+                            </p>
+                            <dl>
+                                <dt>
+                                    <code>
+                                        <span title="github.GithubException">GithubException</span>
+                                    </code>
+                                </dt>
+                                <dd>
+                                    <p>
+                                        Propagated for all GitHub API errors; the caller in :meth:<code>poll_all</code> handles rate-limit
+                                        cases
+                                        with backoff.
+                                    </p>
+                                </dd>
+                            </dl>
+                        </div>
+                        <div class="doc-function">
+                            <h3 id="foreman.poller.GitHubPoller.run">
+                                <span class="doc-symbol doc-symbol-method">method</span>
+                                <span class="doc-function-name">run</span>
+                                <a href="#foreman.poller.GitHubPoller.run"
+                                   class="headerlink"
+                                   title="Permanent link">¶</a>
+                            </h3>
+                            <span class="tags">
+                                <span class="tag async">async</span>
+                            </span>
+                            <pre id="__code_3"><code class="language-python">run(repos: list[RepoConfig], interval_seconds: int, callback: Callable[[RepoConfig, dict[str, Any]], Awaitable[None]]) -> None</code></pre>
+                            <p>
+                                Poll all repos in a continuous loop at <em>interval_seconds</em> frequency.
+                            </p>
+                            <p>
+                                <span class="doc-section-title">Parameters:</span>
+                            </p>
+                            <dl>
+                                <dt>
+                                    <code>repos</code>
+                                    (
+                                    <code>
+                                        <a class="autorefs autorefs-external"
+                                           href="https://docs.python.org/3/library/stdtypes.html#list">list</a>
+                                        [
+                                        <a class="autorefs autorefs-internal"
+                                           href="../config/#foreman.config.RepoConfig">RepoConfig</a>
+                                        ]
+                                    </code>
+                                    )
+                                </dt>
+                                <dd>
+                                    <p>Repositories to monitor.</p>
+                                </dd>
+                                <dt>
+                                    <code>interval_seconds</code>
+                                    (
+                                    <code>
+                                        <a class="autorefs autorefs-external"
+                                           href="https://docs.python.org/3/library/functions.html#int">int</a>
+                                    </code>
+                                    )
+                                </dt>
+                                <dd>
+                                    <p>Seconds to wait between poll cycles.</p>
+                                </dd>
+                                <dt>
+                                    <code>callback</code>
+                                    (
+                                    <code>
+                                        <a class="autorefs autorefs-external"
+                                           title="collections.abc.Callable"
+                                           href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable">Callable</a>
+                                        [[
+                                        <a class="autorefs autorefs-internal"
+                                           href="../config/#foreman.config.RepoConfig">RepoConfig</a>
+                                        ,
+                                        <a class="autorefs autorefs-external"
+                                           href="https://docs.python.org/3/library/stdtypes.html#dict">dict</a>
+                                        [
+                                        <a class="autorefs autorefs-external"
+                                           href="https://docs.python.org/3/library/stdtypes.html#str">str</a>
+                                        ,
+                                        <a class="autorefs autorefs-external"
+                                           title="typing.Any"
+                                           href="https://docs.python.org/3/library/typing.html#typing.Any">Any</a>
+                                        ]],
+                                        <a class="autorefs autorefs-external"
+                                           title="collections.abc.Awaitable"
+                                           href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Awaitable">Awaitable</a>
+                                        [None]]
+                                    </code>
+                                    )
+                                </dt>
+                                <dd>
+                                    <p>Async callable invoked per emitted event.</p>
+                                </dd>
+                            </dl>
+                        </div>
+                    </div>
+                </article>
+            </div>
+            <div class="toc">
+                <div class="toc__heading">On this page</div>
+                <nav aria-label="On this page">
+                    <ul class="toc__list">
+                        <li>
+                            <a href="#foreman.poller">
+                                <span class="md-typeset">
+                                    <code class="doc-symbol doc-symbol-toc doc-symbol-module">mod</code>
+                                    &nbsp;poller
+                                </span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#foreman.poller.GitHubPoller" class="active">
+                                <code class="doc-symbol doc-symbol-toc doc-symbol-class">c</code>
+                                &nbsp;GitHubPoller
+                            </a>
+                            <nav aria-label="GitHubPoller">
+                                <ul class="toc__list">
+                                    <li>
+                                        <a href="#foreman.poller.GitHubPoller.poll_all" class="sidebar-item">
+                                            <code class="doc-symbol doc-symbol-toc doc-symbol-method">m</code>
+                                            &nbsp;poll_all
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="#foreman.poller.GitHubPoller.poll_repo" class="sidebar-item">
+                                            <code class="doc-symbol doc-symbol-toc doc-symbol-method">m</code>
+                                            &nbsp;poll_repo
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="#foreman.poller.GitHubPoller.run" class="sidebar-item">
+                                            <code class="doc-symbol doc-symbol-toc doc-symbol-method">m</code>
+                                            &nbsp;run
+                                        </a>
+                                    </li>
+                                </ul>
+                            </nav>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+        <footer>
+            <nav class="footer-nav" aria-label="Footer">
+                <a href="../otel/"
+                   class="footer__link--prev"
+                   aria-label="Previous: Otel">
+                    <div class="footer__button">
+                        <i data-lucide="arrow-left"></i>
+                    </div>
+                    <div class="footer__title">
+                        <div class="footer__direction">Previous</div>
+                        Otel
+                    </div>
+                </a>
+                <a href="../protocol/"
+                   class="footer__link--next"
+                   aria-label="Next: Protocol">
+                    <div class="footer__title">
+                        <div class="footer__direction">Next</div>
+                        Protocol
+                    </div>
+                    <div class="footer__button">
+                        <i data-lucide="arrow-right"></i>
+                    </div>
+                </a>
+            </nav>
+            <div class="footer-meta">
+                <div class="copyright">
+                    <div class="md-copyright__highlight">Copyright © 2026 Corey Oordt</div>
+                    Made with
+                    <a href="https://zensical.org/" target="_blank" rel="noopener">Zensical</a>
+                </div>
+                <div class="social">
+                    <a href="https://github.com/callowayproject"
+                       target="_blank"
+                       rel="noopener"
+                       title="github.com"
+                       class="social__link">
+                        <i class="fa-brands fa-github"></i>
+                    </a>
+                    <a href="https://pypi.org/project/foreman/"
+                       target="_blank"
+                       rel="noopener"
+                       title="pypi.org"
+                       class="social__link">
+                        <i class="fa-brands fa-python"></i>
+                    </a>
+                </div>
+            </div>
+        </footer>
+        <script src="https://unpkg.com/lucide@latest"></script>
+        <script>
+  lucide.createIcons();
+
+  // Keyboard shortcut for search
+  document.addEventListener('keydown', (e) => {
+    if ((e.metaKey && e.key.toLowerCase() === 'k') &&
+      !['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement.tagName) &&
+      !document.activeElement.isContentEditable) {
+      e.preventDefault();
+      document.getElementById('search').focus();
+    }
+  });
+        </script>
+        <script src="https://cdn.jsdelivr.net/npm/prismjs@1.30.0/prism.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/prismjs@1.30.0/plugins/autoloader/prism-autoloader.min.js"></script>
+        <script src="../../fontawesome.min.js"></script>
+        <script src="../../brands.min.js"></script>
+    </body>
+</html>

@@ -1,0 +1,187 @@
+<!-- Render navigation link status -->
+{% macro render_status(nav_item, type) %}
+    {% set class = "md-status md-status--" ~ type %}
+    <!-- Render icon with title (or tooltip), if given -->
+    {% if config.extra.status and config.extra.status[type] %}
+        <span class="{{ class }}" title="{{ config.extra.status[type] }}"></span>
+        <!-- Render icon only -->
+    {% else %}
+        <span class="{{ class }}"></span>
+    {% endif %}
+{% endmacro %}
+
+<!-- Render navigation link title -->
+{% macro render_title(nav_item, ref) %}
+    {% set ref = ref or nav_item %}
+    {{ ref.title or nav_item.title }}
+{% endmacro %}
+
+<!-- Render navigation link content -->
+{% macro render_content(nav_item, ref) %}
+    {% set ref = ref or nav_item %}
+    <!-- Navigation link icon -->
+    {% if nav_item.meta and nav_item.meta.icon %}
+        {% include ".icons/" ~ nav_item.meta.icon ~ ".svg" %}
+
+    {% endif %}
+    <!-- Navigation link title -->
+    {{ render_title(nav_item, ref) }}
+    <!-- Navigation link subtitle -->
+    {% if nav_item.meta and nav_item.meta.subtitle %}
+        <br />
+        <small>{{ nav_item.meta.subtitle }}</small>
+    {% endif %}
+    <!-- Navigation link to encrypted content -->
+    {% if nav_item.meta and nav_item.encrypted %}{{ render_status(nav_item, "encrypted") }}{% endif %}
+    <!-- Navigation link status -->
+    {% if nav_item.meta and nav_item.meta.status %}{{ render_status(nav_item, nav_item.meta.status) }}{% endif %}
+{% endmacro %}
+
+<!-- Render navigation item (pruned) -->
+{% macro render_pruned(nav_item, ref) %}
+    {% set ref = ref or nav_item %}
+    {% set first = nav_item.children | first %}
+    <!-- Recurse, if the first item has further nested items -->
+    {% if first and first.children %}
+        {{ render_pruned(first, ref) }}
+        <!-- Navigation link -->
+    {% else %}
+        <a href="{{ first.url | url }}" class="sidebar-item">
+            {{ render_content(ref) }}
+            <!-- Only render toggle if there's at least one nested item -->
+            {% if nav_item.children | length > 0 %}<span class="md-nav__icon md-icon"></span>{% endif %}
+        </a>
+    {% endif %}
+{% endmacro %}
+
+<!-- Render navigation item -->
+{% macro render(nav_item, path, level, parent) %}
+    <!-- Determine classes -->
+    {% set class = "" %}
+    {% if nav_item.active %}
+        {% set class = class ~ " active" %}
+    {% endif %}
+    {% if nav_item.pages %}
+        <!-- Determine active page for paginated views -->
+        {% if page in nav_item.pages %}
+            {% set nav_item = page %}
+        {% endif %}
+    {% endif %}
+    {% if nav_item.children %}
+        <!-- Navigation item with nested items -->
+        {% set _ = namespace(index = none) %}
+        {% if "navigation.indexes" in features %}
+            <!-- Determine all nested items that are index pages -->
+            {% for item in nav_item.children %}
+                {% if item.is_index and _.index is none %}
+                    {% set _.index = item %}
+                {% endif %}
+            {% endfor %}
+        {% endif %}
+        {% set index = _.index %}
+        {% if "navigation.tabs" in features %}
+            <!-- Navigation tabs -->
+            {% if level == 1 and nav_item.active %}
+                <!-- Render 1st level active item as section -->
+                {% set class = class ~ " sidebar-section" %}
+                {% set is_section = true %}
+            {% endif %}
+            {% if "navigation.sections" in features %}
+                <!-- Navigation tabs + sections -->
+                {% if level == 2 and parent.active %}
+                    <!-- Render 2nd level items with nested items as sections -->
+                    {% set class = class ~ " sidebar-section" %}
+                    {% set is_section = true %}
+                {% endif %}
+            {% endif %}
+            <!-- Navigation sections -->
+        {% elif "navigation.sections" in features %}
+            <!-- Render 1st level items with nested items as sections -->
+            {% if level == 1 %}
+                {% set class = class ~ " sidebar-section" %}
+                {% set is_section = true %}
+            {% endif %}
+        {% endif %}
+        <!-- Navigation pruning -->
+        {% if "navigation.prune" in features %}
+            <!-- Prune item if it is not a section and not active -->
+            {% if not is_section and not nav_item.active %}
+                {% set class = class ~ " sidebar-pruned" %}
+                {% set is_pruned = true %}
+            {% endif %}
+        {% endif %}
+        <!-- Nested navigation item -->
+        <li class="{{ class }}">
+            {% if not is_pruned %}
+                <!-- Determine checked and indeterminate state -->
+                {% if "navigation.expand" in features and not checked %}
+                    {% set indeterminate = "md-toggle--indeterminate" %}
+                {% endif %}
+                {% if not index %}
+                    <!-- Toggle to expand nested items -->
+                    {% set tabindex = "0" if not is_section %}
+                    <label class="md-nav__link"
+                           for="{{ path }}"
+                           id="{{ path }}_label"
+                           tabindex="{{ tabindex }}">
+                        {{ render_content(nav_item) }}
+                        <span class="md-nav__icon md-icon"></span>
+                    </label>
+                {% else %}
+                    <!-- Toggle to expand nested items with link to index page -->
+                    {% set class = "active" if index.active %}
+                    {#                    <div class="md-nav__link md-nav__container">#}
+                    <a href="{{ index.url | url }}" class="sidebar-item {{ class }}">{{ render_content(index, nav_item) }}</a>
+                    <!-- Only render toggle if there's at least one more page -->
+                    {#                        {% if nav_item.children | length > 1 %}#}
+                    {#                            {% set tabindex = "0" if not is_section %}#}
+                    {#                            <label class="md-nav__link {{ class }}"#}
+                    {#                                   for="{{ path }}"#}
+                    {#                                   id="{{ path }}_label"#}
+                    {#                                   tabindex="{{ tabindex }}">#}
+                    {#                                <span class="md-nav__icon md-icon"></span>#}
+                    {#                            </label>#}
+                    {#                        {% endif %}#}
+                    {#                    </div>#}
+                {% endif %}
+                <!-- Nested navigation -->
+                <ul class="md-nav__list" data-md-scrollfix>
+                    <!-- Nested navigation item -->
+                    {% for item in nav_item.children %}
+                        {% if not index or item != index %}{{ render(item, path ~ "_" ~ loop.index, level + 1, nav_item) }}{% endif %}
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <!-- Pruned navigation item -->
+                {{ render_pruned(nav_item, index) }}
+            {% endif %}
+        </li>
+    {% elif nav_item.active %}
+        <!-- Currently active page -->
+        <li class="{{ class }} active">
+            {% set toc = page.toc %}
+            <!-- Hack: see partials/toc-new.html for more information -->
+            {% set first = toc | first %}
+            {% if first and first.level == 1 %}
+                {% set toc = first.children %}
+            {% endif %}
+            {% if toc %}
+                <!-- Navigation link to table of contents -->
+                <label class="sidebar-nav__link sidebar-nav__link--active" for="__toc">
+                    {{ render_content(nav_item) }}
+                    <span class="sidebar-nav__icon md-icon"></span>
+                </label>
+            {% endif %}
+            <a href="{{ nav_item.url | url }}" class="sidebar-item active">{{ render_content(nav_item) }}</a>
+            {% if toc %}
+                <!-- Table of contents -->
+                {#                {% include "partials/toc.html" %}#}
+            {% endif %}
+        </li>
+    {% else %}
+        <!-- Navigation item -->
+        <li class="{{ class }}">
+            <a href="{{ nav_item.url | url }}" class="sidebar-item">{{ render_content(nav_item) }}</a>
+        </li>
+    {% endif %}
+{% endmacro %}
