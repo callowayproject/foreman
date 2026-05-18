@@ -2,7 +2,7 @@
 
 # User variables for reference in other parts of the configuration.
 variables:
-  repo_url: https://github.com/callowayproject/foreman
+  repo_url: https://github.com/callowayproject/night-brownie
   changelog_filename: CHANGELOG.md
 
 # Pipeline to find the most recent tag for incremental changelog generation.
@@ -113,21 +113,21 @@ release_hint_rules:
     branch: master|main
   - match_result: patch
     grouping: Other
-    path: foreman/*
+    path: night_brownie/*
     branch: master|main
   - match_result: patch
     grouping: Fixes
-    path: foreman/*
+    path: night_brownie/*
     branch: master|main
   - match_result: minor
     grouping: Updates
-    path: foreman/*
+    path: night_brownie/*
     branch: master|main
   - match_result: minor
     grouping: New
-    path: foreman/*
+    path: night_brownie/*
     branch: master|main
   - match_result: major
     grouping: Breaking Changes
-    path: foreman/*
+    path: night_brownie/*
     branch: master|main

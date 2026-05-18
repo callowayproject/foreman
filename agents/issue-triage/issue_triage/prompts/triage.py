@@ -6,9 +6,10 @@ import json
 from typing import TYPE_CHECKING, Any
 
 import litellm
+from night_brownie_client.models import DecisionType
 
 if TYPE_CHECKING:
-    from foremanclient.models import DecisionMessage, TaskMessage
+    from night_brownie_client.models import DecisionMessage, TaskMessage
 
 _VALID_DECISIONS = {"label_and_respond", "close", "escalate", "skip"}
 
@@ -25,7 +26,7 @@ def build_prompt(task: TaskMessage) -> str:
     """Build the triage prompt from a task message.
 
     Args:
-        task: The incoming :class:`~agent.TaskMessage` from the harness.
+        task: The incoming `agent.TaskMessage` from the harness.
 
     Returns:
         A formatted prompt string ready to send to the LLM.
@@ -65,23 +66,23 @@ def parse_llm_response(
     task_id: str,
     allow_close: bool = False,
 ) -> DecisionMessage:
-    """Extract and validate a :class:`~agent.DecisionMessage` from raw LLM text.
+    """Extract and validate an `agent.DecisionMessage` from raw LLM text.
 
     Searches for the first JSON object in *raw*, validates it, and applies the
-    ``allow_close`` guard.  Returns a ``skip`` decision on any parse failure.
+    `allow_close` guard.  Returns a `skip` decision on any parse failure.
 
     Args:
         raw: Raw text returned by the LLM.
         task_id: Task identifier to set on the returned message.
-        allow_close: Whether ``close_issue`` actions are permitted.
+        allow_close: Whether `close_issue` actions are permitted.
 
     Returns:
-        A validated :class:`~agent.DecisionMessage`.
+        A validated `agent.DecisionMessage`.
     """
-    from foremanclient.models import ActionItem, DecisionMessage
+    from night_brownie_client.models import ActionItem, DecisionMessage, DecisionType
 
     def _skip(rationale: str = "Could not parse LLM response") -> DecisionMessage:
-        return DecisionMessage(task_id=task_id, decision="skip", rationale=rationale, actions=[])
+        return DecisionMessage(task_id=task_id, decision=DecisionType.skip, rationale=rationale, actions=[])
 
     # Find the first '{' and attempt to parse the JSON from that position.
     start = raw.find("{")
@@ -115,10 +116,10 @@ def _recent_comment_in_memory(memory_summary: str | None) -> bool:
     """Return True if *memory_summary* indicates a recent comment was posted.
 
     Args:
-        memory_summary: LLM-generated summary of prior actions, or ``None``.
+        memory_summary: LLM-generated summary of prior actions, or `None`.
 
     Returns:
-        ``True`` when any recent-comment keyword is found in the summary.
+        `True` when any recent-comment keyword is found in the summary.
     """
     if not memory_summary:
         return False
@@ -131,8 +132,8 @@ def _call_llm(prompt: str, provider: str, model: str, api_key: str | None = None
 
     Args:
         prompt: The user prompt to send.
-        provider: LLM provider identifier (e.g. ``"anthropic"``).
-        model: Model name (e.g. ``"claude-haiku-4-5-20251001"``).
+        provider: LLM provider identifier (e.g. `"anthropic"`).
+        model: Model name (e.g. `"claude-haiku-4-5-20251001"`).
         api_key: Optional API key (required for Anthropic; omit for Ollama).
 
     Returns:
@@ -147,24 +148,24 @@ def _call_llm(prompt: str, provider: str, model: str, api_key: str | None = None
 
 
 def run_triage(task: TaskMessage) -> DecisionMessage:
-    """Run LLM-based triage on *task* and return a decision.
+    """Run LLM-based triage on `task` and return a decision.
 
     Applies a duplicate-comment guard before calling the LLM: if
-    ``memory_summary`` indicates a comment was posted within the last 24 hours,
+    `memory_summary` indicates a comment was posted within the last 24 hours,
     the task is immediately skipped without an LLM call.
 
     Args:
-        task: The incoming :class:`~agent.TaskMessage` from the harness.
+        task: The incoming `agent.TaskMessage` from the harness.
 
     Returns:
-        A :class:`~agent.DecisionMessage` with decision, rationale, and actions.
+        A `agent.DecisionMessage` with decision, rationale, and actions.
     """
     if _recent_comment_in_memory(task.context.memory_summary):
-        from foremanclient.models import DecisionMessage
+        from night_brownie_client.models import DecisionMessage
 
         return DecisionMessage(
             task_id=task.task_id,
-            decision="skip",
+            decision=DecisionType.skip,
             rationale="A comment was posted recently — skipping to avoid duplicate response.",
             actions=[],
         )

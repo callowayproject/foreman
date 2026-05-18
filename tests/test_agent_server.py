@@ -1,4 +1,4 @@
-"""Tests for agents/issue-triage/agent.py — 202 protocol with ForemanClient."""
+"""Tests for agents/issue-triage/agent.py — 202 protocol with NightBrownieClient."""
 
 from __future__ import annotations
 
@@ -9,17 +9,16 @@ from unittest.mock import MagicMock
 import pytest
 from fastapi.testclient import TestClient
 
-# Make the agent and foreman-client importable without installation.
-_CLIENT_DIR = Path(__file__).parent.parent / "foreman-client"
+# Make the agent and night-brownie-client importable without installation.
+_CLIENT_DIR = Path(__file__).parent.parent / "night-brownie-client"
 _AGENT_DIR = Path(__file__).parent.parent / "agents" / "issue-triage" / "issue_triage"
 for _dir in (_CLIENT_DIR, _AGENT_DIR):
     if str(_dir) not in sys.path:
         sys.path.insert(0, str(_dir))
 
 from agent import app  # noqa: E402
-from foremanclient import ForemanClient  # noqa: E402
-from foremanclient.models import LLMBackendRef, TaskContext, TaskMessage  # noqa: E402
-
+from night_brownie_client import NightBrownieClient  # noqa: E402
+from night_brownie_client.models import LLMBackendRef, TaskContext, TaskMessage  # noqa: E402
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -43,17 +42,17 @@ def _make_task(task_id: str = "test-uuid-001") -> TaskMessage:
 
 
 @pytest.fixture()
-def mock_foreman_client() -> MagicMock:
-    """Return a MagicMock with the ForemanClient spec; next_task() returns None by default."""
-    mc = MagicMock(spec=ForemanClient)
+def mock_night_brownie_client() -> MagicMock:
+    """Return a MagicMock with the NightBrownieClient spec; next_task() returns None by default."""
+    mc = MagicMock(spec=NightBrownieClient)
     mc.next_task.return_value = None
     return mc
 
 
 @pytest.fixture()
-def client(mock_foreman_client: MagicMock) -> TestClient:
-    """Return a TestClient with a mock ForemanClient injected via app.state."""
-    app.state.client = mock_foreman_client
+def client(mock_night_brownie_client: MagicMock) -> TestClient:
+    """Return a TestClient with a mock NightBrownieClient injected via app.state."""
+    app.state.client = mock_night_brownie_client
     with TestClient(app) as tc:
         yield tc
     del app.state.client
@@ -110,29 +109,31 @@ class TestTaskEndpointAccepted:
         response = client.post("/task", json={"task_id": "test-uuid-001"})
         assert response.status_code == 202
 
-    def test_background_task_calls_next_task(self, client: TestClient, mock_foreman_client: MagicMock) -> None:
+    def test_background_task_calls_next_task(self, client: TestClient, mock_night_brownie_client: MagicMock) -> None:
         """Background task calls client.next_task() after nudge received."""
         # Startup poll already called next_task once; reset before POST
-        mock_foreman_client.reset_mock()
+        mock_night_brownie_client.reset_mock()
         client.post("/task", json={"task_id": "test-uuid-001"})
-        mock_foreman_client.next_task.assert_called()
+        mock_night_brownie_client.next_task.assert_called()
 
-    def test_next_task_returning_none_does_not_crash(self, client: TestClient, mock_foreman_client: MagicMock) -> None:
+    def test_next_task_returning_none_does_not_crash(
+        self, client: TestClient, mock_night_brownie_client: MagicMock
+    ) -> None:
         """When next_task() returns None, background task completes without error."""
-        mock_foreman_client.next_task.return_value = None
+        mock_night_brownie_client.next_task.return_value = None
         response = client.post("/task", json={"task_id": "test-uuid-001"})
         assert response.status_code == 202
 
     def test_next_task_returning_task_calls_complete(
-        self, client: TestClient, mock_foreman_client: MagicMock, mocker
+        self, client: TestClient, mock_night_brownie_client: MagicMock, mocker
     ) -> None:
         """When next_task() returns a task, complete_task() is called after triage."""
         task = _make_task()
-        mock_foreman_client.next_task.return_value = task
+        mock_night_brownie_client.next_task.return_value = task
         stub_decision = MagicMock()
         mocker.patch("agent.triage", return_value=stub_decision)
         client.post("/task", json={"task_id": task.task_id})
-        mock_foreman_client.complete_task.assert_called_once_with(task.task_id, stub_decision)
+        mock_night_brownie_client.complete_task.assert_called_once_with(task.task_id, stub_decision)
 
 
 # ---------------------------------------------------------------------------
@@ -143,7 +144,7 @@ class TestTaskEndpointAccepted:
 class TestHeartbeatDuringProcessing:
     """_process_task fires heartbeat every 25 s while triage runs."""
 
-    def test_heartbeat_called_during_triage(self, mock_foreman_client: MagicMock, mocker) -> None:
+    def test_heartbeat_called_during_triage(self, mock_night_brownie_client: MagicMock, mocker) -> None:
         """heartbeat() is called at least once while triage is running."""
         import threading
 
@@ -158,64 +159,64 @@ class TestHeartbeatDuringProcessing:
         def record_heartbeat(*args, **kwargs):
             heartbeat_called.set()
 
-        mock_foreman_client.heartbeat.side_effect = record_heartbeat
-        mock_foreman_client.next_task.side_effect = [task, None]
+        mock_night_brownie_client.heartbeat.side_effect = record_heartbeat
+        mock_night_brownie_client.next_task.side_effect = [task, None]
         mocker.patch("agent.triage", side_effect=slow_triage)
 
         # Patch the heartbeat interval to 0.05 s so the test doesn't take 25 s
         mocker.patch("agent._HEARTBEAT_INTERVAL", 0.05)
 
-        app.state.client = mock_foreman_client
+        app.state.client = mock_night_brownie_client
         with TestClient(app):
             pass
         del app.state.client
 
-        mock_foreman_client.heartbeat.assert_called()
+        mock_night_brownie_client.heartbeat.assert_called()
 
-    def test_heartbeat_stopped_after_triage(self, mock_foreman_client: MagicMock, mocker) -> None:
+    def test_heartbeat_stopped_after_triage(self, mock_night_brownie_client: MagicMock, mocker) -> None:
         """Heartbeat thread stops firing after triage completes."""
         import time
 
         task = _make_task()
-        mock_foreman_client.next_task.side_effect = [task, None]
+        mock_night_brownie_client.next_task.side_effect = [task, None]
         stub_decision = MagicMock()
         mocker.patch("agent.triage", return_value=stub_decision)
         mocker.patch("agent._HEARTBEAT_INTERVAL", 0.05)
 
-        app.state.client = mock_foreman_client
+        app.state.client = mock_night_brownie_client
         with TestClient(app):
             pass
         del app.state.client
 
-        calls_after_complete = mock_foreman_client.heartbeat.call_count
+        calls_after_complete = mock_night_brownie_client.heartbeat.call_count
         time.sleep(0.2)  # wait to see if more heartbeats fire after triage
-        assert mock_foreman_client.heartbeat.call_count == calls_after_complete
+        assert mock_night_brownie_client.heartbeat.call_count == calls_after_complete
 
 
 class TestStartupPoll:
     """Lifespan startup poll drains all queued tasks on boot."""
 
-    def test_startup_poll_calls_next_task_once_when_queue_empty(self, mock_foreman_client: MagicMock) -> None:
+    def test_startup_poll_calls_next_task_once_when_queue_empty(self, mock_night_brownie_client: MagicMock) -> None:
         """Startup poll calls next_task() once when the queue is empty (returns None)."""
-        app.state.client = mock_foreman_client
+        app.state.client = mock_night_brownie_client
         with TestClient(app):
             pass
         del app.state.client
-        assert mock_foreman_client.next_task.call_count == 1
+        assert mock_night_brownie_client.next_task.call_count == 1
 
-    def test_startup_poll_drains_all_queued_tasks(self, mock_foreman_client: MagicMock, mocker) -> None:
+    def test_startup_poll_drains_all_queued_tasks(self, mock_night_brownie_client: MagicMock, mocker) -> None:
         """Startup poll loops until next_task() returns None, processing each task."""
         tasks = [_make_task(f"t{i}") for i in range(3)]
-        mock_foreman_client.next_task.side_effect = [*tasks, None]
+        mock_night_brownie_client.next_task.side_effect = [*tasks, None]
         stub_decision = MagicMock()
         mocker.patch("agent.triage", return_value=stub_decision)
 
-        app.state.client = mock_foreman_client
+        app.state.client = mock_night_brownie_client
         with TestClient(app):
             pass
         del app.state.client
 
         # next_task called 4 times: 3 tasks + 1 None to break the loop
-        assert mock_foreman_client.next_task.call_count == 4
+        assert mock_night_brownie_client.next_task.call_count == 4
         # All 3 tasks completed
-        assert mock_foreman_client.complete_task.call_count == 3
+        assert mock_night_brownie_client.complete_task.call_count == 3

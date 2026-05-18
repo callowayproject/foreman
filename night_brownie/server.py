@@ -1,35 +1,36 @@
-"""Foreman FastAPI application and dispatch loop."""
+"""Night Brownie FastAPI application and dispatch loop."""
 
 from __future__ import annotations
 
 import asyncio
 import contextlib
+import sqlite3
 from contextlib import asynccontextmanager
 from typing import TYPE_CHECKING, Any
 
-import httpx
+import httpxyz
 import structlog
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
 
-from foreman.executor import GitHubExecutor
-from foreman.logging_info import configure as configure_logging
-from foreman.middleware import LogCorrelationIdMiddleware
-from foreman.otel import configure_otel
-from foreman.protocol import LLMBackendRef, TaskContext, TaskMessage
-from foreman.routers import health
-from foreman.routers import queue as queue_router
-from foreman.routers import result as result_router
-from foreman.settings import settings
+from night_brownie.executor import GitHubExecutor, UnknownActionError
+from night_brownie.logging_info import configure as configure_logging
+from night_brownie.middleware import LogCorrelationIdMiddleware
+from night_brownie.otel import configure_otel
+from night_brownie.protocol import LLMBackendRef, TaskContext, TaskMessage
+from night_brownie.routers import health
+from night_brownie.routers import queue as queue_router
+from night_brownie.routers import result as result_router
+from night_brownie.settings import settings
 
 if TYPE_CHECKING:
     from collections.abc import AsyncGenerator
 
-    from foreman.config import ForemanConfig
-    from foreman.memory import MemoryStore
-    from foreman.queue import TaskQueue
-    from foreman.routers.agent import RouteTarget
+    from night_brownie.config import NightBrownieConfig
+    from night_brownie.memory import MemoryStore
+    from night_brownie.queue import TaskQueue
+    from night_brownie.routers.agent import RouteTarget
 
 configure_logging()
 
@@ -39,17 +40,17 @@ logger = structlog.get_logger(__name__)
 class Dispatcher:
     """Orchestrates the harness dispatch loop: fetch memory → build task → enqueue → nudge agent.
 
-    One :class:`Dispatcher` instance is created at startup and shared across
-    the entire process.  Tasks are enqueued in the durable :class:`~foreman.queue.TaskQueue`
+    One `Dispatcher` instance is created at startup and shared across
+    the entire process.  Tasks are enqueued in the durable `night_brownie.queue.TaskQueue`
     before the agent is nudged; results are drained asynchronously by the background loop.
 
     Args:
-        config: Validated :class:`~foreman.config.ForemanConfig`.
-        memory: Open :class:`~foreman.memory.MemoryStore` instance.
-        task_queue: Durable :class:`~foreman.queue.TaskQueue` instance.
+        config: Validated `night_brownie.config.NightBrownieConfig`.
+        memory: Open `night_brownie.memory.MemoryStore` instance.
+        task_queue: Durable `night_brownie.queue.TaskQueue` instance.
     """
 
-    def __init__(self, config: ForemanConfig, memory: MemoryStore, task_queue: TaskQueue) -> None:
+    def __init__(self, config: NightBrownieConfig, memory: MemoryStore, task_queue: TaskQueue) -> None:
         self._config = config
         self._memory = memory
         self._task_queue = task_queue
@@ -60,14 +61,14 @@ class Dispatcher:
 
         Sequence:
         1. Fetch memory summary for this repo+issue.
-        2. Build a :class:`~foreman.protocol.TaskMessage`.
+        2. Build a `night_brownie.protocol.TaskMessage`.
         3. Enqueue the task in the durable queue.
-        4. Fire-and-forget ``POST <agent_url>/task`` nudge with ``{"task_id": ...}``.
+        4. Fire-and-forget `POST <agent_url>/task` nudge with `{"task_id": ...}`.
            Network errors are logged and swallowed — the drain loop will retry.
 
         Args:
-            event: Poller event dict with ``repo``, ``issue_number``, and ``payload`` keys.
-            route_target: Resolved :class:`~foreman.routers.agent.RouteTarget`.
+            event: Poller event dict with `repo`, `issue_number`, and `payload` keys.
+            route_target: Resolved `night_brownie.routers.agent.RouteTarget`.
         """
         repo: str = event["repo"]
         issue_number: int = event["issue_number"]
@@ -91,13 +92,13 @@ class Dispatcher:
         logger.info("Task enqueued", task_id=task.task_id, repo=repo, issue_number=issue_number)
 
         try:
-            async with httpx.AsyncClient() as client:
+            async with httpxyz.AsyncClient() as client:
                 await client.post(
                     f"{route_target.url}/task",
                     json={"task_id": task.task_id},
                     timeout=5.0,
                 )
-        except httpx.HTTPError as exc:
+        except httpxyz.HTTPError as exc:
             logger.warning(
                 "Nudge to agent failed; task remains in queue",
                 url=route_target.url,
@@ -110,22 +111,22 @@ async def _drain_loop(
     task_queue: TaskQueue,
     executor: GitHubExecutor,
     memory: MemoryStore,
-    config: ForemanConfig,
+    config: NightBrownieConfig,
     drain_event: asyncio.Event,
 ) -> None:
     """Drain completed tasks from the queue and execute their decisions.
 
-    Wakes on *drain_event* or after ``config.queue.drain_interval_seconds``.
-    Each ``(TaskMessage, DecisionMessage)`` pair returned by
-    :meth:`~foreman.queue.TaskQueue.drain_completed` is passed to
-    :meth:`~foreman.executor.GitHubExecutor.execute` and
-    :meth:`~foreman.memory.MemoryStore.upsert_memory_summary`.
+    Wakes on `drain_event` or after `config.queue.drain_interval_seconds`.
+    Each `(TaskMessage, DecisionMessage)` pair returned by
+    `night_brownie.queue.TaskQueue.drain_completed` is passed to
+    `night_brownie.executor.GitHubExecutor.execute` and
+    `night_brownie.memory.MemoryStore.upsert_memory_summary`.
 
     Args:
         task_queue: The durable task queue.
         executor: GitHub action executor.
         memory: Memory store for summary updates.
-        config: Runtime configuration (provides drain interval).
+        config: Runtime configuration (provides `queue.drain_interval_seconds`).
         drain_event: Asyncio event that wakes the loop early.
     """
     while True:
@@ -135,7 +136,7 @@ async def _drain_loop(
 
         try:
             pairs = task_queue.drain_completed()
-        except Exception:
+        except sqlite3.Error:
             logger.exception("drain_completed failed; skipping cycle")
             continue
 
@@ -151,7 +152,7 @@ async def _drain_loop(
                 summary = f"decision={decision.decision.value}; rationale={decision.rationale}"
                 memory.upsert_memory_summary(task.repo, issue_number, summary)
                 task_queue.mark_done(task.task_id)
-            except Exception:
+            except UnknownActionError:
                 logger.exception("Failed to process drain task", task_id=task.task_id)
 
         if pairs:
@@ -160,15 +161,15 @@ async def _drain_loop(
 
 async def _requeue_loop(
     task_queue: TaskQueue,
-    config: ForemanConfig,
+    config: NightBrownieConfig,
 ) -> None:
     """Re-enqueue stale claimed tasks and fail exhausted ones.
 
-    Runs on ``config.queue.requeue_interval_seconds`` interval.
+    Runs on `config.queue.requeue_interval_seconds` interval.
 
     Args:
         task_queue: The durable task queue.
-        config: Runtime configuration (provides requeue interval and max retries).
+        config: Runtime configuration (provides `queue.requeue_interval_seconds` and `queue.max_retries`).
     """
     while True:
         await asyncio.sleep(config.queue.requeue_interval_seconds)
@@ -176,7 +177,7 @@ async def _requeue_loop(
             requeued = task_queue.requeue_stale()
             failed = task_queue.fail_exhausted(max_retries=config.queue.max_retries)
             logger.info("Requeue cycle", requeued=requeued, failed=failed)
-        except Exception:
+        except sqlite3.Error:
             logger.exception("Requeue cycle failed; retrying on next interval")
 
 
@@ -184,9 +185,8 @@ async def _requeue_loop(
 async def _lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     """FastAPI lifespan: start background drain and requeue loops.
 
-    Reads ``app.state.task_queue``, ``app.state.executor``,
-    ``app.state.memory``, and ``app.state.config`` which must be set
-    by the caller (``__main__.py``) before the server starts.
+    Reads `app.state.task_queue`, `app.state.executor`, `app.state.memory`, and `app.state.config` which must be set
+    by the caller (`__main__.py`) before the server starts.
 
     Args:
         app: The FastAPI application instance.
@@ -197,7 +197,7 @@ async def _lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     task_queue: TaskQueue = app.state.task_queue
     executor: GitHubExecutor = app.state.executor
     memory: MemoryStore = app.state.memory
-    config: ForemanConfig = app.state.config
+    config: NightBrownieConfig = app.state.config
 
     drain_event = asyncio.Event()
     app.state.drain_event = drain_event

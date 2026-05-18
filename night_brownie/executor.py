@@ -6,14 +6,16 @@ Credentials never enter agent containers.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 import structlog
 from github import Github
 
 if TYPE_CHECKING:
-    from foreman.memory import MemoryStore
-    from foreman.protocol import ActionItem, DecisionMessage
+    from github.Issue import Issue
+
+    from night_brownie.memory import MemoryStore
+    from night_brownie.protocol import ActionItem, DecisionMessage
 
 logger = structlog.get_logger(__name__)
 
@@ -23,14 +25,14 @@ class UnknownActionError(Exception):
 
 
 class GitHubExecutor:
-    """Translates a :class:`~foreman.protocol.DecisionMessage` into GitHub API calls.
+    """Translates a `night_brownie.protocol.DecisionMessage` into GitHub API calls.
 
     Logs the decision to the memory store *before* executing any GitHub API
     call, so the record exists even if a downstream call fails.
 
     Args:
         token: GitHub Personal Access Token for the bot account.
-        memory: :class:`~foreman.memory.MemoryStore` used to log decisions.
+        memory: `night_brownie.memory.MemoryStore` used to log decisions.
     """
 
     def __init__(self, token: str, memory: MemoryStore) -> None:
@@ -47,19 +49,18 @@ class GitHubExecutor:
     ) -> None:
         """Execute all actions in *decision*, logging the decision first.
 
-        Writes the decision record to ``action_log`` before any GitHub API
-        call is attempted.  Actions are executed in the order they appear in
-        :attr:`~foreman.protocol.DecisionMessage.actions`.
+        Writes the decision record to `action_log` before any GitHub API call is attempted.
+        Actions are executed in the order they appear in `night_brownie.protocol.DecisionMessage.actions`.
 
         Args:
             decision: The agent's decision message containing actions to run.
-            repo: Repository in ``owner/repo`` format.
+            repo: Repository in `owner/repo` format.
             issue_number: GitHub issue number targeted by this decision.
-            task_type: Task type string stored in ``action_log``.
-            allow_close: Whether ``close_issue`` actions are permitted.
+            task_type: Task type string stored in `action_log`.
+            allow_close: Whether `close_issue` actions are permitted.
 
         Raises:
-            UnknownActionError: If any action has an unrecognized ``type``.
+            UnknownActionError: If any action has an unrecognized `type`.
         """
         self._memory.log_action(
             repo=repo,
@@ -76,16 +77,16 @@ class GitHubExecutor:
         for action in decision.actions:
             self._execute_action(action, issue, allow_close)
 
-    def _execute_action(self, action: ActionItem, issue: Any, allow_close: bool) -> None:
+    def _execute_action(self, action: ActionItem, issue: Issue, allow_close: bool) -> None:
         """Dispatch a single action to the appropriate PyGithub call.
 
         Args:
             action: The action to execute.
-            issue: PyGithub ``Issue`` object for the target issue.
-            allow_close: Whether ``close_issue`` is permitted.
+            issue: PyGithub `Issue` object for the target issue.
+            allow_close: Whether `close_issue` is permitted.
 
         Raises:
-            UnknownActionError: If ``action.type`` is not a known action type.
+            UnknownActionError: If `action.type` is not a known action type.
         """
         data = action.model_dump()
         action_type = data["type"]

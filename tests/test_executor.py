@@ -1,4 +1,4 @@
-"""Tests for foreman/executor.py — GitHubExecutor."""
+"""Tests for night_brownie/executor.py — GitHubExecutor."""
 
 from __future__ import annotations
 
@@ -7,9 +7,9 @@ from typing import TYPE_CHECKING
 
 import pytest
 
-from foreman.executor import GitHubExecutor, UnknownActionError
-from foreman.memory import MemoryStore
-from foreman.protocol import ActionItem, DecisionMessage, DecisionType
+from night_brownie.executor import GitHubExecutor, UnknownActionError
+from night_brownie.memory import MemoryStore
+from night_brownie.protocol import ActionItem, DecisionMessage, DecisionType
 
 if TYPE_CHECKING:
     from collections.abc import Generator
@@ -36,7 +36,7 @@ def mock_issue(mocker):
 @pytest.fixture()
 def executor_and_issue(memory, mocker, mock_issue):
     """Provide a GitHubExecutor with the GitHub stack fully mocked."""
-    mock_gh_cls = mocker.patch("foreman.executor.Github")
+    mock_gh_cls = mocker.patch("night_brownie.executor.Github")
     mock_gh_cls.return_value.get_repo.return_value.get_issue.return_value = mock_issue
     executor = GitHubExecutor(token="test-token", memory=memory)
     return executor, mock_issue
@@ -66,13 +66,13 @@ class TestGitHubExecutorInit:
 
     def test_instantiates_with_token_and_memory(self, memory: MemoryStore, mocker) -> None:
         """GitHubExecutor is created without errors given a token and MemoryStore."""
-        mocker.patch("foreman.executor.Github")
+        mocker.patch("night_brownie.executor.Github")
         executor = GitHubExecutor(token="test-token", memory=memory)
         assert isinstance(executor, GitHubExecutor)
 
     def test_github_client_created_with_token(self, memory: MemoryStore, mocker) -> None:
-        """Github client is initialised with the supplied token."""
-        mock_gh_cls = mocker.patch("foreman.executor.Github")
+        """Github client is initialized with the supplied token."""
+        mock_gh_cls = mocker.patch("night_brownie.executor.Github")
         GitHubExecutor(token="my-token", memory=memory)
         mock_gh_cls.assert_called_once_with("my-token")
 
@@ -198,7 +198,7 @@ class TestActionLogging:
 
     def test_decision_logged_before_github_call_fails(self, memory: MemoryStore, mocker) -> None:
         """Decision is written to action_log even when a subsequent GitHub API call fails."""
-        mock_gh_cls = mocker.patch("foreman.executor.Github")
+        mock_gh_cls = mocker.patch("night_brownie.executor.Github")
         mock_issue = mocker.MagicMock()
         mock_issue.add_to_labels.side_effect = RuntimeError("network error")
         mock_gh_cls.return_value.get_repo.return_value.get_issue.return_value = mock_issue
@@ -274,7 +274,7 @@ class TestMixedActions:
 
     def test_get_issue_called_with_correct_number(self, memory: MemoryStore, mocker) -> None:
         """execute() fetches the correct issue number from PyGithub."""
-        mock_gh_cls = mocker.patch("foreman.executor.Github")
+        mock_gh_cls = mocker.patch("night_brownie.executor.Github")
         mock_repo = mocker.MagicMock()
         mock_gh_cls.return_value.get_repo.return_value = mock_repo
         executor = GitHubExecutor(token="test-token", memory=memory)
@@ -286,7 +286,7 @@ class TestMixedActions:
 
     def test_get_repo_called_with_correct_name(self, memory: MemoryStore, mocker) -> None:
         """execute() fetches the correct repo from PyGithub."""
-        mock_gh_cls = mocker.patch("foreman.executor.Github")
+        mock_gh_cls = mocker.patch("night_brownie.executor.Github")
         mock_client = mocker.MagicMock()
         mock_gh_cls.return_value = mock_client
         executor = GitHubExecutor(token="test-token", memory=memory)

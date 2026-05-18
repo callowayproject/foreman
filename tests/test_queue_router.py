@@ -1,4 +1,4 @@
-"""Tests for foreman/routers/queue.py — queue HTTP endpoints."""
+"""Tests for night_brownie/routers/queue.py — queue HTTP endpoints."""
 
 from __future__ import annotations
 
@@ -7,10 +7,10 @@ from unittest.mock import MagicMock
 import pytest
 from fastapi.testclient import TestClient
 
-from foreman.protocol import ActionItem, DecisionMessage, DecisionType, LLMBackendRef, TaskContext, TaskMessage
-from foreman.queue import TaskQueue
-from foreman.routers.queue import get_drain_event, get_task_queue
-from foreman.server import app
+from night_brownie.protocol import ActionItem, DecisionMessage, DecisionType, LLMBackendRef, TaskContext, TaskMessage
+from night_brownie.queue import TaskQueue
+from night_brownie.routers.queue import get_drain_event, get_task_queue
+from night_brownie.server import app
 
 # ---------------------------------------------------------------------------
 # Fixtures

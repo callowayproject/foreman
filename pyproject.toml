@@ -3,7 +3,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "foreman"
+name = "night-brownie"
 description = "A Python harness that acts as an always-on AI co-maintainer for OSS repositories."
 classifiers = [
     "Development Status :: 3 - Alpha",
@@ -11,7 +11,7 @@ classifiers = [
     "Natural Language :: English",
     "Programming Language :: Python :: 3.12",
 ]
-keywords = ["foreman"]
+keywords = ["night-brownie"]
 dynamic = ["version"]
 license = { file = "LICENSE" }
 requires-python = ">=3.12"
@@ -29,7 +29,7 @@ dependencies = [
     "PyYAML>=6.0",
     "PyGithub>=2.0",
     "litellm>=1.84.0",
-    "httpx>=0.28.1",
+    "httpxyz>=0.28.1",
     "docker>=7.1.0",
 ]
 authors = [
@@ -41,10 +41,10 @@ file = "README.md"
 content-type = "text/markdown"
 
 [project.urls]
-Homepage = "https://github.com/callowayproject/foreman"
-Documentation = "https://callowayproject.github.io/foreman"
-Repository = "https://github.com/callowayproject/foreman"
-Changelog = "https://github.com/callowayproject/foreman/CHANGELOG.md"
+Homepage = "https://github.com/callowayproject/night-brownie"
+Documentation = "https://callowayproject.github.io/night-brownie"
+Repository = "https://github.com/callowayproject/night-brownie"
+Changelog = "https://github.com/callowayproject/night-brownie/CHANGELOG.md"
 
 [dependency-groups]
 dev = [
@@ -73,10 +73,10 @@ docs = [
 
 
 [project.scripts]
-foreman = "foreman.__main__:main"
+night-brownie = "night_brownie.__main__:main"
 
 [tool.hatch.version]
-path = "foreman/__init__.py"
+path = "night_brownie/__init__.py"
 
 [tool.uv]
 default-groups = ["dev", "test", "docs"]
@@ -106,7 +106,7 @@ reflow-mode = "semantic-line-breaks"
 [tool.coverage.run]
 branch = true
 omit = ["**/test_*.py", "**/__main__.py"]
-source = ["foreman"]
+source = ["night_brownie"]
 
 [tool.coverage.report]
 show_missing = true
@@ -128,7 +128,7 @@ exclude_lines = [
 
 [tool.pytest.ini_options]
 addopts = [
-    "--cov=foreman",
+    "--cov=night_brownie",
     "--cov-branch",
     "--cov-report=term",
     "--cov-report=html",
@@ -143,7 +143,7 @@ norecursedirs = [
     "venv",
     "requirements*",
     "lib",
-    "foreman-client",
+    "night-brownie-client",
     "agents",
 ]
 python_files = [
@@ -264,7 +264,7 @@ dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
 typing-modules = ["typing", "types", "typing_extensions", "mypy", "mypy_extensions"]
 
 [tool.ruff.lint.per-file-ignores]
-"foreman/routers/*.py" = [
+"night_brownie/routers/*.py" = [
     "B008",   # FastAPI Depends() in argument defaults is idiomatic
     "TC001",  # Application imports needed at runtime for FastAPI dependency resolution
     "TC003",  # Stdlib imports needed at runtime for FastAPI dependency resolution
@@ -325,7 +325,7 @@ message = "Version updated from {current_version} to {new_version}"
 values = ["release", "post"]
 
 [[tool.bumpversion.files]]
-filename = "foreman/__init__.py"
+filename = "night_brownie/__init__.py"
 
 [[tool.bumpversion.files]]
 filename = "CHANGELOG.md"

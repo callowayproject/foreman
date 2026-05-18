@@ -1,9 +1,9 @@
-"""Custom middleware for foreman."""
+"""Custom middleware for night-brownie."""
 
 import structlog
 from starlette.types import ASGIApp, Receive, Scope, Send
 
-from foreman.logging_info import generate_correlation_id
+from night_brownie.logging_info import generate_correlation_id
 
 
 class LogCorrelationIdMiddleware:

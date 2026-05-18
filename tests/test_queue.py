@@ -1,16 +1,18 @@
-"""Tests for foreman/queue.py — TaskQueue."""
+"""Tests for night_brownie/queue.py — TaskQueue."""
 
 from __future__ import annotations
 
 import threading
 import time
-from pathlib import Path
-from typing import Any, Generator
+from typing import TYPE_CHECKING, Any, Generator
 
 import pytest
 
-from foreman.protocol import ActionItem, DecisionMessage, DecisionType, LLMBackendRef, TaskContext, TaskMessage
-from foreman.queue import TaskQueue
+from night_brownie.protocol import ActionItem, DecisionMessage, DecisionType, LLMBackendRef, TaskContext, TaskMessage
+from night_brownie.queue import TaskQueue
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 # ---------------------------------------------------------------------------
 # Fixtures

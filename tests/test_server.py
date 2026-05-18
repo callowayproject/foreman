@@ -1,22 +1,24 @@
-"""Tests for the dispatch loop in foreman/server.py."""
+"""Tests for the dispatch loop in night_brownie/server.py."""
 
 from __future__ import annotations
 
 import asyncio
 from contextlib import suppress
-from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 from unittest.mock import AsyncMock, MagicMock, patch
 
-import httpx
+import httpxyz
 import pytest
 
-from foreman.config import AgentAssignment, ForemanConfig, IdentityConfig, LLMConfig, RepoConfig
-from foreman.memory import MemoryStore
-from foreman.protocol import ActionItem, DecisionMessage, DecisionType
-from foreman.queue import TaskQueue
-from foreman.routers.agent import RouteTarget
-from foreman.server import Dispatcher, _drain_loop, _requeue_loop
+from night_brownie.config import AgentAssignment, IdentityConfig, LLMConfig, NightBrownieConfig, RepoConfig
+from night_brownie.memory import MemoryStore
+from night_brownie.protocol import ActionItem, DecisionMessage, DecisionType
+from night_brownie.queue import TaskQueue
+from night_brownie.routers.agent import RouteTarget
+from night_brownie.server import Dispatcher, _drain_loop, _requeue_loop
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 # ---------------------------------------------------------------------------
 # Fixtures
@@ -38,9 +40,9 @@ def task_queue(tmp_path: Path):
 
 
 @pytest.fixture()
-def config() -> ForemanConfig:
-    """Minimal ForemanConfig for tests."""
-    return ForemanConfig(
+def config() -> NightBrownieConfig:
+    """Minimal NightBrownieConfig for tests."""
+    return NightBrownieConfig(
         identity=IdentityConfig(github_token="test-token", github_user="bot"),
         llm=LLMConfig(provider="anthropic", model="claude-sonnet-4-6"),
         repos=[RepoConfig(owner="owner", name="repo", agents=[])],
@@ -91,7 +93,7 @@ def _make_event(repo: str = "owner/repo", issue_number: int = 42) -> dict[str, A
 
 def _make_dispatcher(config, memory, task_queue, mocker) -> Dispatcher:
     """Construct a Dispatcher with Github patched out."""
-    mocker.patch("foreman.executor.Github")
+    mocker.patch("night_brownie.executor.Github")
     return Dispatcher(config=config, memory=memory, task_queue=task_queue)
 
 
@@ -117,9 +119,11 @@ def _mock_async_client(*, post_return=None, post_side_effect=None):
 class TestDispatcherInit:
     """Dispatcher can be constructed from config, memory, and task_queue."""
 
-    def test_instantiates(self, config: ForemanConfig, memory: MemoryStore, task_queue: TaskQueue, mocker) -> None:
+    def test_instantiates(
+        self, config: NightBrownieConfig, memory: MemoryStore, task_queue: TaskQueue, mocker
+    ) -> None:
         """Dispatcher is created without errors."""
-        mocker.patch("foreman.executor.Github")
+        mocker.patch("night_brownie.executor.Github")
         dispatcher = Dispatcher(config=config, memory=memory, task_queue=task_queue)
         assert isinstance(dispatcher, Dispatcher)
 
@@ -139,7 +143,7 @@ class TestDispatchEnqueues:
         """dispatch() inserts the task into the queue for route_target.url."""
         dispatcher = _make_dispatcher(config, memory, task_queue, mocker)
 
-        with patch("foreman.server.httpx.AsyncClient") as mock_cls:
+        with patch("night_brownie.server.httpx.AsyncClient") as mock_cls:
             mock_cls.return_value = _mock_async_client()
             await dispatcher.dispatch(_make_event(), route_target)
 
@@ -155,7 +159,7 @@ class TestDispatchEnqueues:
         memory.upsert_memory_summary("owner/repo", 42, "Prior: labeled as bug.")
         dispatcher = _make_dispatcher(config, memory, task_queue, mocker)
 
-        with patch("foreman.server.httpx.AsyncClient") as mock_cls:
+        with patch("night_brownie.server.httpx.AsyncClient") as mock_cls:
             mock_cls.return_value = _mock_async_client()
             await dispatcher.dispatch(_make_event(issue_number=42), route_target)
 
@@ -171,7 +175,7 @@ class TestDispatchEnqueues:
         dispatcher = _make_dispatcher(config, memory, task_queue, mocker)
         mock_post = AsyncMock(return_value=MagicMock(status_code=202))
 
-        with patch("foreman.server.httpx.AsyncClient") as mock_cls:
+        with patch("night_brownie.server.httpx.AsyncClient") as mock_cls:
             mock_client = AsyncMock()
             mock_client.__aenter__ = AsyncMock(return_value=mock_client)
             mock_client.__aexit__ = AsyncMock(return_value=None)
@@ -191,7 +195,7 @@ class TestDispatchEnqueues:
         dispatcher = _make_dispatcher(config, memory, task_queue, mocker)
         mock_post = AsyncMock(return_value=MagicMock(status_code=202))
 
-        with patch("foreman.server.httpx.AsyncClient") as mock_cls:
+        with patch("night_brownie.server.httpx.AsyncClient") as mock_cls:
             mock_client = AsyncMock()
             mock_client.__aenter__ = AsyncMock(return_value=mock_client)
             mock_client.__aexit__ = AsyncMock(return_value=None)
@@ -221,7 +225,7 @@ class TestDispatchEnqueues:
         mock_response.status_code = 200
         mock_response.json.return_value = decision_body
 
-        with patch("foreman.server.httpx.AsyncClient") as mock_cls:
+        with patch("night_brownie.server.httpx.AsyncClient") as mock_cls:
             mock_client = AsyncMock()
             mock_client.__aenter__ = AsyncMock(return_value=mock_client)
             mock_client.__aexit__ = AsyncMock(return_value=None)
@@ -250,8 +254,8 @@ class TestDispatchNudgeErrors:
         """A network error on the nudge POST does not raise from dispatch()."""
         dispatcher = _make_dispatcher(config, memory, task_queue, mocker)
 
-        with patch("foreman.server.httpx.AsyncClient") as mock_cls:
-            mock_cls.return_value = _mock_async_client(post_side_effect=httpx.ConnectError("refused"))
+        with patch("night_brownie.server.httpx.AsyncClient") as mock_cls:
+            mock_cls.return_value = _mock_async_client(post_side_effect=httpxyz.ConnectError("refused"))
             # Must not raise
             await dispatcher.dispatch(_make_event(), route_target)
 
@@ -262,7 +266,7 @@ class TestDispatchNudgeErrors:
         """Task is in the queue even if the nudge POST throws."""
         dispatcher = _make_dispatcher(config, memory, task_queue, mocker)
 
-        with patch("foreman.server.httpx.AsyncClient") as mock_cls:
+        with patch("night_brownie.server.httpx.AsyncClient") as mock_cls:
             mock_cls.return_value = _mock_async_client(post_side_effect=httpx.ConnectError("refused"))
             await dispatcher.dispatch(_make_event(), route_target)
 
@@ -277,7 +281,7 @@ class TestDispatchNudgeErrors:
 
 def _make_task_in_queue(task_queue: TaskQueue, agent_url: str = "http://agent") -> tuple:
     """Enqueue, claim, and complete a task; return (task_msg, decision_msg)."""
-    from foreman.protocol import LLMBackendRef, TaskContext, TaskMessage
+    from night_brownie.protocol import LLMBackendRef, TaskContext, TaskMessage
 
     task_msg = TaskMessage(
         task_id="drain-task-001",
@@ -305,7 +309,7 @@ class TestDrainLoop:
 
     @pytest.mark.asyncio
     async def test_drain_loop_calls_executor_for_completed_task(
-        self, config: ForemanConfig, memory: MemoryStore, task_queue: TaskQueue, mocker
+        self, config: NightBrownieConfig, memory: MemoryStore, task_queue: TaskQueue, mocker
     ) -> None:
         """drain_loop calls executor.execute() for each completed task."""
         mock_executor = MagicMock()
@@ -327,7 +331,7 @@ class TestDrainLoop:
 
     @pytest.mark.asyncio
     async def test_drain_loop_updates_memory_for_completed_task(
-        self, config: ForemanConfig, memory: MemoryStore, task_queue: TaskQueue, mocker
+        self, config: NightBrownieConfig, memory: MemoryStore, task_queue: TaskQueue, mocker
     ) -> None:
         """drain_loop calls memory.upsert_memory_summary() for each completed task."""
         mock_executor = MagicMock()
@@ -347,7 +351,9 @@ class TestDrainLoop:
         assert "label_and_respond" in summary
 
     @pytest.mark.asyncio
-    async def test_drain_loop_wakes_on_drain_event(self, config: ForemanConfig, memory: MemoryStore, mocker) -> None:
+    async def test_drain_loop_wakes_on_drain_event(
+        self, config: NightBrownieConfig, memory: MemoryStore, mocker
+    ) -> None:
         """drain_loop wakes immediately when drain_event is set."""
         mock_task_queue = MagicMock()
         mock_task_queue.drain_completed.return_value = []
@@ -365,7 +371,7 @@ class TestDrainLoop:
         mock_task_queue.drain_completed.assert_called()
 
     @pytest.mark.asyncio
-    async def test_drain_loop_cancelled_cleanly(self, config: ForemanConfig, memory: MemoryStore, mocker) -> None:
+    async def test_drain_loop_cancelled_cleanly(self, config: NightBrownieConfig, memory: MemoryStore, mocker) -> None:
         """drain_loop raises no unhandled error when cancelled."""
         mock_task_queue = MagicMock()
         mock_task_queue.drain_completed.return_value = []
@@ -380,7 +386,7 @@ class TestDrainLoop:
 
     @pytest.mark.asyncio
     async def test_drain_loop_survives_executor_exception(
-        self, config: ForemanConfig, memory: MemoryStore, task_queue: TaskQueue
+        self, config: NightBrownieConfig, memory: MemoryStore, task_queue: TaskQueue
     ) -> None:
         """An executor exception is caught; the loop keeps running and task stays completed."""
         mock_executor = MagicMock()
@@ -402,10 +408,10 @@ class TestDrainLoop:
 
     @pytest.mark.asyncio
     async def test_drain_loop_processes_remaining_tasks_after_exception(
-        self, config: ForemanConfig, memory: MemoryStore, task_queue: TaskQueue
+        self, config: NightBrownieConfig, memory: MemoryStore, task_queue: TaskQueue
     ) -> None:
         """An executor exception on one task does not skip other tasks in the same drain batch."""
-        from foreman.protocol import DecisionType, LLMBackendRef, TaskContext, TaskMessage
+        from night_brownie.protocol import DecisionType, LLMBackendRef, TaskContext, TaskMessage
 
         for suffix in ("-A", "-B"):
             task = TaskMessage(
@@ -465,10 +471,10 @@ class TestRequeueLoop:
     @pytest.mark.asyncio
     async def test_requeue_loop_calls_requeue_and_fail_exhausted(self) -> None:
         """requeue_loop calls both requeue_stale() and fail_exhausted() on each cycle."""
-        from foreman.config import QueueConfig
+        from night_brownie.config import QueueConfig
 
         # Use requeue_interval_seconds=0 so asyncio.sleep(0) yields properly without mocking.
-        config = ForemanConfig(
+        config = NightBrownieConfig(
             identity=IdentityConfig(github_token="t", github_user="b"),
             llm=LLMConfig(provider="anthropic", model="claude-sonnet-4-6"),
             repos=[],
@@ -488,7 +494,7 @@ class TestRequeueLoop:
         mock_task_queue.fail_exhausted.assert_called_with(max_retries=3)
 
     @pytest.mark.asyncio
-    async def test_requeue_loop_cancelled_cleanly(self, config: ForemanConfig) -> None:
+    async def test_requeue_loop_cancelled_cleanly(self, config: NightBrownieConfig) -> None:
         """requeue_loop raises no unhandled error when cancelled."""
         mock_task_queue = MagicMock()
 
@@ -501,9 +507,9 @@ class TestRequeueLoop:
     @pytest.mark.asyncio
     async def test_requeue_loop_survives_requeue_stale_exception(self) -> None:
         """A requeue-loop iteration that raises does not kill the loop."""
-        from foreman.config import IdentityConfig, LLMConfig, QueueConfig
+        from night_brownie.config import IdentityConfig, LLMConfig, QueueConfig
 
-        fast_config = ForemanConfig(
+        fast_config = NightBrownieConfig(
             identity=IdentityConfig(github_token="t", github_user="b"),
             llm=LLMConfig(provider="anthropic", model="claude-sonnet-4-6"),
             repos=[],

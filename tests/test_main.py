@@ -1,15 +1,18 @@
-"""Tests for foreman/__main__.py — startup, entrypoint, and error paths."""
+"""Tests for night_brownie/__main__.py — startup, entrypoint, and error paths."""
 
 from __future__ import annotations
 
 import asyncio
-from pathlib import Path
+from typing import TYPE_CHECKING
 
 import pytest
 
-from foreman.__main__ import _collect_agent_images, _run_loop, main
-from foreman.config import load_config
-from foreman.containers import ContainerError
+from night_brownie.__main__ import _collect_agent_images, _run_loop, main
+from night_brownie.config import load_config
+from night_brownie.containers import ContainerError
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -87,15 +90,15 @@ class TestMainCliErrors:
 class TestMainStartupSequence:
     """main() runs the correct startup sequence with valid config."""
 
-    def test_start_initialises_memory_db(self, tmp_path: Path, mocker) -> None:
+    def test_start_initializes_memory_db(self, tmp_path: Path, mocker) -> None:
         """main() creates a MemoryStore before starting the poller and server."""
         config_path = tmp_path / "config.yaml"
         _write_minimal_config(config_path)
 
-        mock_memory_cls = mocker.patch("foreman.__main__.MemoryStore")
-        mocker.patch("foreman.__main__.GitHubPoller")
-        mocker.patch("foreman.__main__.Dispatcher")
-        mocker.patch("foreman.__main__.asyncio.run", side_effect=lambda c: c.close())
+        mock_memory_cls = mocker.patch("night_brownie.__main__.MemoryStore")
+        mocker.patch("night_brownie.__main__.GitHubPoller")
+        mocker.patch("night_brownie.__main__.Dispatcher")
+        mocker.patch("night_brownie.__main__.asyncio.run", side_effect=lambda c: c.close())
 
         main(["start", "--config", str(config_path)])
 
@@ -106,10 +109,10 @@ class TestMainStartupSequence:
         config_path = tmp_path / "config.yaml"
         _write_minimal_config(config_path)
 
-        mocker.patch("foreman.__main__.MemoryStore")
-        mocker.patch("foreman.__main__.GitHubPoller")
-        mocker.patch("foreman.__main__.Dispatcher")
-        mock_run = mocker.patch("foreman.__main__.asyncio.run", side_effect=lambda c: c.close())
+        mocker.patch("night_brownie.__main__.MemoryStore")
+        mocker.patch("night_brownie.__main__.GitHubPoller")
+        mocker.patch("night_brownie.__main__.Dispatcher")
+        mock_run = mocker.patch("night_brownie.__main__.asyncio.run", side_effect=lambda c: c.close())
 
         main(["start", "--config", str(config_path)])
 
@@ -120,10 +123,10 @@ class TestMainStartupSequence:
         config_path = tmp_path / "config.yaml"
         _write_minimal_config(config_path)
 
-        mocker.patch("foreman.__main__.MemoryStore")
-        mock_poller_cls = mocker.patch("foreman.__main__.GitHubPoller")
-        mocker.patch("foreman.__main__.Dispatcher")
-        mocker.patch("foreman.__main__.asyncio.run", side_effect=lambda c: c.close())
+        mocker.patch("night_brownie.__main__.MemoryStore")
+        mock_poller_cls = mocker.patch("night_brownie.__main__.GitHubPoller")
+        mocker.patch("night_brownie.__main__.Dispatcher")
+        mocker.patch("night_brownie.__main__.asyncio.run", side_effect=lambda c: c.close())
 
         main(["start", "--config", str(config_path)])
 
@@ -134,10 +137,10 @@ class TestMainStartupSequence:
         config_path = tmp_path / "config.yaml"
         _write_minimal_config(config_path)
 
-        mocker.patch("foreman.__main__.MemoryStore")
-        mocker.patch("foreman.__main__.GitHubPoller")
-        mock_dispatcher_cls = mocker.patch("foreman.__main__.Dispatcher")
-        mocker.patch("foreman.__main__.asyncio.run", side_effect=lambda c: c.close())
+        mocker.patch("night_brownie.__main__.MemoryStore")
+        mocker.patch("night_brownie.__main__.GitHubPoller")
+        mock_dispatcher_cls = mocker.patch("night_brownie.__main__.Dispatcher")
+        mocker.patch("night_brownie.__main__.asyncio.run", side_effect=lambda c: c.close())
 
         main(["start", "--config", str(config_path)])
 
@@ -148,11 +151,11 @@ class TestMainStartupSequence:
         config_path = tmp_path / "config.yaml"
         _write_minimal_config(config_path)
 
-        mocker.patch("foreman.__main__.MemoryStore")
-        mocker.patch("foreman.__main__.GitHubPoller")
-        mocker.patch("foreman.__main__.Dispatcher")
-        mock_queue_cls = mocker.patch("foreman.__main__.TaskQueue")
-        mocker.patch("foreman.__main__.asyncio.run", side_effect=lambda c: c.close())
+        mocker.patch("night_brownie.__main__.MemoryStore")
+        mocker.patch("night_brownie.__main__.GitHubPoller")
+        mocker.patch("night_brownie.__main__.Dispatcher")
+        mock_queue_cls = mocker.patch("night_brownie.__main__.TaskQueue")
+        mocker.patch("night_brownie.__main__.asyncio.run", side_effect=lambda c: c.close())
 
         main(["start", "--config", str(config_path)])
 
@@ -173,11 +176,11 @@ class TestQueueDbArg:
         _write_minimal_config(config_path)
         custom_db = tmp_path / "custom_queue.db"
 
-        mocker.patch("foreman.__main__.MemoryStore")
-        mocker.patch("foreman.__main__.GitHubPoller")
-        mocker.patch("foreman.__main__.Dispatcher")
-        mock_queue_cls = mocker.patch("foreman.__main__.TaskQueue")
-        mocker.patch("foreman.__main__.asyncio.run", side_effect=lambda c: c.close())
+        mocker.patch("night_brownie.__main__.MemoryStore")
+        mocker.patch("night_brownie.__main__.GitHubPoller")
+        mocker.patch("night_brownie.__main__.Dispatcher")
+        mock_queue_cls = mocker.patch("night_brownie.__main__.TaskQueue")
+        mocker.patch("night_brownie.__main__.asyncio.run", side_effect=lambda c: c.close())
 
         main(["start", "--config", str(config_path), "--queue-db", str(custom_db)])
 
@@ -190,16 +193,16 @@ class TestQueueDbArg:
 
     def test_queue_db_defaults_to_default_path_when_config_has_none(self, tmp_path: Path, mocker) -> None:
         """TaskQueue uses _DEFAULT_QUEUE_DB_PATH when --queue-db is absent and config has no db_path."""
-        from foreman.__main__ import _DEFAULT_QUEUE_DB_PATH
+        from night_brownie.__main__ import _DEFAULT_QUEUE_DB_PATH
 
         config_path = tmp_path / "config.yaml"
         _write_minimal_config(config_path)
 
-        mocker.patch("foreman.__main__.MemoryStore")
-        mocker.patch("foreman.__main__.GitHubPoller")
-        mocker.patch("foreman.__main__.Dispatcher")
-        mock_queue_cls = mocker.patch("foreman.__main__.TaskQueue")
-        mocker.patch("foreman.__main__.asyncio.run", side_effect=lambda c: c.close())
+        mocker.patch("night_brownie.__main__.MemoryStore")
+        mocker.patch("night_brownie.__main__.GitHubPoller")
+        mocker.patch("night_brownie.__main__.Dispatcher")
+        mock_queue_cls = mocker.patch("night_brownie.__main__.TaskQueue")
+        mocker.patch("night_brownie.__main__.asyncio.run", side_effect=lambda c: c.close())
 
         main(["start", "--config", str(config_path)])
 
@@ -229,7 +232,7 @@ repos:
     agents:
       - type: "issue-triage"
         config:
-          image: "foreman-issue-triage:latest"
+          image: "night-brownie-issue-triage:latest"
           port: 9001
 """
     )
@@ -283,7 +286,7 @@ repos:
 
         result = _collect_agent_images(config)
 
-        assert result == [("issue-triage", "foreman-issue-triage:latest", 9001)]
+        assert result == [("issue-triage", "night-brownie-issue-triage:latest", 9001)]
 
     def test_deduplicates_by_agent_type(self, tmp_path: Path) -> None:
         """Same agent type in multiple repos appears once; first occurrence wins."""
@@ -302,14 +305,14 @@ repos:
     agents:
       - type: "issue-triage"
         config:
-          image: "foreman-issue-triage:latest"
+          image: "night-brownie-issue-triage:latest"
           port: 9001
   - owner: "acme"
     name: "other"
     agents:
       - type: "issue-triage"
         config:
-          image: "foreman-issue-triage:other"
+          image: "night-brownie-issue-triage:other"
           port: 9002
 """
         )
@@ -317,7 +320,7 @@ repos:
 
         result = _collect_agent_images(config)
 
-        assert result == [("issue-triage", "foreman-issue-triage:latest", 9001)]
+        assert result == [("issue-triage", "night-brownie-issue-triage:latest", 9001)]
 
 
 # ---------------------------------------------------------------------------
@@ -333,11 +336,11 @@ class TestMainContainerStartup:
         config_path = tmp_path / "config.yaml"
         _write_minimal_config(config_path)
 
-        mocker.patch("foreman.__main__.MemoryStore")
-        mocker.patch("foreman.__main__.GitHubPoller")
-        mocker.patch("foreman.__main__.Dispatcher")
-        mocker.patch("foreman.__main__.asyncio.run", side_effect=lambda c: c.close())
-        mock_cm_cls = mocker.patch("foreman.__main__.ContainerManager")
+        mocker.patch("night_brownie.__main__.MemoryStore")
+        mocker.patch("night_brownie.__main__.GitHubPoller")
+        mocker.patch("night_brownie.__main__.Dispatcher")
+        mocker.patch("night_brownie.__main__.asyncio.run", side_effect=lambda c: c.close())
+        mock_cm_cls = mocker.patch("night_brownie.__main__.ContainerManager")
 
         main(["start", "--config", str(config_path)])
 
@@ -348,10 +351,10 @@ class TestMainContainerStartup:
         config_path = tmp_path / "config.yaml"
         _write_config_with_agent(config_path)
 
-        mocker.patch("foreman.__main__.MemoryStore")
-        mocker.patch("foreman.__main__.GitHubPoller")
-        mocker.patch("foreman.__main__.Dispatcher")
-        mocker.patch("foreman.__main__.ContainerManager", side_effect=ContainerError("no docker"))
+        mocker.patch("night_brownie.__main__.MemoryStore")
+        mocker.patch("night_brownie.__main__.GitHubPoller")
+        mocker.patch("night_brownie.__main__.Dispatcher")
+        mocker.patch("night_brownie.__main__.ContainerManager", side_effect=ContainerError("no docker"))
 
         with pytest.raises(SystemExit) as exc_info:
             main(["start", "--config", str(config_path)])
@@ -363,10 +366,10 @@ class TestMainContainerStartup:
         config_path = tmp_path / "config.yaml"
         _write_config_with_agent(config_path)
 
-        mocker.patch("foreman.__main__.MemoryStore")
-        mocker.patch("foreman.__main__.GitHubPoller")
-        mocker.patch("foreman.__main__.Dispatcher")
-        mocker.patch("foreman.__main__.ContainerManager", side_effect=ContainerError("no docker"))
+        mocker.patch("night_brownie.__main__.MemoryStore")
+        mocker.patch("night_brownie.__main__.GitHubPoller")
+        mocker.patch("night_brownie.__main__.Dispatcher")
+        mocker.patch("night_brownie.__main__.ContainerManager", side_effect=ContainerError("no docker"))
 
         with pytest.raises(SystemExit):
             main(["start", "--config", str(config_path)])
@@ -379,29 +382,31 @@ class TestMainContainerStartup:
         config_path = tmp_path / "config.yaml"
         _write_config_with_agent(config_path)
 
-        mocker.patch("foreman.__main__.MemoryStore")
-        mocker.patch("foreman.__main__.GitHubPoller")
-        mocker.patch("foreman.__main__.Dispatcher")
-        mocker.patch("foreman.__main__.asyncio.run", side_effect=lambda c: c.close())
+        mocker.patch("night_brownie.__main__.MemoryStore")
+        mocker.patch("night_brownie.__main__.GitHubPoller")
+        mocker.patch("night_brownie.__main__.Dispatcher")
+        mocker.patch("night_brownie.__main__.asyncio.run", side_effect=lambda c: c.close())
         mock_cm = mocker.MagicMock()
         mock_cm.start_agent.return_value = "http://localhost:9001"
-        mocker.patch("foreman.__main__.ContainerManager", return_value=mock_cm)
+        mocker.patch("night_brownie.__main__.ContainerManager", return_value=mock_cm)
 
         main(["start", "--config", str(config_path)])
 
-        mock_cm.start_agent.assert_called_once_with("issue-triage", image="foreman-issue-triage:latest", port=9001)
+        mock_cm.start_agent.assert_called_once_with(
+            "issue-triage", image="night-brownie-issue-triage:latest", port=9001
+        )
 
     def test_start_agent_error_exits_nonzero(self, tmp_path: Path, mocker) -> None:
         """ContainerError from start_agent() exits with a non-zero code."""
         config_path = tmp_path / "config.yaml"
         _write_config_with_agent(config_path)
 
-        mocker.patch("foreman.__main__.MemoryStore")
-        mocker.patch("foreman.__main__.GitHubPoller")
-        mocker.patch("foreman.__main__.Dispatcher")
+        mocker.patch("night_brownie.__main__.MemoryStore")
+        mocker.patch("night_brownie.__main__.GitHubPoller")
+        mocker.patch("night_brownie.__main__.Dispatcher")
         mock_cm = mocker.MagicMock()
         mock_cm.start_agent.side_effect = ContainerError("pull failed")
-        mocker.patch("foreman.__main__.ContainerManager", return_value=mock_cm)
+        mocker.patch("night_brownie.__main__.ContainerManager", return_value=mock_cm)
 
         with pytest.raises(SystemExit) as exc_info:
             main(["start", "--config", str(config_path)])
@@ -439,7 +444,7 @@ class TestRunLoopContainerLifecycle:
         """agent_urls entries are registered with the router before the poll loop."""
         config, memory, poller, dispatcher = self._make_fast_run_loop(tmp_path, mocker)
 
-        mock_router_cls = mocker.patch("foreman.__main__.Router")
+        mock_router_cls = mocker.patch("night_brownie.__main__.Router")
         mock_router = mock_router_cls.return_value
 
         agent_urls = {"issue-triage": "http://localhost:9001"}
@@ -452,7 +457,7 @@ class TestRunLoopContainerLifecycle:
         """When agent_urls is empty, register_url is never called."""
         config, memory, poller, dispatcher = self._make_fast_run_loop(tmp_path, mocker)
 
-        mock_router_cls = mocker.patch("foreman.__main__.Router")
+        mock_router_cls = mocker.patch("night_brownie.__main__.Router")
         mock_router = mock_router_cls.return_value
 
         asyncio.run(_run_loop(config, memory, poller, dispatcher, "0.0.0.0", 8000, None, {}))
@@ -462,7 +467,7 @@ class TestRunLoopContainerLifecycle:
     def test_stop_all_called_on_shutdown(self, tmp_path: Path, mocker) -> None:
         """container_manager.stop_all() is called when the server loop exits."""
         config, memory, poller, dispatcher = self._make_fast_run_loop(tmp_path, mocker)
-        mocker.patch("foreman.__main__.Router")
+        mocker.patch("night_brownie.__main__.Router")
 
         mock_cm = mocker.MagicMock()
 
@@ -473,7 +478,7 @@ class TestRunLoopContainerLifecycle:
     def test_no_container_manager_no_stop_call(self, tmp_path: Path, mocker) -> None:
         """When container_manager is None, no stop call is attempted."""
         config, memory, poller, dispatcher = self._make_fast_run_loop(tmp_path, mocker)
-        mocker.patch("foreman.__main__.Router")
+        mocker.patch("night_brownie.__main__.Router")
 
         # Should not raise even with container_manager=None
         asyncio.run(_run_loop(config, memory, poller, dispatcher, "0.0.0.0", 8000, None, {}))

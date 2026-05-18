@@ -1,16 +1,19 @@
-"""Tests for foreman/memory.py — MemoryStore (action_log + memory_summary)."""
+"""Tests for night_brownie/memory.py — MemoryStore (action_log + memory_summary)."""
 
 from __future__ import annotations
 
 import json
 import sqlite3
-from collections.abc import Generator
-from pathlib import Path
+from typing import TYPE_CHECKING
 
 import pytest
 
-from foreman.memory import MemoryStore
-from foreman.protocol import ActionItem, DecisionType
+from night_brownie.memory import MemoryStore
+from night_brownie.protocol import ActionItem, DecisionType
+
+if TYPE_CHECKING:
+    from collections.abc import Generator
+    from pathlib import Path
 
 
 class TestMemoryStoreInit:

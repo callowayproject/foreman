@@ -1,1 +1,1 @@
-"""Unit test package for foreman."""
+"""Unit test package for night-brownie."""

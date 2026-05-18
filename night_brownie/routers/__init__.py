@@ -1,5 +1,5 @@
 """Router submodule."""
 
-from foreman.routers.agent import Router, RouteTarget, RoutingError
+from night_brownie.routers.agent import Router, RouteTarget, RoutingError
 
 __all__ = ["RouteTarget", "Router", "RoutingError"]

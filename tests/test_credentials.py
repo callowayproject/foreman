@@ -1,8 +1,8 @@
-"""Tests for foreman/credentials.py."""
+"""Tests for night_brownie/credentials.py."""
 
 import pytest
 
-from foreman.credentials import CredentialError, get_github_token, resolve_env_refs
+from night_brownie.credentials import CredentialError, get_github_token, resolve_env_refs
 
 
 class TestResolveEnvRefs:

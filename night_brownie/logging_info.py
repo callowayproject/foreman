@@ -12,7 +12,7 @@ import structlog
 from opentelemetry import trace
 from structlog.typing import EventDict
 
-from foreman.settings import settings
+from night_brownie.settings import settings
 
 RendererType = TypeVar("RendererType")
 

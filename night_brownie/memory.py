@@ -1,6 +1,6 @@
 """SQLite-backed memory: action_log and memory_summary.
 
-All reads and writes use the stdlib ``sqlite3`` module directly — no ORM,
+All reads and writes use the stdlib `sqlite3` module directly — no ORM,
 no mocks.  Tests must use a real temp-file or in-memory database.
 """
 
@@ -14,7 +14,7 @@ from typing import TYPE_CHECKING, Optional
 if TYPE_CHECKING:
     from pathlib import Path
 
-    from foreman.protocol import ActionItem, DecisionType
+    from night_brownie.protocol import ActionItem, DecisionType
 
 _SCHEMA = """
 PRAGMA journal_mode=WAL;
@@ -46,10 +46,10 @@ CREATE TABLE IF NOT EXISTS poll_state (
 
 
 class MemoryStore:
-    """Persistent action memory backed by a SQLite database.
+    """Persistent action memory backed by an SQLite database.
 
     Creates the database file and schema on first use. The connection is kept
-    open for the lifetime of the instance; call :meth:`close` (or use as a
+    open for the lifetime of the instance; call `close` (or use as a
     context manager) when done.
 
     Args:
@@ -77,14 +77,14 @@ class MemoryStore:
         rationale: Optional[str],
         actions: list[ActionItem],
     ) -> None:
-        """Append a decision record to ``action_log``.
+        """Append a decision record to `action_log`.
 
         Args:
-            repo: Repository in ``owner/repo`` format.
+            repo: Repository in `owner/repo` format.
             issue_id: GitHub issue number.
-            task_type: Task type string (e.g. ``issue.triage``).
+            task_type: Task type string (e.g. `issue.triage`).
             decision: The agent's decision.
-            rationale: Human-readable explanation, or ``None``.
+            rationale: Human-readable explanation, or `None`.
             actions: Ordered list of actions the harness will execute.
         """
         actions_json = json.dumps([a.model_dump() for a in actions])
@@ -102,14 +102,14 @@ class MemoryStore:
     # ------------------------------------------------------------------
 
     def get_memory_summary(self, repo: str, issue_id: int) -> str | None:
-        """Return the stored summary for a (repo, issue_id) pair, or ``None``.
+        """Return the stored summary for a (repo, issue_id) pair, or `None`.
 
         Args:
-            repo: Repository in ``owner/repo`` format.
+            repo: Repository in `owner/repo` format.
             issue_id: GitHub issue number.
 
         Returns:
-            The LLM-generated summary string, or ``None`` if absent.
+            The LLM-generated summary string, or `None` if absent.
         """
         row = self._conn.execute(
             "SELECT summary FROM memory_summary WHERE repo = ? AND issue_id = ?",
@@ -121,7 +121,7 @@ class MemoryStore:
         """Insert or replace the memory summary for a (repo, issue_id) pair.
 
         Args:
-            repo: Repository in ``owner/repo`` format.
+            repo: Repository in `owner/repo` format.
             issue_id: GitHub issue number.
             summary: LLM-generated summary of prior actions on this issue.
         """
@@ -142,14 +142,13 @@ class MemoryStore:
     # ------------------------------------------------------------------
 
     def get_last_polled(self, repo: str) -> datetime | None:
-        """Return the last-polled timestamp for *repo*, or ``None`` if never polled.
+        """Return the last-polled timestamp for `repo`, or `None` if never polled.
 
         Args:
-            repo: Repository in ``owner/repo`` format.
+            repo: Repository in `owner/repo` format.
 
         Returns:
-            The stored :class:`~datetime.datetime` (timezone-aware UTC), or
-            ``None`` if no poll has been recorded for this repo.
+            The stored `datetime.datetime` (timezone-aware UTC), or `None` if no poll has been recorded for this repo.
         """
         row = self._conn.execute("SELECT last_polled FROM poll_state WHERE repo = ?", (repo,)).fetchone()
         if row is None:
@@ -160,7 +159,7 @@ class MemoryStore:
         """Persist the last-polled *timestamp* for *repo*.
 
         Args:
-            repo: Repository in ``owner/repo`` format.
+            repo: Repository in `owner/repo` format.
             timestamp: The datetime at which the poll completed.
         """
         self._conn.execute(

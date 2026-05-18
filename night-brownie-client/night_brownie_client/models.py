@@ -1,16 +1,14 @@
-"""Pydantic models for the harness↔agent message protocol.
+"""Pydantic models for the Night Brownie harness ↔ agent message protocol.
 
-Task (harness → agent) and Decision (agent → harness) message contracts,
-plus supporting types.
+Standalone definitions — no dependency on the `night_brownie` package.
 """
 
 from __future__ import annotations
 
-import uuid
 from enum import Enum
 from typing import Any, Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
 
 class ActionItem(BaseModel):
@@ -22,17 +20,17 @@ class ActionItem(BaseModel):
     model_config = {"extra": "allow"}
 
     type: str
-    """Action type identifier (e.g. ``add_label``, ``comment``)."""
+    """Action type identifier (e.g. `add_label`, `comment`)."""
 
 
 class LLMBackendRef(BaseModel):
     """Reference to the LLM backend the agent should use."""
 
     provider: str
-    """LLM provider identifier (e.g. ``anthropic``, ``ollama``)."""
+    """LLM provider identifier (e.g. `anthropic`, `ollama`)."""
 
     model: str
-    """Model name / identifier (e.g. ``claude-sonnet-4-6``)."""
+    """Model name / identifier (e.g. `claude-sonnet-4-6`)."""
 
 
 class TaskContext(BaseModel):
@@ -46,19 +44,16 @@ class TaskContext(BaseModel):
 
 
 class TaskMessage(BaseModel):
-    """Task sent from the harness to an agent container.
+    """Task sent from the harness to an agent container."""
 
-    The harness generates a ``task_id`` automatically if not supplied.
-    """
-
-    task_id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    task_id: str
     """Unique identifier for this task (UUID4)."""
 
     type: str
-    """Task type (e.g. ``issue.triage``)."""
+    """Task type (e.g. `issue.triage`)."""
 
     repo: str
-    """Repository in ``owner/repo`` format."""
+    """Repository in `owner/repo` format."""
 
     payload: dict[str, Any]
     """Raw GitHub event payload."""
@@ -80,7 +75,7 @@ class DecisionMessage(BaseModel):
     """Decision returned from an agent to the harness."""
 
     task_id: str
-    """Must match the ``task_id`` from the corresponding :class:`TaskMessage`."""
+    """Must match the `task_id` from the corresponding `TaskMessage`."""
 
     decision: DecisionType
     """The agent's decision on how to handle the task."""

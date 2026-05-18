@@ -1,7 +1,7 @@
 """SQLite-backed task queue for the queue-mediated agent protocol.
 
-All reads and writes use the stdlib ``sqlite3`` module directly — no ORM,
-no mocks.  Tests must use a real temp-file database via ``pytest tmp_path``.
+All reads and writes use the stdlib `sqlite3` module directly — no ORM,
+no mocks.  Tests must use a real temp-file database via `pytest tmp_path`.
 """
 
 from __future__ import annotations
@@ -14,7 +14,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from pathlib import Path
 
-    from foreman.protocol import DecisionMessage, TaskMessage
+    from night_brownie.protocol import DecisionMessage, TaskMessage
 
 _SCHEMA = """
 PRAGMA journal_mode=WAL;
@@ -37,7 +37,7 @@ CREATE INDEX IF NOT EXISTS idx_task_queue_status ON task_queue (status, agent_ur
 
 
 class TaskQueue:
-    """Durable task queue backed by a SQLite database.
+    """Durable task queue backed by an SQLite database.
 
     Creates the database file and schema on first use.
     The connection is kept open for the lifetime of the instance.
@@ -82,7 +82,7 @@ class TaskQueue:
     def claim_next(self, agent_url: str) -> TaskMessage | None:
         """Claim the oldest pending task for agent_url.
 
-        Uses a threading lock plus ``BEGIN IMMEDIATE`` so that concurrent
+        Uses a threading lock plus `BEGIN IMMEDIATE` so that concurrent
         callers — whether in the same process or different ones — cannot
         double-claim the same task.
 
@@ -90,10 +90,10 @@ class TaskQueue:
             agent_url: The agent URL requesting a task.
 
         Returns:
-            The :class:`~foreman.protocol.TaskMessage` for the claimed task,
-            or ``None`` if the queue has no pending tasks for this agent.
+            The `night_brownie.protocol.TaskMessage` for the claimed task,
+            or `None` if the queue has no pending tasks for this agent.
         """
-        from foreman.protocol import TaskMessage as _TaskMessage
+        from night_brownie.protocol import TaskMessage as _TaskMessage
 
         # _lock serialises same-process threads; BEGIN IMMEDIATE handles
         # cross-process / cross-connection contention at the SQLite level.
@@ -133,7 +133,7 @@ class TaskQueue:
 
         Args:
             task_id: ID of the task to mark completed.
-            decision: The agent's :class:`~foreman.protocol.DecisionMessage`.
+            decision: The agent's `night_brownie.protocol.DecisionMessage`.
         """
         self._conn.execute(
             """
@@ -161,15 +161,15 @@ class TaskQueue:
         """Return all completed tasks without transitioning their status.
 
         Called by the harness drain loop.  The caller must call
-        :meth:`mark_done` for each task after it has been successfully
+        `mark_done` for each task after it has been successfully
         processed, giving at-least-once delivery semantics.
 
         Returns:
-            A list of ``(TaskMessage, DecisionMessage)`` tuples for each
-            completed task.  Rows remain ``status=completed`` after this call.
+            A list of `(TaskMessage, DecisionMessage)` tuples for each completed task.
+            Rows remain `status=completed` after this call.
         """
-        from foreman.protocol import DecisionMessage as _DecisionMessage
-        from foreman.protocol import TaskMessage as _TaskMessage
+        from night_brownie.protocol import DecisionMessage as _DecisionMessage
+        from night_brownie.protocol import TaskMessage as _TaskMessage
 
         rows = self._conn.execute(
             "SELECT task_id, payload, result FROM task_queue WHERE status = 'completed'"
@@ -198,8 +198,8 @@ class TaskQueue:
 
         A task is considered stale when both conditions hold:
 
-        - ``status = 'claimed'``
-        - ``MAX(claimed_at, last_heartbeat) + claim_timeout_seconds < now``
+        - `status = 'claimed'`
+        - `MAX(claimed_at, last_heartbeat) + claim_timeout_seconds < now`
 
         Returns:
             The number of tasks re-enqueued.
@@ -222,8 +222,8 @@ class TaskQueue:
         """Mark tasks that have exceeded max_retries as failed.
 
         Args:
-            max_retries: Tasks with ``retry_count >= max_retries`` are marked
-                         ``failed``.
+            max_retries: Tasks with `retry_count >= max_retries` are marked
+                         `failed`.
 
         Returns:
             The number of tasks marked failed.

@@ -5,7 +5,7 @@ from unittest.mock import patch
 import pytest
 import structlog
 
-from foreman.logging_info import (
+from night_brownie.logging_info import (
     Development,
     Logging,  # Import the Logging class for testing get_processors
     Production,
@@ -19,7 +19,7 @@ from foreman.logging_info import (
 class TestConfigure:
     """Test the configure function."""
 
-    @patch("foreman.logging_info.settings")
+    @patch("night_brownie.logging_info.settings")
     def test_calls_dev_config_in_nonprod_env(self, mock_settings):
         """If the settings say we are in a non-prod environment, configure_development should be called."""
         # Assemble
@@ -35,7 +35,7 @@ class TestConfigure:
             mock_configure_stdlib.assert_called_once()
             mock_configure_structlog.assert_called_once()
 
-    @patch("foreman.logging_info.settings")
+    @patch("night_brownie.logging_info.settings")
     def test_calls_prod_config_in_prod_env(self, mock_settings):
         """If the settings say we are in a prod environment, configure_production should be called."""
         # Assemble
@@ -108,7 +108,7 @@ class TestEditEventName:
 class TestGetProcessors:
     """Tests for the get_processors method."""
 
-    @patch("foreman.logging_info.settings")
+    @patch("night_brownie.logging_info.settings")
     def test_get_processors_in_production_env(self, mock_settings):
         """Test that get_processors includes production-specific processors in a production environment."""
         # Assemble
@@ -121,7 +121,7 @@ class TestGetProcessors:
         assert structlog.processors.format_exc_info in processors
         assert structlog.stdlib.ProcessorFormatter.wrap_for_formatter in processors
 
-    @patch("foreman.logging_info.settings")
+    @patch("night_brownie.logging_info.settings")
     def test_get_processors_in_non_production_env(self, mock_settings):
         """Test that get_processors includes only general processors in a non-production environment."""
         # Assemble
@@ -138,7 +138,7 @@ class TestGetProcessors:
 class TestTracerInjection:
     """Tests for the tracer_injection function."""
 
-    @patch("foreman.logging_info.trace")
+    @patch("night_brownie.logging_info.trace")
     def test_tracer_injection_with_active_span(self, mock_trace):
         """Test that trace and span IDs are injected when a span is active."""
         # Assemble
@@ -160,7 +160,7 @@ class TestTracerInjection:
         assert result["span"]["trace_id"] == "0000000000000000000000000009fbf1"
         assert result["span"]["parent_span_id"] == "000000000001b207"
 
-    @patch("foreman.logging_info.trace")
+    @patch("night_brownie.logging_info.trace")
     def test_tracer_injection_without_active_span(self, mock_trace):
         """Test that the span value is set to None when there is no active span."""
         # Assemble
@@ -170,7 +170,7 @@ class TestTracerInjection:
         event_dict = {}
 
         # Act
-        from foreman.logging_info import tracer_injection
+        from night_brownie.logging_info import tracer_injection
 
         result = tracer_injection(None, None, event_dict)
 

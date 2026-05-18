@@ -1,18 +1,18 @@
-# Foreman
+# Night Brownie
 
 **An always-on AI co-maintainer for your GitHub repositories.**
 
-[![License](https://img.shields.io/github/license/callowayproject/foreman)](LICENSE)
+[![License](https://img.shields.io/github/license/callowayproject/night-brownie)](LICENSE)
 [![Python version](https://img.shields.io/badge/python-3.12+-blue.svg)](https://www.python.org/downloads/)
 
 ## About
 
-Foreman is a Python-based harness designed for solo OSS maintainers who want automated triage, dependency updates,
+Night Brownie is a Python-based harness designed for solo OSS maintainers who want automated triage, dependency updates,
 and releases across multiple repositories.
 It acts as a dedicated co-maintainer with its own GitHub identity and opinions,
 managing the boring parts of repository maintenance so you can focus on code.
 
-Unlike simple scripts, Foreman provides a robust, composable environment where specialized AI agents
+Unlike simple scripts, Night Brownie provides a robust, composable environment where specialized AI agents
 (running in Docker) handle specific tasks like issue triage.
 It manages process lifecycles, credential injection, message routing, and persistent memory of past decisions.
 
@@ -37,8 +37,8 @@ It manages process lifecycles, credential injection, message routing, and persis
 
 ```bash
 # Clone the repository
-git clone https://github.com/callowayproject/foreman.git
-cd foreman
+git clone https://github.com/callowayproject/night-brownie.git
+cd night-brownie
 
 # Install dependencies using uv
 uv sync
@@ -46,7 +46,7 @@ uv sync
 
 ## Quick Start
 
-Foreman uses a YAML configuration file to define repositories, agents, and LLM backends.
+Night Brownie uses a YAML configuration file to define repositories, agents, and LLM backends.
 
 1. **Configure:** Copy the example configuration:
 
@@ -58,7 +58,7 @@ Foreman uses a YAML configuration file to define repositories, agents, and LLM b
 3. **Run:** (Note: CLI entrypoint implementation is currently in progress)
 
     ```bash
-    uv run foreman
+    uv run night-brownie
     ```
 
 For detailed configuration options, see [config.example.yaml](config.example.yaml)
@@ -66,7 +66,7 @@ and the [Project Specification](docs/specs/01-agent-harness/SPEC.md).
 
 ## Project Structure
 
-- `foreman/`: The core harness logic (polling, execution, memory, settings).
+- `night_brownie/`: The core harness logic (polling, execution, memory, settings).
 - `agents/`: Specialized AI agents (e.g., `issue-triage`).
 - `specs/`: Detailed project specifications and implementation plans.
 - `tests/`: Comprehensive test suite with recorded LLM fixtures.
@@ -89,5 +89,5 @@ uv run pytest
 
 ## License
 
-Foreman is licensed under the [MIT](LICENSE) license.
+Night Brownie is licensed under the [MIT](LICENSE) license.
 See the [`LICENSE`](LICENSE) file for more information.

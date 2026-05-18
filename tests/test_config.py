@@ -1,11 +1,11 @@
-"""Tests for foreman/config.py."""
+"""Tests for night_brownie/config.py."""
 
 import textwrap
 from pathlib import Path
 
 import pytest
 
-from foreman.config import ConfigError, ForemanConfig, QueueConfig, load_config
+from night_brownie.config import ConfigError, NightBrownieConfig, QueueConfig, load_config
 
 VALID_YAML = textwrap.dedent("""\
     identity:
@@ -72,9 +72,9 @@ class TestLoadConfig:
     """Tests for load_config()."""
 
     def test_valid_yaml_loads_without_error(self, valid_config_file: Path) -> None:
-        """A well-formed config file loads and returns a ForemanConfig instance."""
+        """A well-formed config file loads and returns a NightBrownieConfig instance."""
         config = load_config(valid_config_file)
-        assert isinstance(config, ForemanConfig)
+        assert isinstance(config, NightBrownieConfig)
 
     def test_returns_correct_identity(self, valid_config_file: Path) -> None:
         """Loaded config contains expected identity values."""
@@ -152,7 +152,7 @@ class TestEnvVarResolution:
 
 
 class TestQueueConfig:
-    """Tests for QueueConfig and ForemanConfig.queue integration."""
+    """Tests for QueueConfig and NightBrownieConfig.queue integration."""
 
     def test_queue_config_defaults(self) -> None:
         """QueueConfig has expected default values."""
@@ -163,15 +163,15 @@ class TestQueueConfig:
         assert q.drain_interval_seconds == 10
         assert q.requeue_interval_seconds == 60
 
-    def test_foreman_config_queue_defaults_when_absent(self, valid_config_file: Path) -> None:
-        """ForemanConfig.queue defaults to QueueConfig() when the section is absent."""
+    def test_queue_config_defaults_when_absent(self, valid_config_file: Path) -> None:
+        """NightBrownieConfig.queue defaults to QueueConfig() when the section is absent."""
         config = load_config(valid_config_file)
         assert isinstance(config.queue, QueueConfig)
         assert config.queue.db_path is None
         assert config.queue.claim_timeout_seconds == 300
 
-    def test_foreman_config_queue_section_parsed(self, tmp_path: Path) -> None:
-        """ForemanConfig.queue is populated from the YAML queue section."""
+    def test_queue_config_section_parsed(self, tmp_path: Path) -> None:
+        """NightBrownieConfig.queue is populated from the YAML queue section."""
         yaml_text = textwrap.dedent("""\
             identity:
               github_token: "ghp_test_token"
@@ -197,7 +197,7 @@ class TestQueueConfig:
 
     def test_queue_db_path_env_ref_resolved(self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
         """${VAR} references in db_path are resolved from environment variables."""
-        monkeypatch.setenv("QUEUE_DB_PATH", "/var/run/foreman/queue.db")
+        monkeypatch.setenv("QUEUE_DB_PATH", "/var/run/night-brownie/queue.db")
         yaml_text = textwrap.dedent("""\
             identity:
               github_token: "ghp_test_token"
@@ -211,18 +211,18 @@ class TestQueueConfig:
         p = tmp_path / "config.yaml"
         p.write_text(yaml_text)
         config = load_config(p)
-        assert config.queue.db_path == Path("/var/run/foreman/queue.db")
+        assert config.queue.db_path == Path("/var/run/night-brownie/queue.db")
 
 
 class TestConfigRepr:
     """Tests that secrets do not leak into repr/str output."""
 
     def test_repr_does_not_contain_github_token(self, valid_config_file: Path) -> None:
-        """repr() of ForemanConfig must not contain the github_token value."""
+        """repr() of NightBrownieConfig must not contain the github_token value."""
         config = load_config(valid_config_file)
         assert "ghp_test_token" not in repr(config)
 
     def test_repr_does_not_contain_api_key(self, valid_config_file: Path) -> None:
-        """repr() of ForemanConfig must not contain the api_key value."""
+        """repr() of NightBrownieConfig must not contain the api_key value."""
         config = load_config(valid_config_file)
         assert "sk-ant-test" not in repr(config)

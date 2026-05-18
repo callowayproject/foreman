@@ -4,13 +4,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-**Foreman** is a minimal Python harness acting as an always-on AI co-maintainer for OSS repositories.
+**Night Brownie** is a minimal Python harness acting as an always-on AI co-maintainer for OSS repositories.
 It manages process lifecycle, credential injection, message routing, and GitHub event polling.
 All intelligence lives in containerized agents.
 The harness owns all GitHub API calls — agents only produce decision + action lists over HTTP,
 so credentials never enter agent containers.
 
-The MVP target: a maintainer installs Foreman, configures one repo, and has issues triaged
+The MVP target: a maintainer installs Night Brownie, configures one repo, and has issues triaged
 (labeled, responded to, or closed) without writing code — in under 30 minutes.
 
 ## Spec-driven Development
@@ -48,7 +48,7 @@ pre-commit run --all-files                         # run all linters/formatters
 ### Entry point (once implemented)
 
 ```bash
-uv run foreman start --config config.yaml
+uv run night-brownie start --config config.yaml
 ```
 
 ## Architecture
@@ -86,7 +86,7 @@ Agents produce `DecisionMessage` (decision + action list) — they never call Gi
 ### Planned Module Structure
 
 ```text
-foreman/
+night_brownie/
 ├── config.py           # YAML config loader + Pydantic validation; ${VAR} env resolution
 ├── credentials.py      # Env var resolution; get_github_token()
 ├── server.py           # FastAPI — dispatch loop: fetch memory → build task → POST to agent → execute

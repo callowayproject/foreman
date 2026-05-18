@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 [project]
 name = "issue-triage"
 version = "0.1.0"
-description = "Issue triage agent for the Foreman AI harness"
+description = "Issue triage agent for the Night Brownie AI harness"
 requires-python = ">=3.12"
 
 [tool.hatch.build.targets.wheel]
@@ -17,7 +17,9 @@ runtime = [
     "uvicorn[standard]>=0.32.0",
     "pydantic>=2.0",
     "litellm>=1.0.0",
-    "httpx>=0.28.0",
-    "foreman-client>=0.1.0",
+    "httpxyz>=0.28.0",
+    "night-brownie-client>=0.1.0",
     "structlog>=25.5.0",
 ]
+[tool.uv.sources]
+night-brownie-client = { path = "../../night-brownie-client" }

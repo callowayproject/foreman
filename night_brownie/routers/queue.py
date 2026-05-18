@@ -7,8 +7,8 @@ import asyncio
 from fastapi import APIRouter, Depends, Request, Response
 from pydantic import BaseModel
 
-from foreman.protocol import DecisionMessage
-from foreman.queue import TaskQueue
+from night_brownie.protocol import DecisionMessage
+from night_brownie.queue import TaskQueue
 
 router = APIRouter(
     prefix="/queue",
@@ -43,19 +43,19 @@ def get_task_queue(request: Request) -> TaskQueue:
         request: The incoming FastAPI request.
 
     Returns:
-        The TaskQueue instance attached to app state.
+        The TaskQueue instance that is attached to the app state.
     """
     return request.app.state.task_queue
 
 
 def get_drain_event(request: Request) -> asyncio.Event | None:
-    """Retrieve the drain asyncio.Event from app state.
+    """Retrieve the drain asyncio.Event from the app state.
 
     Args:
         request: The incoming FastAPI request.
 
     Returns:
-        The drain asyncio.Event, or None if not yet initialised.
+        The drain asyncio.Event, or None if not yet initialized.
     """
     return getattr(request.app.state, "drain_event", None)
 
@@ -69,7 +69,7 @@ async def queue_next(
 
     Args:
         body: Request body containing the agent URL.
-        task_queue: Task queue from app state (injected).
+        task_queue: Task queue from the app state (injected).
 
     Returns:
         200 with TaskMessage JSON when a task is available, 204 when the queue is empty.
@@ -90,8 +90,8 @@ async def queue_complete(
 
     Args:
         decision: The agent's DecisionMessage.
-        task_queue: Task queue from app state (injected).
-        drain_event: Drain loop event from app state (injected).
+        task_queue: Task queue from the app state (injected).
+        drain_event: Drain loop event from the app state (injected).
 
     Returns:
         202 Accepted.

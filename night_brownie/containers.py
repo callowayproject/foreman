@@ -49,12 +49,12 @@ class ContainerManager:
         """Pull (if needed), start the container, wait for health, return URL.
 
         Args:
-            agent_type: Agent type identifier (e.g. ``"issue-triage"``).
+            agent_type: Agent type identifier (e.g. `"issue-triage"`).
             image: Docker image name/tag to run.
             port: Host port to bind the container's port 8000 to.
 
         Returns:
-            The base URL of the running container (e.g. ``"http://localhost:9001"``).
+            The base URL of the running container (e.g. `"http://localhost:9001"`).
 
         Raises:
             ContainerError: If the container fails to become healthy.
@@ -64,7 +64,7 @@ class ContainerManager:
             image,
             detach=True,
             ports={"8000/tcp": port},
-            name=f"foreman-{agent_type}",
+            name=f"night-brownie-{agent_type}",
             remove=True,
         )
         self._containers[agent_type] = container
@@ -121,7 +121,7 @@ class ContainerManager:
             image,
             detach=True,
             ports={"8000/tcp": port},
-            name=f"foreman-{agent_type}",
+            name=f"night-brownie-{agent_type}",
             remove=True,
         )
         self._containers[agent_type] = container
@@ -156,7 +156,7 @@ class ContainerManager:
         """Poll *url*/health until a 200 response is received.
 
         Args:
-            url: Base URL of the container (e.g. ``"http://localhost:9001"``).
+            url: Base URL of the container (e.g. `"http://localhost:9001"`).
             retries: Maximum number of attempts before raising.
             delay: Seconds to wait between attempts.
 

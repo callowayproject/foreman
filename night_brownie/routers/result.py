@@ -27,13 +27,13 @@ class ResultNudge(BaseModel):
 
 
 def get_drain_event(request: Request) -> asyncio.Event | None:
-    """Retrieve the drain asyncio.Event from app state.
+    """Retrieve the drain asyncio.Event from the app state.
 
     Args:
         request: The incoming FastAPI request.
 
     Returns:
-        The drain asyncio.Event, or None if not yet initialised.
+        The drain asyncio.Event, or None if not yet initialized.
     """
     return getattr(request.app.state, "drain_event", None)
 

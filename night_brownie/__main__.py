@@ -1,8 +1,8 @@
-"""Foreman CLI entrypoint.
+"""Night Brownie CLI entrypoint.
 
-Usage::
+Usage:
 
-    foreman start --config config.yaml
+    night-brownie start --config config.yaml
 """
 
 from __future__ import annotations
@@ -16,38 +16,39 @@ from typing import TYPE_CHECKING, Any
 import structlog
 import uvicorn
 
-from foreman.config import ConfigError, load_config
-from foreman.containers import ContainerError, ContainerManager
-from foreman.memory import MemoryStore
-from foreman.poller import GitHubPoller
-from foreman.queue import TaskQueue
-from foreman.routers import Router, RoutingError
-from foreman.server import Dispatcher, app
+from night_brownie.config import ConfigError, load_config
+from night_brownie.containers import ContainerError, ContainerManager
+from night_brownie.memory import MemoryStore
+from night_brownie.poller import GitHubPoller
+from night_brownie.queue import TaskQueue
+from night_brownie.routers import Router, RoutingError
+from night_brownie.server import Dispatcher, app
 
 if TYPE_CHECKING:
-    from foreman.config import ForemanConfig, RepoConfig
+    from night_brownie.config import NightBrownieConfig, RepoConfig
 
 logger = structlog.get_logger(__name__)
 
-#: Default memory DB path.
-_DEFAULT_DB_PATH = Path.home() / ".agent-harness" / "memory.db"
-#: Default queue DB path.
-_DEFAULT_QUEUE_DB_PATH = Path.home() / ".agent-harness" / "queue.db"
+_DEFAULT_DB_PATH = Path.home() / ".night-brownie" / "memory.db"
+"""Default memory DB path."""
+
+_DEFAULT_QUEUE_DB_PATH = Path.home() / ".night-brownie" / "queue.db"
+"""Default queue DB path."""
 
 
 def _build_parser() -> argparse.ArgumentParser:
-    """Build the argument parser for the Foreman CLI.
+    """Build the argument parser for the Night Brownie CLI.
 
     Returns:
-        Configured :class:`argparse.ArgumentParser`.
+        Configured `argparse.ArgumentParser`.
     """
     parser = argparse.ArgumentParser(
-        prog="foreman",
-        description="Foreman — AI OSS co-maintainer harness",
+        prog="night-brownie",
+        description="Night Brownie — AI OSS co-maintainer harness",
     )
     subparsers = parser.add_subparsers(dest="command")
 
-    start = subparsers.add_parser("start", help="Start the Foreman harness")
+    start = subparsers.add_parser("start", help="Start the Night Brownie harness")
     start.add_argument(
         "--config",
         required=True,
@@ -58,13 +59,13 @@ def _build_parser() -> argparse.ArgumentParser:
         "--db",
         default=str(_DEFAULT_DB_PATH),
         metavar="DB_PATH",
-        help="Path to the SQLite memory database (default: ~/.agent-harness/memory.db)",
+        help="Path to the SQLite memory database (default: ~/.night-brownie/memory.db)",
     )
     start.add_argument(
         "--queue-db",
         default=None,
         metavar="QUEUE_DB_PATH",
-        help="Path to the SQLite task queue database (default: ~/.agent-harness/queue.db)",
+        help="Path to the SQLite task queue database (default: ~/.night-brownie/queue.db)",
     )
     start.add_argument(
         "--host",
@@ -83,10 +84,10 @@ def _build_parser() -> argparse.ArgumentParser:
 
 
 def main(argv: list[str] | None = None) -> None:
-    """Parse CLI arguments and run Foreman.
+    """Parse CLI arguments and run Night Brownie.
 
     Args:
-        argv: Argument list (defaults to ``sys.argv[1:]`` when ``None``).
+        argv: Argument list (defaults to `sys.argv[1:]` when `None`).
 
     Raises:
         SystemExit: On invalid arguments or configuration errors.
@@ -102,18 +103,18 @@ def main(argv: list[str] | None = None) -> None:
         _run_start(args)
 
 
-def _collect_agent_images(config: ForemanConfig) -> list[tuple[str, str, int]]:
-    """Collect unique ``(agent_type, image, port)`` specs from the config.
+def _collect_agent_images(config: NightBrownieConfig) -> list[tuple[str, str, int]]:
+    """Collect unique `(agent_type, image, port)` specs from the config.
 
-    Only includes agents that have both ``image`` and ``port`` in their
-    ``config`` dict.  Deduplicates by agent type — if the same agent type
+    Only includes agents that have both `image` and `port` in their
+    `config` dict.  Deduplicates by agent type — if the same agent type
     appears in multiple repos, the first occurrence wins.
 
     Args:
-        config: Validated :class:`~foreman.config.ForemanConfig`.
+        config: Validated `night_brownie.config.NightBrownieConfig`.
 
     Returns:
-        List of ``(agent_type, image, port)`` tuples, deduplicated by agent type.
+        List of `(agent_type, image, port)` tuples, deduplicated by agent type.
     """
     seen: set[str] = set()
     specs: list[tuple[str, str, int]] = []
@@ -130,9 +131,9 @@ def _collect_agent_images(config: ForemanConfig) -> list[tuple[str, str, int]]:
 
 
 def _run_start(args: Any) -> None:
-    """Execute the ``start`` sub-command.
+    """Execute the `start` sub-command.
 
-    Validates config, initialises the memory DB, then runs the poller and
+    Validates config, initializes the memory DB, then runs the poller and
     HTTP server concurrently inside a single asyncio event loop.
 
     Args:
@@ -148,7 +149,7 @@ def _run_start(args: Any) -> None:
         print(f"Error: {exc}", file=sys.stderr)
         sys.exit(1)
 
-    # 2. Initialise memory DB.
+    # 2. Initialize memory DB.
     db_path = Path(args.db)
     memory = MemoryStore(db_path)
 
@@ -190,7 +191,7 @@ def _run_start(args: Any) -> None:
                     sys.exit(1)
 
         logger.info(
-            "Foreman initialised",
+            "Night Brownie initialized",
             config=args.config,
             db=str(db_path),
             repos=[f"{r.owner}/{r.name}" for r in config.repos],
@@ -202,7 +203,7 @@ def _run_start(args: Any) -> None:
 
 
 async def _run_loop(
-    config: ForemanConfig,
+    config: NightBrownieConfig,
     memory: MemoryStore,
     poller: GitHubPoller,
     dispatcher: Dispatcher,
@@ -220,11 +221,11 @@ async def _run_loop(
     Args:
         config: Validated runtime configuration.
         memory: Open memory store (passed through for context).
-        poller: Initialised :class:`~foreman.poller.GitHubPoller`.
-        dispatcher: Initialised :class:`~foreman.server.Dispatcher`.
+        poller: Initialized `night_brownie.poller.GitHubPoller`.
+        dispatcher: Initialized `night_brownie.server.Dispatcher`.
         host: Bind address for the HTTP server.
         port: Port for the HTTP server.
-        container_manager: Optional :class:`~foreman.containers.ContainerManager`
+        container_manager: Optional `night_brownie.containers.ContainerManager`
             to stop on shutdown.
         agent_urls: Mapping of agent type → base URL for pre-started containers.
             Each entry is registered with the router before polling begins.
@@ -239,7 +240,7 @@ async def _run_loop(
 
         Args:
             repo_config: The repo configuration that produced this event.
-            event: Event dict with ``repo``, ``issue_number``, and ``payload``.
+            event: Event dict with `repo`, `issue_number`, and `payload`.
         """
         repo = event["repo"]
         issue_number = event["issue_number"]
@@ -263,7 +264,7 @@ async def _run_loop(
     uv_server = uvicorn.Server(uvicorn.Config(app, host=host, port=port, log_config=None))
 
     logger.info(
-        "Foreman started — polling every %d seconds, server on %s:%d",
+        "Night Brownie started — polling every %d seconds, server on %s:%d",
         config.polling.interval_seconds,
         host,
         port,

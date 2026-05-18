@@ -10,28 +10,28 @@ from typing import TYPE_CHECKING, AsyncIterator
 
 import structlog
 from fastapi import BackgroundTasks, FastAPI
-from foremanclient import ForemanClient
+from night_brownie_client import NightBrownieClient
 from pydantic import BaseModel
 
 if TYPE_CHECKING:
-    from foremanclient.models import DecisionMessage, TaskMessage
+    from night_brownie_client.models import DecisionMessage, TaskMessage
 
 logger = structlog.get_logger(__name__)
 
 _HEARTBEAT_INTERVAL: float = 25.0
 
 
-def _get_client(application: FastAPI) -> ForemanClient:
-    """Return the ForemanClient for *application*, creating it from env vars if needed.
+def _get_client(application: FastAPI) -> NightBrownieClient:
+    """Return the NightBrownieClient for `application`, creating it from env vars if needed.
 
     Args:
         application: The FastAPI application whose state holds the client.
 
     Returns:
-        The :class:`~foremanclient.ForemanClient` instance for this agent.
+        The `night_brownie_client.NightBrownieClient` instance for this agent.
     """
     if not hasattr(application.state, "client"):
-        application.state.client = ForemanClient(
+        application.state.client = NightBrownieClient(
             harness_url=os.environ["FOREMAN_HARNESS_URL"],
             agent_url=os.environ["AGENT_URL"],
         )
@@ -39,28 +39,28 @@ def _get_client(application: FastAPI) -> ForemanClient:
 
 
 def triage(task: TaskMessage) -> DecisionMessage:
-    """Run triage logic on *task* and return a decision.
+    """Run triage logic on `task` and return a decision.
 
     Args:
         task: The incoming triage task from the harness.
 
     Returns:
-        A :class:`~foremanclient.models.DecisionMessage` with decision, rationale, and actions.
+        A `night_brownie_client.models.DecisionMessage` with decision, rationale, and actions.
     """
     from prompts.triage import run_triage
 
     return run_triage(task)
 
 
-async def _process_task(client: ForemanClient, task: TaskMessage) -> None:
-    """Call triage on *task* and report the completed decision to the harness.
+async def _process_task(client: NightBrownieClient, task: TaskMessage) -> None:
+    """Call triage on `task` and report the completed decision to the harness.
 
-    A daemon heartbeat thread fires every :data:`_HEARTBEAT_INTERVAL` seconds
-    while triage is running so the harness does not re-queue the task mid-flight.
+    A daemon heartbeat thread fires every `_HEARTBEAT_INTERVAL` seconds
+    while triage is running, so the harness does not re-queue the task mid-flight.
 
     Args:
-        client: The :class:`~foremanclient.ForemanClient` to use for completing the task.
-        task: The :class:`~foremanclient.models.TaskMessage` to process.
+        client: The `night_brownie_client.NightBrownieClient` to use for completing the task.
+        task: The `night_brownie_client.models.TaskMessage` to process.
     """
     stop_event = threading.Event()
 
@@ -77,11 +77,11 @@ async def _process_task(client: ForemanClient, task: TaskMessage) -> None:
         stop_event.set()
 
 
-async def _poll_and_process(client: ForemanClient) -> None:
+async def _poll_and_process(client: NightBrownieClient) -> None:
     """Claim the next pending task from the harness and process it if one exists.
 
     Args:
-        client: The :class:`~foremanclient.ForemanClient` used to claim tasks.
+        client: The `night_brownie_client.NightBrownieClient` used to claim tasks.
     """
     task = await asyncio.to_thread(client.next_task)
     if task is not None:
@@ -92,8 +92,8 @@ async def _poll_and_process(client: ForemanClient) -> None:
 async def _lifespan(application: FastAPI) -> AsyncIterator[None]:
     """FastAPI lifespan: drain all tasks queued while the agent was down.
 
-    Loops calling next_task() until the queue is empty so that accumulated
-    pending tasks are not left stuck after an unclean restart.
+    Loops calling `next_task()` until the queue is empty so that accumulated pending tasks are not left stuck
+    after an unclean restart.
 
     Args:
         application: The FastAPI application instance.
@@ -108,11 +108,11 @@ async def _lifespan(application: FastAPI) -> AsyncIterator[None]:
     client.close()
 
 
-app = FastAPI(title="foreman-issue-triage", version="0.1.0", lifespan=_lifespan)
+app = FastAPI(title="night-brownie-issue-triage", version="0.1.0", lifespan=_lifespan)
 
 
 class TaskNudge(BaseModel):
-    """Nudge payload sent by the harness when a new task is enqueued."""
+    """Nudge the payload sent by the harness when a new task is enqueued."""
 
     task_id: str
     """Identifier of the newly enqueued task."""
@@ -123,7 +123,7 @@ async def health() -> dict[str, str]:
     """Health check endpoint.
 
     Returns:
-        JSON body with ``{"status": "ok"}``.
+        JSON body with `{"status": "ok"}`.
     """
     return {"status": "ok"}
 
@@ -137,7 +137,7 @@ async def handle_task(nudge: TaskNudge, background_tasks: BackgroundTasks) -> di
         background_tasks: FastAPI background task queue.
 
     Returns:
-        JSON body with ``{"status": "accepted"}``.
+        JSON body with `{"status": "accepted"}`.
     """
     client = _get_client(app)
     background_tasks.add_task(_poll_and_process, client)

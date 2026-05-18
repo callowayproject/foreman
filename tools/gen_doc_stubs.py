@@ -4,7 +4,7 @@ from pathlib import Path
 from typing import Set
 
 root_dir = Path(__file__).parent.parent
-src_root = root_dir / "foreman"
+src_root = root_dir / "night_brownie"
 docs_root = root_dir / "docs"
 exclude: Set[str] = set()
 

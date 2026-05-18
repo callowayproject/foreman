@@ -7,13 +7,13 @@ from opentelemetry.sdk.resources import SERVICE_NAME, Resource
 from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import BatchSpanProcessor, ConsoleSpanExporter
 
-from foreman.settings import AppSettings
+from night_brownie.settings import AppSettings
 
 
 def configure_otel(app: FastAPI, settings: AppSettings) -> None:
     """Configure OpenTelemetry."""
     if settings.otel_debug and not settings.is_production:
-        resource = Resource.create(attributes={SERVICE_NAME: "foreman"})
+        resource = Resource.create(attributes={SERVICE_NAME: "night-brownie"})
 
         tracer_provider = TracerProvider(resource=resource)
         processor = BatchSpanProcessor(ConsoleSpanExporter())

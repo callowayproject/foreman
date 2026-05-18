@@ -1,4 +1,4 @@
-"""Anthropic LLM backend via LiteLLM."""
+"""Ollama LLM backend via LiteLLM."""
 
 from __future__ import annotations
 
@@ -6,25 +6,24 @@ from typing import TYPE_CHECKING
 
 import litellm
 
-from foreman.llm.base import LLMBackend
+from night_brownie.llm.base import LLMBackend
 
 if TYPE_CHECKING:
-    from foreman.config import LLMConfig
+    from night_brownie.config import LLMConfig
 
 
-class AnthropicBackend(LLMBackend):
-    """LLM backend that calls Anthropic models through LiteLLM.
+class OllamaBackend(LLMBackend):
+    """LLM backend that calls Ollama models through LiteLLM.
 
     Args:
-        config: The LLM configuration section from the Foreman runtime config.
+        config: The LLM configuration section from the Night Brownie runtime config.
     """
 
     def __init__(self, config: LLMConfig) -> None:
-        self._model = f"anthropic/{config.model}"
-        self._api_key = str(config.api_key) if config.api_key is not None else None
+        self._model = f"ollama/{config.model}"
 
     def complete(self, prompt: str, system: str | None = None) -> str:
-        """Send a prompt to an Anthropic model and return the text response.
+        """Send a prompt to an Ollama model and return the text response.
 
         Args:
             prompt: The user prompt to send to the model.
@@ -41,6 +40,5 @@ class AnthropicBackend(LLMBackend):
         response = litellm.completion(
             model=self._model,
             messages=messages,
-            api_key=self._api_key,
         )
         return response.choices[0].message.content

@@ -1,4 +1,4 @@
-"""Tests for foreman/protocol.py — TaskMessage, DecisionMessage, ActionItem."""
+"""Tests for night_brownie/protocol.py — TaskMessage, DecisionMessage, ActionItem."""
 
 from __future__ import annotations
 
@@ -7,7 +7,7 @@ import uuid
 import pytest
 from pydantic import ValidationError
 
-from foreman.protocol import ActionItem, DecisionMessage, DecisionType, LLMBackendRef, TaskContext, TaskMessage
+from night_brownie.protocol import ActionItem, DecisionMessage, DecisionType, LLMBackendRef, TaskContext, TaskMessage
 
 
 class TestActionItem:

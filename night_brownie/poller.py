@@ -19,8 +19,8 @@ if TYPE_CHECKING:
 
     from pydantic import SecretStr
 
-    from foreman.config import RepoConfig
-    from foreman.memory import MemoryStore
+    from night_brownie.config import RepoConfig
+    from night_brownie.memory import MemoryStore
 
 logger = structlog.get_logger(__name__)
 
@@ -34,13 +34,12 @@ _BACKOFF_BASE_SECONDS = 10.0
 class GitHubPoller:
     """Polls GitHub repositories for new/updated issues on a configured interval.
 
-    Repositories are polled concurrently using :mod:`asyncio`, limited by a
-    semaphore.  The last-polled timestamp for each repo is persisted so that
-    only issues updated after that timestamp are emitted on subsequent polls.
+    Repositories are polled concurrently using `asyncio`, limited by semaphore. The last-polled timestamp for each
+    repo is persisted so that only issues updated after that timestamp are emitted on subsequent polls.
 
     Args:
         token: GitHub Personal Access Token for the bot account.
-        memory: :class:`~foreman.memory.MemoryStore` used to persist poll state.
+        memory: `night_brownie.memory.MemoryStore` used to persist poll state.
         max_concurrent: Maximum number of repos polled simultaneously.
     """
 
@@ -65,12 +64,11 @@ class GitHubPoller:
             repo_config: Configuration for the repository to poll.
 
         Returns:
-            A list of event dicts, each with ``repo``, ``issue_number``, and
-                ``payload`` keys.
+            A list of event dicts, each with `repo`, `issue_number`, and `payload` keys.
 
         Raises:
-            GithubException: Propagated for all GitHub API errors; the caller
-                in :meth:`poll_all` handles rate-limit cases with backoff.
+            GithubException: Propagated for all GitHub API errors; the caller in `poll_all` handles
+                rate-limit cases with backoff.
         """
         repo_name = f"{repo_config.owner}/{repo_config.name}"
         last_polled = self._memory.get_last_polled(repo_name)
@@ -124,14 +122,13 @@ class GitHubPoller:
     ) -> None:
         """Poll all repositories concurrently, respecting the semaphore limit.
 
-        Each repo is polled in a thread via :func:`asyncio.to_thread` so
-        blocking PyGithub calls do not block the event loop.  On 403/429
-        errors, one retry is attempted after an exponential backoff delay.
-        Other :class:`~github.GithubException` errors are re-raised.
+        Each repo is polled in a thread via `asyncio.to_thread` so blocking PyGithub calls don't block the event loop.
+        On 403/429 errors, one retry is attempted after an exponential backoff delay.
+        Other `github.GithubException` errors are re-raised.
 
         Args:
             repos: List of repository configs to poll this cycle.
-            callback: Async callable invoked with ``(repo_config, event)`` for
+            callback: Async callable invoked with `(repo_config, event)` for
                 every emitted event.
         """
         semaphore = asyncio.Semaphore(self._max_concurrent)

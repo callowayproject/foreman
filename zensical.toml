@@ -11,7 +11,7 @@
 # The site_name is shown in the page header and the browser window title
 #
 # Read more: https://zensical.org/docs/setup/basics/#site_name
-site_name = "Foreman"
+site_name = "Night Brownie"
 
 # The site_description is included in the HTML head and should contain a
 # meaningful description of the site content for use by search engines.
@@ -27,7 +27,7 @@ site_author = "Corey Oordt"
 # The site_url is the canonical URL for your site. When building online
 # documentation you should set this.
 # Read more: https://zensical.org/docs/setup/basics/#site_url
-site_url = "https://callowayproject.github.io/foreman"
+site_url = "https://callowayproject.github.io/night-brownie"
 
 # The copyright notice appears in the page footer and can contain an HTML
 # fragment.
@@ -75,7 +75,7 @@ extra_css = [
     "assets/css/colors_and_type.css",
     "assets/css/header.css",
     "assets/css/content.css",
-    "assets/css/nav.css"
+#    "assets/css/nav.css"
 ]
 
 # With the `extra_javascript` option you can add your own JavaScript to your
@@ -84,9 +84,9 @@ extra_css = [
 # The path provided should be relative to the "docs_dir".
 #
 # Read more: https://zensical.org/docs/customization/#additional-javascript
-extra_javascript = ["assets/bundle.6e5f0216.min.js"]
+#extra_javascript = ["assets/bundle.6e5f0216.min.js"]
 
-repo_url = "https://github.com/callowayproject/foreman"
+repo_url = "https://github.com/callowayproject/night-brownie"
 
 # ----------------------------------------------------------------------------
 # Section for configuring theme options
@@ -275,7 +275,7 @@ features = [
 # option in the "theme" subsection. The logo must be a relative path to a file
 # in your "docs_dir", e.g., to use `docs/assets/logo.png` you would set:
 # ----------------------------------------------------------------------------
-logo = "assets/images/Foreman-logo.svg"
+logo = "assets/images/Night-Brownie-logo.svg"
 
 # ----------------------------------------------------------------------------
 # If you don't have a dedicated project logo, you can use a built-in icon from

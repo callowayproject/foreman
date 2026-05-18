@@ -1,11 +1,11 @@
-"""Tests for foreman/llm/base.py — LLMBackend ABC and factory."""
+"""Tests for night_brownie/llm/base.py — LLMBackend ABC and factory."""
 
 from __future__ import annotations
 
 import pytest
 
-from foreman.config import LLMConfig
-from foreman.llm.base import LLMBackend, from_config
+from night_brownie.config import LLMConfig
+from night_brownie.llm.base import LLMBackend, from_config
 
 
 class ConcreteBackend(LLMBackend):
@@ -47,7 +47,7 @@ class TestFromConfigFactory:
 
     def test_returns_anthropic_backend_for_anthropic_provider(self):
         """Ensure from_config returns an AnthropicBackend for 'anthropic' provider."""
-        from foreman.llm.anthropic import AnthropicBackend
+        from night_brownie.llm.anthropic import AnthropicBackend
 
         cfg = LLMConfig(provider="anthropic", model="claude-sonnet-4-6", api_key="test-key")
         backend = from_config(cfg)
@@ -55,7 +55,7 @@ class TestFromConfigFactory:
 
     def test_returns_ollama_backend_for_ollama_provider(self):
         """Ensure from_config returns an OllamaBackend for 'ollama' provider."""
-        from foreman.llm.ollama import OllamaBackend
+        from night_brownie.llm.ollama import OllamaBackend
 
         cfg = LLMConfig(provider="ollama", model="llama3")
         backend = from_config(cfg)

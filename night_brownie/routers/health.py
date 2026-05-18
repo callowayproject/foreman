@@ -1,4 +1,4 @@
-"""Health and readiness fastapi routers for the foreman app."""
+"""Health and readiness fastapi routers for the night-brownie app."""
 
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field

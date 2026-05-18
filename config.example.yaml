@@ -1,4 +1,4 @@
-# config.example.yaml — Foreman example configuration.
+# config.example.yaml — Night Brownie example configuration.
 # Copy this file to config.yaml and fill in the values.
 # All secrets must be provided as ${ENV_VAR} references — never hardcode them.
 
@@ -29,15 +29,15 @@ repos:
         allow_close: false           # set to true to allow the agent to close issues
         config:
           # --- Container lifecycle (recommended) ---
-          # Foreman pulls the image (if needed), starts the container, and
+          # Night Brownie pulls the image (if needed), starts the container, and
           # stops it on shutdown.  Both 'image' and 'port' are required for
           # this mode.
-          image: "foreman-issue-triage:latest"  # Docker image to run
+          image: "night-brownie-issue-triage:latest"  # Docker image to run
           port: 9001                            # host port to bind container port 8000 to
 
           # --- Pre-running agent (alternative) ---
           # If you manage the container yourself (or point at a remote agent),
-          # omit 'image'/'port' and supply 'url' instead.  Foreman will not
+          # omit 'image'/'port' and supply 'url' instead.  Night Brownie will not
           # start or stop the container.
           # url: "http://localhost:9001"
 

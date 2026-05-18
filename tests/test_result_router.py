@@ -1,14 +1,15 @@
-"""Tests for foreman/routers/result.py — POST /harness/result endpoint."""
+"""Tests for night_brownie/routers/result.py — POST /harness/result endpoint."""
 
 from __future__ import annotations
 
+from typing import Any, Generator
 from unittest.mock import MagicMock
 
 import pytest
 from fastapi.testclient import TestClient
 
-from foreman.routers.result import get_drain_event
-from foreman.server import app
+from night_brownie.routers.result import get_drain_event
+from night_brownie.server import app
 
 # ---------------------------------------------------------------------------
 # Fixtures
@@ -22,7 +23,7 @@ def mock_drain_event() -> MagicMock:
 
 
 @pytest.fixture()
-def client(mock_drain_event: MagicMock) -> TestClient:
+def client(mock_drain_event: MagicMock) -> Generator[TestClient, Any, None]:
     """Return a TestClient with drain_event dependency overridden."""
     app.dependency_overrides[get_drain_event] = lambda: mock_drain_event
     with TestClient(app) as c:
@@ -51,7 +52,7 @@ class TestHarnessResult:
         mock_drain_event.set.assert_called_once()
 
     def test_drain_event_none_does_not_raise(self) -> None:
-        """Endpoint returns 202 even when drain_event is not initialised (None)."""
+        """Endpoint returns 202 even when drain_event is not initialized (None)."""
         app.dependency_overrides[get_drain_event] = lambda: None
         try:
             with TestClient(app) as c:

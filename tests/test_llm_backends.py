@@ -9,9 +9,9 @@ import json
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
-from foreman.config import LLMConfig
-from foreman.llm.anthropic import AnthropicBackend
-from foreman.llm.ollama import OllamaBackend
+from night_brownie.config import LLMConfig
+from night_brownie.llm.anthropic import AnthropicBackend
+from night_brownie.llm.ollama import OllamaBackend
 
 FIXTURES_DIR = Path(__file__).parent / "fixtures"
 

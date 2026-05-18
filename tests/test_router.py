@@ -1,11 +1,11 @@
-"""Tests for foreman/routers/agent.py — Router."""
+"""Tests for night_brownie/routers/agent.py — Router."""
 
 from __future__ import annotations
 
 import pytest
 
-from foreman.config import AgentAssignment, ForemanConfig, IdentityConfig, LLMConfig, RepoConfig
-from foreman.routers.agent import RouteTarget, Router, RoutingError
+from night_brownie.config import AgentAssignment, IdentityConfig, LLMConfig, NightBrownieConfig, RepoConfig
+from night_brownie.routers.agent import Router, RoutingError
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -14,9 +14,9 @@ from foreman.routers.agent import RouteTarget, Router, RoutingError
 
 def _make_config(
     repos: list[RepoConfig] | None = None,
-) -> ForemanConfig:
-    """Build a minimal ForemanConfig with the given repos."""
-    return ForemanConfig(
+) -> NightBrownieConfig:
+    """Build a minimal NightBrownieConfig with the given repos."""
+    return NightBrownieConfig(
         identity=IdentityConfig(github_token="tok", github_user="bot"),
         llm=LLMConfig(provider="anthropic", model="claude-sonnet-4-6"),
         repos=repos or [],

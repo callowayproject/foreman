@@ -2,6 +2,8 @@
 title: Developer Guide
 summary: Development environment setup, testing, and tooling reference for contributors to Foreman.
 date: 2026-04-21T00:00:00.000000+00:00
+hide:
+  - navigation
 ---
 
 # Developer Guide

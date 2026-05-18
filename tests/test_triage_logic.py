@@ -6,18 +6,20 @@ import json
 import sys
 from pathlib import Path
 
-import pytest
-
-# Make the agent and foreman-client importable without installation.
-_CLIENT_DIR = Path(__file__).parent.parent / "foreman-client"
+# Make the agent and night-brownie-client importable without installation.
+_CLIENT_DIR = Path(__file__).parent.parent / "night-brownie-client"
 _AGENT_DIR = Path(__file__).parent.parent / "agents" / "issue-triage" / "issue_triage"
 for _dir in (_CLIENT_DIR, _AGENT_DIR):
     if str(_dir) not in sys.path:
         sys.path.insert(0, str(_dir))
 
-from foremanclient.models import ActionItem, DecisionMessage, LLMBackendRef, TaskContext, TaskMessage  # noqa: E402
+from night_brownie_client.models import (  # noqa: E402
+    DecisionMessage,
+    LLMBackendRef,
+    TaskContext,
+    TaskMessage,
+)
 from prompts.triage import build_prompt, parse_llm_response, run_triage  # noqa: E402
-
 
 # ---------------------------------------------------------------------------
 # Fixtures / helpers

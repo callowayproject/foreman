@@ -2,6 +2,8 @@
 title: How Foreman Works
 summary: Conceptual explanation of Foreman's security model, ownership boundaries, and design decisions.
 date: 2026-04-21T00:00:00.000000+00:00
+hide:
+  - navigation
 ---
 
 # How Foreman Works

@@ -3,12 +3,12 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "foreman-client"
+name = "night-brownie-client"
 version = "0.1.0"
-description = "HTTP client for the Foreman agent harness."
+description = "HTTP client for the Night Brownie agent harness."
 requires-python = ">=3.12"
 dependencies = [
-    "httpx>=0.28.1",
+    "httpxyz>=0.28.1",
     "pydantic>=2.0",
     "structlog>=25.5.0",
 ]
@@ -17,7 +17,7 @@ authors = [
 ]
 
 [tool.hatch.build.targets.wheel]
-packages = ["foremanclient"]
+packages = ["night_brownie_client"]
 
 [dependency-groups]
 test = [
@@ -35,7 +35,7 @@ default-groups = ["test"]
 [tool.coverage.run]
 branch = true
 omit = ["**/test_*.py"]
-source = ["foremanclient"]
+source = ["night_brownie_client"]
 
 [tool.coverage.report]
 show_missing = true
@@ -54,7 +54,7 @@ exclude_lines = [
 
 [tool.pytest.ini_options]
 addopts = [
-    "--cov=foremanclient",
+    "--cov=night_brownie_client",
     "--cov-branch",
     "--cov-report=term",
 ]

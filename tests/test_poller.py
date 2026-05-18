@@ -1,4 +1,4 @@
-"""Tests for foreman/poller.py — GitHubPoller."""
+"""Tests for night_brownie/poller.py — GitHubPoller."""
 
 from __future__ import annotations
 
@@ -9,9 +9,9 @@ from unittest.mock import AsyncMock, MagicMock
 import pytest
 from pydantic import SecretStr
 
-from foreman.config import RepoConfig
-from foreman.memory import MemoryStore
-from foreman.poller import GitHubPoller
+from night_brownie.config import RepoConfig
+from night_brownie.memory import MemoryStore
+from night_brownie.poller import GitHubPoller
 
 if TYPE_CHECKING:
     from collections.abc import Generator
@@ -70,7 +70,7 @@ class TestPollRepo:
 
     def test_returns_events_for_open_issues(self, memory: MemoryStore, mocker) -> None:
         """poll_repo returns one event dict per open issue found."""
-        mock_gh = mocker.patch("foreman.poller.Github")
+        mock_gh = mocker.patch("night_brownie.poller.Github")
         mock_repo = mocker.MagicMock()
         mock_gh.return_value.get_repo.return_value = mock_repo
         mock_repo.get_issues.return_value = [make_issue(1), make_issue(2)]
@@ -83,7 +83,7 @@ class TestPollRepo:
 
     def test_event_has_required_fields(self, memory: MemoryStore, mocker) -> None:
         """Each event dict contains 'repo', 'issue_number', and 'payload'."""
-        mock_gh = mocker.patch("foreman.poller.Github")
+        mock_gh = mocker.patch("night_brownie.poller.Github")
         mock_repo = mocker.MagicMock()
         mock_gh.return_value.get_repo.return_value = mock_repo
         mock_repo.get_issues.return_value = [make_issue(7)]
@@ -100,7 +100,7 @@ class TestPollRepo:
 
     def test_skips_issues_by_collaborators(self, memory: MemoryStore, mocker) -> None:
         """Issues authored by repo collaborators are not emitted."""
-        mock_gh = mocker.patch("foreman.poller.Github")
+        mock_gh = mocker.patch("night_brownie.poller.Github")
         mock_repo = mocker.MagicMock()
         mock_gh.return_value.get_repo.return_value = mock_repo
         mock_repo.get_issues.return_value = [
@@ -117,7 +117,7 @@ class TestPollRepo:
 
     def test_passes_since_to_get_issues_when_last_polled_set(self, memory: MemoryStore, mocker) -> None:
         """get_issues is called with 'since' when a last_polled timestamp exists."""
-        mock_gh = mocker.patch("foreman.poller.Github")
+        mock_gh = mocker.patch("night_brownie.poller.Github")
         mock_repo = mocker.MagicMock()
         mock_gh.return_value.get_repo.return_value = mock_repo
         mock_repo.get_issues.return_value = []
@@ -134,7 +134,7 @@ class TestPollRepo:
 
     def test_get_issues_called_without_since_on_first_poll(self, memory: MemoryStore, mocker) -> None:
         """On the first poll (no prior timestamp), get_issues is called without 'since'."""
-        mock_gh = mocker.patch("foreman.poller.Github")
+        mock_gh = mocker.patch("night_brownie.poller.Github")
         mock_repo = mocker.MagicMock()
         mock_gh.return_value.get_repo.return_value = mock_repo
         mock_repo.get_issues.return_value = []
@@ -148,7 +148,7 @@ class TestPollRepo:
 
     def test_updates_last_polled_after_successful_poll(self, memory: MemoryStore, mocker) -> None:
         """poll_repo persists the last_polled timestamp after a successful poll."""
-        mock_gh = mocker.patch("foreman.poller.Github")
+        mock_gh = mocker.patch("night_brownie.poller.Github")
         mock_repo = mocker.MagicMock()
         mock_gh.return_value.get_repo.return_value = mock_repo
         mock_repo.get_issues.return_value = []
@@ -163,7 +163,7 @@ class TestPollRepo:
 
     def test_last_polled_survives_new_instance(self, memory: MemoryStore, mocker) -> None:
         """last_polled timestamp written in one poller instance is visible in the next."""
-        mock_gh = mocker.patch("foreman.poller.Github")
+        mock_gh = mocker.patch("night_brownie.poller.Github")
         mock_repo = mocker.MagicMock()
         mock_gh.return_value.get_repo.return_value = mock_repo
         mock_repo.get_issues.return_value = []
@@ -183,7 +183,7 @@ class TestPollRepo:
 
     def test_payload_contains_issue_metadata(self, memory: MemoryStore, mocker) -> None:
         """The 'payload' field of each event includes issue number, title, body, and user."""
-        mock_gh = mocker.patch("foreman.poller.Github")
+        mock_gh = mocker.patch("night_brownie.poller.Github")
         mock_repo = mocker.MagicMock()
         mock_gh.return_value.get_repo.return_value = mock_repo
         mock_repo.get_issues.return_value = [make_issue(3, author_login="alice", title="A bug")]
@@ -209,7 +209,7 @@ class TestPollAll:
     @pytest.mark.asyncio
     async def test_poll_all_calls_poll_repo_for_each_repo(self, memory: MemoryStore, mocker) -> None:
         """poll_all calls poll_repo once for every RepoConfig in the list."""
-        mocker.patch("foreman.poller.Github")
+        mocker.patch("night_brownie.poller.Github")
         mock_poll = mocker.patch.object(GitHubPoller, "poll_repo", return_value=[])
 
         poller = GitHubPoller(token=SecretStr("test-token"), memory=memory)
@@ -225,7 +225,7 @@ class TestPollAll:
     @pytest.mark.asyncio
     async def test_poll_all_invokes_callback_for_each_event(self, memory: MemoryStore, mocker) -> None:
         """poll_all calls the callback for every event returned by poll_repo."""
-        mocker.patch("foreman.poller.Github")
+        mocker.patch("night_brownie.poller.Github")
         events_map = {
             "org/repo1": [{"repo": "org/repo1", "issue_number": 1, "payload": {}}],
             "org/repo2": [{"repo": "org/repo2", "issue_number": 2, "payload": {}}],
@@ -250,7 +250,7 @@ class TestPollAll:
     @pytest.mark.asyncio
     async def test_poll_all_with_empty_repo_list(self, memory: MemoryStore, mocker) -> None:
         """poll_all completes without error when given an empty repo list."""
-        mocker.patch("foreman.poller.Github")
+        mocker.patch("night_brownie.poller.Github")
         poller = GitHubPoller(token=SecretStr("test-token"), memory=memory)
         await poller.poll_all([], AsyncMock())  # must not raise
 
@@ -268,8 +268,8 @@ class TestExponentialBackoff:
         """poll_all retries the repo after a 429 rate-limit response."""
         from github import GithubException
 
-        mocker.patch("foreman.poller.Github")
-        sleep_mock = mocker.patch("foreman.poller.asyncio.sleep", new_callable=AsyncMock)
+        mocker.patch("night_brownie.poller.Github")
+        sleep_mock = mocker.patch("night_brownie.poller.asyncio.sleep", new_callable=AsyncMock)
 
         call_count = 0
 
@@ -293,8 +293,8 @@ class TestExponentialBackoff:
         """poll_all retries the repo after a 403 forbidden response."""
         from github import GithubException
 
-        mocker.patch("foreman.poller.Github")
-        mocker.patch("foreman.poller.asyncio.sleep", new_callable=AsyncMock)
+        mocker.patch("night_brownie.poller.Github")
+        mocker.patch("night_brownie.poller.asyncio.sleep", new_callable=AsyncMock)
 
         call_count = 0
 
@@ -317,8 +317,8 @@ class TestExponentialBackoff:
         """poll_all skips a repo if it fails repeatedly, without crashing."""
         from github import GithubException
 
-        mocker.patch("foreman.poller.Github")
-        mocker.patch("foreman.poller.asyncio.sleep", new_callable=AsyncMock)
+        mocker.patch("night_brownie.poller.Github")
+        mocker.patch("night_brownie.poller.asyncio.sleep", new_callable=AsyncMock)
 
         mocker.patch.object(
             GitHubPoller,
@@ -337,8 +337,8 @@ class TestExponentialBackoff:
         """GithubExceptions other than 403/429 are logged as errors and the repo is skipped."""
         from github import GithubException
 
-        mocker.patch("foreman.poller.Github")
-        mock_logger = mocker.patch("foreman.poller.logger")
+        mocker.patch("night_brownie.poller.Github")
+        mock_logger = mocker.patch("night_brownie.poller.logger")
 
         mocker.patch.object(
             GitHubPoller,
@@ -357,8 +357,8 @@ class TestExponentialBackoff:
         """A 401 BadCredentials error is logged at critical level and the repo is skipped."""
         from github import GithubException
 
-        mocker.patch("foreman.poller.Github")
-        mock_logger = mocker.patch("foreman.poller.logger")
+        mocker.patch("night_brownie.poller.Github")
+        mock_logger = mocker.patch("night_brownie.poller.logger")
 
         mocker.patch.object(
             GitHubPoller,
@@ -383,13 +383,13 @@ class TestSemaphore:
 
     def test_default_max_concurrent_is_five(self, memory: MemoryStore, mocker) -> None:
         """GitHubPoller defaults to max_concurrent=5."""
-        mocker.patch("foreman.poller.Github")
+        mocker.patch("night_brownie.poller.Github")
         poller = GitHubPoller(token=SecretStr("test-token"), memory=memory)
         assert poller._max_concurrent == 5
 
     def test_custom_max_concurrent_is_stored(self, memory: MemoryStore, mocker) -> None:
         """max_concurrent passed to __init__ is stored on the instance."""
-        mocker.patch("foreman.poller.Github")
+        mocker.patch("night_brownie.poller.Github")
         poller = GitHubPoller(token=SecretStr("test-token"), memory=memory, max_concurrent=2)
         assert poller._max_concurrent == 2
 

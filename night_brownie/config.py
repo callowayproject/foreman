@@ -1,4 +1,4 @@
-"""YAML config loader and Pydantic validation for Foreman.
+"""YAML config loader and Pydantic validation for Night Brownie.
 
 All secrets are ${VAR} environment variable references — the config file
 itself never contains raw secret values.
@@ -27,10 +27,10 @@ class ConfigError(Exception):
 
 
 def _resolve_env_refs(value: str) -> str:
-    """Substitute all ``${VAR}`` patterns with their environment values.
+    """Substitute all `${VAR}` patterns with their environment values.
 
     Args:
-        value: A string that may contain one or more ``${VAR}`` references.
+        value: A string that may contain one or more `${VAR}` references.
 
     Returns:
         The string with all references substituted.
@@ -50,13 +50,13 @@ def _resolve_env_refs(value: str) -> str:
 
 
 def _resolve_refs_in(obj: Any) -> Any:
-    """Recursively resolve ``${VAR}`` references in dicts, lists, and strings.
+    """Recursively resolve `${VAR}` references in dicts, lists, and strings.
 
     Args:
         obj: A nested structure (dict, list, str, or other).
 
     Returns:
-        The same structure with all string ``${VAR}`` references substituted.
+        The same structure with all string `${VAR}` references substituted.
     """
     if isinstance(obj, str):
         return _resolve_env_refs(obj)
@@ -86,7 +86,7 @@ class LLMConfig(BaseModel):
     """LLM backend configuration."""
 
     provider: str
-    """LLM provider identifier (e.g. ``anthropic``, ``ollama``)."""
+    """LLM provider identifier (e.g. `anthropic`, `ollama`)."""
 
     model: str
     """Model name / identifier."""
@@ -106,7 +106,7 @@ class QueueConfig(BaseModel):
     """Task queue configuration."""
 
     db_path: Optional[Path] = None
-    """Path to the SQLite queue database; defaults to ``~/.agent-harness/queue.db`` at runtime."""
+    """Path to the SQLite queue database; defaults to `~/.night-brownie/queue.db` at runtime."""
 
     claim_timeout_seconds: int = 300
     """Seconds before an uncompleted claimed task is re-enqueued."""
@@ -125,7 +125,7 @@ class AgentAssignment(BaseModel):
     """A single agent assigned to a repository."""
 
     type: str
-    """Agent type identifier (e.g. ``issue-triage``)."""
+    """Agent type identifier (e.g. `issue-triage`)."""
 
     config: dict[str, Any] = {}
     """Agent-specific configuration options."""
@@ -147,8 +147,8 @@ class RepoConfig(BaseModel):
     """Agents assigned to this repository."""
 
 
-class ForemanConfig(BaseModel):
-    """Top-level Foreman runtime configuration."""
+class NightBrownieConfig(BaseModel):
+    """Top-level Night Brownie runtime configuration."""
 
     identity: IdentityConfig
     """Bot GitHub identity."""
@@ -179,11 +179,11 @@ class ForemanConfig(BaseModel):
 # ---------------------------------------------------------------------------
 
 
-def load_config(path: Path | str) -> ForemanConfig:
-    """Load and validate a Foreman YAML configuration file.
+def load_config(path: Path | str) -> NightBrownieConfig:
+    """Load and validate a Night Brownie YAML configuration file.
 
-    Resolves ``${VAR}`` environment variable references before validation.
-    Fails fast with a :class:`ConfigError` if the file is missing, the YAML
+    Resolves `${VAR}` environment variable references before validation.
+    Fails fast with a `ConfigError` if the file is missing, the YAML
     is malformed, a required field is absent, or a referenced environment
     variable is not set.
 
@@ -191,7 +191,7 @@ def load_config(path: Path | str) -> ForemanConfig:
         path: Path to the YAML configuration file.
 
     Returns:
-        A validated :class:`ForemanConfig` instance.
+        A validated `NightBrownieConfig` instance.
 
     Raises:
         ConfigError: If anything goes wrong during loading or validation.
@@ -217,7 +217,7 @@ def load_config(path: Path | str) -> ForemanConfig:
     from pydantic import ValidationError
 
     try:
-        return ForemanConfig.model_validate(resolved)
+        return NightBrownieConfig.model_validate(resolved)
     except ValidationError as exc:
         # Surface the first missing/invalid field name clearly.
         first = exc.errors()[0]

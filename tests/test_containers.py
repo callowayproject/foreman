@@ -1,4 +1,4 @@
-"""Tests for foreman.containers — Docker container lifecycle manager."""
+"""Tests for night_brownie.containers — Docker container lifecycle manager."""
 
 from __future__ import annotations
 
@@ -6,8 +6,7 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from foreman.containers import ContainerError, ContainerManager
-
+from night_brownie.containers import ContainerError, ContainerManager
 
 # ---------------------------------------------------------------------------
 # Helpers / fixtures
@@ -45,8 +44,8 @@ class TestContainerManagerInit:
         with pytest.raises(ContainerError, match="Docker"):
             ContainerManager()
 
-    def test_initialises_when_docker_available(self, mocker):
-        """ContainerManager initialises without error when Docker is reachable."""
+    def test_initializes_when_docker_available(self, mocker):
+        """ContainerManager initializes without error when Docker is reachable."""
         client = MagicMock()
         mocker.patch("docker.from_env", return_value=client)
         mgr = ContainerManager()
@@ -77,9 +76,9 @@ class TestStartAgentImageHandling:
         mgr = ContainerManager()
         mocker.patch.object(mgr, "_wait_for_health", return_value=None)
 
-        mgr.start_agent("issue-triage", image="foreman-issue-triage:latest", port=9001)
+        mgr.start_agent("issue-triage", image="night-brownie-issue-triage:latest", port=9001)
 
-        client.images.pull.assert_called_once_with("foreman-issue-triage:latest")
+        client.images.pull.assert_called_once_with("night-brownie-issue-triage:latest")
 
     def test_skips_pull_when_image_present(self, mocker):
         """Image pull is skipped when the image exists locally."""
@@ -93,7 +92,7 @@ class TestStartAgentImageHandling:
         mgr = ContainerManager()
         mocker.patch.object(mgr, "_wait_for_health", return_value=None)
 
-        mgr.start_agent("issue-triage", image="foreman-issue-triage:latest", port=9001)
+        mgr.start_agent("issue-triage", image="night-brownie-issue-triage:latest", port=9001)
 
         client.images.pull.assert_not_called()
 
@@ -117,7 +116,7 @@ class TestStartAgentContainer:
         mgr = ContainerManager()
         mocker.patch.object(mgr, "_wait_for_health", return_value=None)
 
-        url = mgr.start_agent("issue-triage", image="foreman-issue-triage:latest", port=9001)
+        url = mgr.start_agent("issue-triage", image="night-brownie-issue-triage:latest", port=9001)
 
         assert url == "http://localhost:9001"
 
@@ -132,7 +131,7 @@ class TestStartAgentContainer:
         mgr = ContainerManager()
         mocker.patch.object(mgr, "_wait_for_health", return_value=None)
 
-        mgr.start_agent("issue-triage", image="foreman-issue-triage:latest", port=9001)
+        mgr.start_agent("issue-triage", image="night-brownie-issue-triage:latest", port=9001)
 
         assert "issue-triage" in mgr._containers
 
@@ -147,7 +146,7 @@ class TestStartAgentContainer:
         mgr = ContainerManager()
         wait_mock = mocker.patch.object(mgr, "_wait_for_health")
 
-        mgr.start_agent("issue-triage", image="foreman-issue-triage:latest", port=9001)
+        mgr.start_agent("issue-triage", image="night-brownie-issue-triage:latest", port=9001)
 
         wait_mock.assert_called_once_with("http://localhost:9001")
 
@@ -170,7 +169,7 @@ class TestStopAll:
 
         mgr = ContainerManager()
         mocker.patch.object(mgr, "_wait_for_health", return_value=None)
-        mgr.start_agent("issue-triage", image="foreman-issue-triage:latest", port=9001)
+        mgr.start_agent("issue-triage", image="night-brownie-issue-triage:latest", port=9001)
 
         mgr.stop_all()
 
@@ -186,7 +185,7 @@ class TestStopAll:
 
         mgr = ContainerManager()
         mocker.patch.object(mgr, "_wait_for_health", return_value=None)
-        mgr.start_agent("issue-triage", image="foreman-issue-triage:latest", port=9001)
+        mgr.start_agent("issue-triage", image="night-brownie-issue-triage:latest", port=9001)
 
         mgr.stop_all()
         mgr.stop_all()  # should not raise
@@ -201,7 +200,7 @@ class TestStopAll:
 
         mgr = ContainerManager()
         mocker.patch.object(mgr, "_wait_for_health", return_value=None)
-        mgr.start_agent("issue-triage", image="foreman-issue-triage:latest", port=9001)
+        mgr.start_agent("issue-triage", image="night-brownie-issue-triage:latest", port=9001)
 
         mgr.stop_all()
 
@@ -260,11 +259,11 @@ class TestContainerRestartOnExit:
 
         mgr = ContainerManager()
         mocker.patch.object(mgr, "_wait_for_health", return_value=None)
-        mgr.start_agent("issue-triage", image="foreman-issue-triage:latest", port=9001)
+        mgr.start_agent("issue-triage", image="night-brownie-issue-triage:latest", port=9001)
 
-        mock_logger = mocker.patch("foreman.containers.logger")
+        mock_logger = mocker.patch("night_brownie.containers.logger")
 
-        mgr.handle_container_exit("issue-triage", image="foreman-issue-triage:latest", port=9001)
+        mgr.handle_container_exit("issue-triage", image="night-brownie-issue-triage:latest", port=9001)
 
         mock_logger.error.assert_called_once()
         # Restart means containers.run was called again (second call)
@@ -280,14 +279,14 @@ class TestContainerRestartOnExit:
 
         mgr = ContainerManager()
         mocker.patch.object(mgr, "_wait_for_health", return_value=None)
-        mgr.start_agent("issue-triage", image="foreman-issue-triage:latest", port=9001)
+        mgr.start_agent("issue-triage", image="night-brownie-issue-triage:latest", port=9001)
 
-        mocker.patch("foreman.containers.logger")
+        mocker.patch("night_brownie.containers.logger")
 
         # First exit → restart
-        mgr.handle_container_exit("issue-triage", image="foreman-issue-triage:latest", port=9001)
+        mgr.handle_container_exit("issue-triage", image="night-brownie-issue-triage:latest", port=9001)
         # Second exit → mark failed, no further restart
-        mgr.handle_container_exit("issue-triage", image="foreman-issue-triage:latest", port=9001)
+        mgr.handle_container_exit("issue-triage", image="night-brownie-issue-triage:latest", port=9001)
 
         assert client.containers.run.call_count == 2  # no third start
         assert mgr._failed == {"issue-triage"}

@@ -1,10 +1,10 @@
-"""Tests for the foreman.middleware module."""
+"""Tests for the night_brownie.middleware module."""
 
 from unittest.mock import AsyncMock, patch
 
 import pytest
 
-from foreman.middleware import LogCorrelationIdMiddleware
+from night_brownie.middleware import LogCorrelationIdMiddleware
 
 
 @pytest.fixture
@@ -23,8 +23,8 @@ class TestLogCorrelationIdMiddleware:
     """Tests for the LogCorrelationId Middleware."""
 
     @pytest.mark.asyncio
-    @patch("foreman.middleware.structlog.contextvars.bind_contextvars")
-    @patch("foreman.middleware.generate_correlation_id")
+    @patch("night_brownie.middleware.structlog.contextvars.bind_contextvars")
+    @patch("night_brownie.middleware.generate_correlation_id")
     async def test_correlation_id_bound_to_contextvars(
         self, mock_generate_correlation_id, mock_bind_cxtvars, middleware, mock_asgi_app
     ):
@@ -62,7 +62,7 @@ class TestLogCorrelationIdMiddleware:
         mock_asgi_app.assert_awaited_once_with(scope, receive, send)
 
     @pytest.mark.asyncio
-    @patch("foreman.middleware.structlog.contextvars.unbind_contextvars")
+    @patch("night_brownie.middleware.structlog.contextvars.unbind_contextvars")
     async def test_contextvars_unbind_after_request(self, mock_unbind_contextvars, middleware, mock_asgi_app):
         """The contextvars are unbound after the request is made."""
         # Assemble

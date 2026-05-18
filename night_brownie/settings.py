@@ -1,21 +1,21 @@
-"""Configuration for Foreman."""
+"""Configuration for Night Brownie."""
 
 from typing import Optional
 
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-from foreman import __version__
+from night_brownie import __version__
 
 PROD_ENV_NAME = "prod"
 
 
 class AppSettings(BaseSettings):
     """
-    Configuration storage for Foreman.
+    Configuration storage for Night Brownie.
     """
 
-    name: str = f"Foreman ({__version__})"
+    name: str = f"Night Brownie ({__version__})"
     """Name and version of the application."""
 
     environment: str = "dev"

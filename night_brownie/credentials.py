@@ -1,7 +1,7 @@
 """Credential injection and environment variable resolution.
 
 Secrets are stored exclusively in environment variables and resolved at
-runtime via ``${VAR}`` references.  No credential value is ever written to
+runtime via `${VAR}` references.  No credential value is ever written to
 logs or exposed in exception messages beyond the variable name.
 """
 
@@ -18,10 +18,10 @@ class CredentialError(Exception):
 
 
 def resolve_env_refs(value: str) -> str:
-    """Substitute all ``${VAR}`` patterns with their environment variable values.
+    """Substitute all `${VAR}` patterns with their environment variable values.
 
     Args:
-        value: A string potentially containing ``${VAR}`` references.
+        value: A string potentially containing `${VAR}` references.
 
     Returns:
         The string with every reference replaced by the corresponding
@@ -47,10 +47,10 @@ def get_github_token() -> str:
     """Return the GitHub Personal Access Token from the environment.
 
     Returns:
-        The value of the ``GITHUB_TOKEN`` environment variable.
+        The value of the `GITHUB_TOKEN` environment variable.
 
     Raises:
-        CredentialError: If ``GITHUB_TOKEN`` is not set in the environment.
+        CredentialError: If `GITHUB_TOKEN` is not set in the environment.
     """
     token = os.environ.get("GITHUB_TOKEN")
     if token is None:
